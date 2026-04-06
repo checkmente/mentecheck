@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MenteCheck — Leads</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .lead-nombre { font-weight: 600; font-size: 14px; }
+    .lead-email  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .btn-wa {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      background: rgba(37,211,102,.12);
+      border: 1px solid rgba(37,211,102,.25);
+      border-radius: 20px;
+      color: #4ade80;
+      font-size: 11px;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .btn-wa:hover { background: rgba(37,211,102,.22); }
+
+    .status-select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 12px;
+      padding: 5px 8px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Modal detalle */
+    .detail-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      font-size: 13px;
+    }
+    .detail-label {
+      width: 120px;
+      flex-shrink: 0;
+      color: var(--muted);
+      font-size: 12px;
+      padding-top: 1px;
+    }
+    .detail-value { color: var(--text); font-weight: 500; }
+
+    .respuesta-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    .respuesta-pregunta { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .respuesta-valor    { font-size: 13px; font-weight: 500; }
+
+    .notas-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 12px;
+      resize: vertical;
+      min-height: 80px;
+      outline: none;
+    }
+    .notas-input:focus { border-color: var(--violet); }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+    .page-btn {
+      width: 34px; height: 34px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-2);
+      font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .page-btn:hover, .page-btn.active {
+      background: var(--violet-glow);
+      color: #fff;
+      border-color: var(--violet);
+    }
+    .page-info { font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🧠</div>
+      <div class="logo-name">Mente<span>Check</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Principal</div>
+      <a href="dashboard.html" class="nav-item">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="leads.html" class="nav-item active">
+        <span class="nav-icon">👥</span> Leads
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Gestión</div>
+      <a href="psicologos.html" class="nav-item">
+        <span class="nav-icon">🧑‍⚕️</span> Psicólogos
+      </a>
+      <a href="tests.html" class="nav-item">
+        <span class="nav-icon">🧪</span> Tests
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Sistema</div>
+      <a href="config.html" class="nav-item">
+        <span class="nav-icon">⚙️</span> Configuración
+      </a>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="logout()">
+        <span>🚪</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Leads
+        <span class="page-sub" id="totalLabel">Cargando...</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm" onclick="exportarCSV()">⬇️ Exportar CSV</button>
+        <div class="admin-pill">
+          <div class="admin-avatar">A</div>
+          <span id="adminName">admin</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- FILTROS -->
+      <div class="filter-bar">
+        <div class="filter-input-icon">
+          <span class="icon">🔍</span>
+          <input type="text" class="filter-input" id="filtroNombre" placeholder="Buscar por nombre o email..." oninput="aplicarFiltros()">
+        </div>
+        <select class="filter-select" id="filtroTest" onchange="aplicarFiltros()">
+          <option value="">Todos los tests</option>
+          <option value="ansiedad">Ansiedad</option>
+          <option value="depresion">Depresión</option>
+          <option value="autoestima">Autoestima</option>
+          <option value="burnout">Burnout</option>
+          <option value="ansiedad-social">Ansiedad social</option>
+          <option value="relacion-toxica">Relación tóxica</option>
+          <option value="dependencia-emocional">Dependencia emocional</option>
+          <option value="ex-pareja">Ex pareja</option>
+          <option value="inteligencia-emocional">Inteligencia emocional</option>
+          <option value="personalidad">Personalidad</option>
+        </select>
+        <select class="filter-select" id="filtroNivel" onchange="aplicarFiltros()">
+          <option value="">Todos los niveles</option>
+          <option value="bajo">Bajo</option>
+          <option value="moderado">Moderado</option>
+          <option value="alto">Alto</option>
+        </select>
+        <select class="filter-select" id="filtroEstado" onchange="aplicarFiltros()">
+          <option value="">Todos los estados</option>
+          <option value="nuevo">Nuevo</option>
+          <option value="contactado">Contactado</option>
+          <option value="agendado">Agendado</option>
+          <option value="atendido">Atendido</option>
+          <option value="cerrado">Cerrado</option>
+          <option value="frio">Frío</option>
+        </select>
+        <select class="filter-select" id="filtroFuente" onchange="aplicarFiltros()">
+          <option value="">Todas las fuentes</option>
+          <option value="tiktok">TikTok</option>
+          <option value="facebook">Facebook</option>
+          <option value="instagram">Instagram</option>
+          <option value="google">Google</option>
+          <option value="directo">Directo</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="limpiarFiltros()">✕ Limpiar</button>
+      </div>
+
+      <!-- TABLA -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Persona</th>
+              <th>WhatsApp</th>
+              <th>Test</th>
+              <th>Nivel</th>
+              <th>Fuente</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaLeads">
+            <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Cargando leads...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" id="paginacion"></div>
+
+    </div>
+  </main>
+
+  <!-- MODAL DETALLE -->
+  <div class="modal-overlay" id="modalDetalle">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modalNombre">Detalle del lead</span>
+        <button class="btn-close-modal" onclick="cerrarModal()">✕</button>
+      </div>
+      <div id="modalContenido"></div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, orderBy, query }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey:            "TU_API_KEY",
+      authDomain:        "mentecheck.firebaseapp.com",
+      projectId:         "mentecheck",
+      storageBucket:     "mentecheck.appspot.com",
+      messagingSenderId: "TU_SENDER_ID",
+      appId:             "TU_APP_ID"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    let todosLeads    = [];
+    let leadsFiltrados = [];
+    let paginaActual  = 1;
+    const POR_PAGINA  = 20;
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = "index.html"; return; }
+      const el = document.getElementById("adminName");
+      if (el) el.textContent = user.email.split("@")[0];
+      await cargarLeads();
+    });
+
+    window.logout = async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    };
+
+    async function cargarLeads() {
+      const snap = await getDocs(query(collection(db, "leads"), orderBy("fecha", "desc")));
+      todosLeads = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      leadsFiltrados = [...todosLeads];
+      renderTabla();
+    }
+
+    window.aplicarFiltros = () => {
+      const nombre  = document.getElementById("filtroNombre").value.toLowerCase();
+      const test    = document.getElementById("filtroTest").value;
+      const nivel   = document.getElementById("filtroNivel").value;
+      const estado  = document.getElementById("filtroEstado").value;
+      const fuente  = document.getElementById("filtroFuente").value;
+
+      leadsFiltrados = todosLeads.filter(l => {
+        const matchNombre = !nombre || (l.nombre||"").toLowerCase().includes(nombre) || (l.email||"").toLowerCase().includes(nombre);
+        const matchTest   = !test   || l.test   === test;
+        const matchNivel  = !nivel  || l.nivel  === nivel;
+        const matchEstado = !estado || l.estado === estado;
+        const matchFuente = !fuente || l.fuente === fuente;
+        return matchNombre && matchTest && matchNivel && matchEstado && matchFuente;
+      });
+      paginaActual = 1;
+      renderTabla();
+    };
+
+    window.limpiarFiltros = () => {
+      ["filtroNombre","filtroTest","filtroNivel","filtroEstado","filtroFuente"]
+        .forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+      window.aplicarFiltros();
+    };
+
+    function renderTabla() {
+      const total = leadsFiltrados.length;
+      document.getElementById("totalLabel").textContent = `${total} lead${total!==1?"s":""} encontrado${total!==1?"s":""}`;
+
+      const inicio = (paginaActual - 1) * POR_PAGINA;
+      const pagina = leadsFiltrados.slice(inicio, inicio + POR_PAGINA);
+      const tbody  = document.getElementById("tablaLeads");
+
+      if (!pagina.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:50px;color:var(--muted)">
+          <div style="font-size:32px;margin-bottom:12px">👥</div>No hay leads con esos filtros.</td></tr>`;
+        document.getElementById("paginacion").innerHTML = "";
+        return;
+      }
+
+      tbody.innerHTML = pagina.map(l => {
+        const fecha = l.fecha?.toDate ? l.fecha.toDate() : new Date(l.fecha||0);
+        const wa    = (l.whatsapp||"").replace(/\D/g,"");
+        return `
+          <tr>
+            <td>
+              <div class="lead-nombre">${l.nombre || "—"}</div>
+              <div class="lead-email">${l.email || "—"}</div>
+            </td>
+            <td>
+              ${wa ? `<a class="btn-wa" href="https://wa.me/52${wa}" target="_blank">💬 ${l.whatsapp}</a>` : "—"}
+            </td>
+            <td style="color:var(--text-2);font-size:13px">${l.test || "—"}</td>
+            <td>${badgeNivel(l.nivel)}</td>
+            <td style="font-size:12px;color:var(--muted)">${fuenteIcon(l.fuente)} ${l.fuente || "—"}</td>
+            <td style="font-size:12px;color:var(--muted);white-space:nowrap">${formatFecha(fecha)}</td>
+            <td>
+              <select class="status-select" onchange="cambiarEstado('${l.id}', this.value)">
+                ${["nuevo","contactado","agendado","atendido","cerrado","frio"]
+                  .map(s => `<option value="${s}" ${l.estado===s?"selected":""}>${capitalize(s)}</option>`)
+                  .join("")}
+              </select>
+            </td>
+            <td>
+              <button class="btn btn-ghost btn-sm btn-icon" onclick="verDetalle('${l.id}')" title="Ver detalle">👁️</button>
+            </td>
+          </tr>`;
+      }).join("");
+
+      renderPaginacion(total);
+    }
+
+    function renderPaginacion(total) {
+      const totalPags = Math.ceil(total / POR_PAGINA);
+      if (totalPags <= 1) { document.getElementById("paginacion").innerHTML = ""; return; }
+
+      let html = `<button class="page-btn" onclick="irPagina(${paginaActual-1})" ${paginaActual===1?"disabled":""}>‹</button>`;
+      for (let i = 1; i <= totalPags; i++) {
+        if (i === 1 || i === totalPags || Math.abs(i - paginaActual) <= 1) {
+          html += `<button class="page-btn ${i===paginaActual?"active":""}" onclick="irPagina(${i})">${i}</button>`;
+        } else if (Math.abs(i - paginaActual) === 2) {
+          html += `<span class="page-info">…</span>`;
+        }
+      }
+      html += `<button class="page-btn" onclick="irPagina(${paginaActual+1})" ${paginaActual===totalPags?"disabled":""}>›</button>`;
+      html += `<span class="page-info">${total} leads</span>`;
+      document.getElementById("paginacion").innerHTML = html;
+    }
+
+    window.irPagina = (p) => {
+      const max = Math.ceil(leadsFiltrados.length / POR_PAGINA);
+      if (p < 1 || p > max) return;
+      paginaActual = p;
+      renderTabla();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    window.cambiarEstado = async (id, nuevoEstado) => {
+      await updateDoc(doc(db, "leads", id), { estado: nuevoEstado });
+      const lead = todosLeads.find(l => l.id === id);
+      if (lead) lead.estado = nuevoEstado;
+    };
+
+    window.verDetalle = (id) => {
+      const l = todosLeads.find(x => x.id === id);
+      if (!l) return;
+
+      const fecha = l.fecha?.toDate ? l.fecha.toDate() : new Date(l.fecha||0);
+      document.getElementById("modalNombre").textContent = l.nombre || "Lead sin nombre";
+
+      const respuestasHTML = Array.isArray(l.respuestas)
+        ? l.respuestas.map((r, i) => `
+            <div class="respuesta-item">
+              <div class="respuesta-pregunta">Pregunta ${i+1}: ${r.pregunta || ""}</div>
+              <div class="respuesta-valor">${r.respuesta || r}</div>
+            </div>`).join("")
+        : "<p style='color:var(--muted);font-size:13px'>Sin respuestas registradas.</p>";
+
+      document.getElementById("modalContenido").innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
+          <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${l.email||"—"}</span></div>
+          <div class="detail-row"><span class="detail-label">WhatsApp</span><span class="detail-value">${l.whatsapp||"—"}</span></div>
+          <div class="detail-row"><span class="detail-label">Test</span><span class="detail-value">${l.test||"—"}</span></div>
+          <div class="detail-row"><span class="detail-label">Nivel</span>${badgeNivel(l.nivel)}</div>
+          <div class="detail-row"><span class="detail-label">Puntuación</span><span class="detail-value">${l.puntuacion??'—'}</span></div>
+          <div class="detail-row"><span class="detail-label">Fuente</span><span class="detail-value">${l.fuente||"—"}</span></div>
+          <div class="detail-row"><span class="detail-label">Fecha</span><span class="detail-value">${formatFecha(fecha)}</span></div>
+          <div class="detail-row"><span class="detail-label">Estado</span><span class="detail-value">${capitalize(l.estado||"—")}</span></div>
+        </div>
+
+        <div style="margin-bottom:16px">
+          <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Respuestas del test</div>
+          ${respuestasHTML}
+        </div>
+
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Notas internas</div>
+          <textarea class="notas-input" id="notasLead" placeholder="Agrega notas sobre este lead...">${l.notas||""}</textarea>
+          <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="guardarNotas('${l.id}')">Guardar notas</button>
+        </div>`;
+
+      document.getElementById("modalDetalle").classList.add("show");
+    };
+
+    window.guardarNotas = async (id) => {
+      const notas = document.getElementById("notasLead").value;
+      await updateDoc(doc(db, "leads", id), { notas });
+      const lead = todosLeads.find(l => l.id === id);
+      if (lead) lead.notas = notas;
+    };
+
+    window.cerrarModal = () => {
+      document.getElementById("modalDetalle").classList.remove("show");
+    };
+    document.getElementById("modalDetalle").addEventListener("click", e => {
+      if (e.target === e.currentTarget) window.cerrarModal();
+    });
+
+    // Exportar CSV
+    window.exportarCSV = () => {
+      const headers = ["Nombre","Email","WhatsApp","Test","Nivel","Fuente","Fecha","Estado","Psicólogo","Notas"];
+      const rows = leadsFiltrados.map(l => {
+        const fecha = l.fecha?.toDate ? l.fecha.toDate() : new Date(l.fecha||0);
+        return [
+          l.nombre||"", l.email||"", l.whatsapp||"",
+          l.test||"", l.nivel||"", l.fuente||"",
+          formatFecha(fecha), l.estado||"", l.psicologo_id||"", l.notas||""
+        ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(",");
+      });
+      const csv  = [headers.join(","), ...rows].join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href = url;
+      a.download = `mentecheck-leads-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    };
+
+    // Helpers
+    function badgeNivel(nivel) {
+      const m = { bajo:"badge-bajo", moderado:"badge-moderado", alto:"badge-alto" };
+      return nivel ? `<span class="badge ${m[nivel]||""}">${capitalize(nivel)}</span>` : "—";
+    }
+    function fuenteIcon(f) {
+      const m = { tiktok:"🎵", facebook:"📘", instagram:"📸", google:"🔍", directo:"🔗" };
+      return m[f] || "🌐";
+    }
+    function formatFecha(d) {
+      return d.toLocaleDateString("es-MX", { day:"2-digit", month:"short", year:"numeric" });
+    }
+    function capitalize(s) {
+      return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+    }
+  </script>
+
+</body>
+</html>

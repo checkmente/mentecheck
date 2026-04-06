@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MenteCheck — Psicólogos</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .psico-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color .2s;
+      position: relative;
+    }
+    .psico-card:hover { border-color: rgba(124,58,237,.3); }
+    .psico-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .psico-avatar {
+      width: 46px; height: 46px;
+      background: linear-gradient(135deg, var(--violet), var(--cyan));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .psico-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+    .psico-especialidad { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .psico-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .psico-stat-item { font-size: 12px; color: var(--muted); }
+    .psico-stat-val  { font-weight: 700; color: var(--text); font-size: 15px; }
+    .badge-modelo {
+      position: absolute;
+      top: 14px; right: 14px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .modelo-a { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.25); }
+    .modelo-b { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.25); }
+    .modelo-c { background: rgba(124,58,237,.15); color: #a78bfa; border: 1px solid rgba(124,58,237,.25); }
+    .psico-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .badge-activo   { background: rgba(16,185,129,.12); color: #34d399; border: 1px solid rgba(16,185,129,.2); font-size:10px; padding:2px 8px; border-radius:20px; }
+    .badge-inactivo { background: rgba(100,116,139,.12); color: #94a3b8; border: 1px solid rgba(100,116,139,.2); font-size:10px; padding:2px 8px; border-radius:20px; }
+    .form-field { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; }
+    .form-input, .form-select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: 'DM Sans',sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+    .form-input:focus, .form-select:focus { border-color: var(--violet); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .modelo-desc { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">🧠</div><div class="logo-name">Mente<span>Check</span></div></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Principal</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="leads.html" class="nav-item"><span class="nav-icon">👥</span> Leads</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Gestión</div>
+      <a href="psicologos.html" class="nav-item active"><span class="nav-icon">🧑‍⚕️</span> Psicólogos</a>
+      <a href="tests.html" class="nav-item"><span class="nav-icon">🧪</span> Tests</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Sistema</div>
+      <a href="config.html" class="nav-item"><span class="nav-icon">⚙️</span> Configuración</a>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">Psicólogos <span class="page-sub" id="totalPsicos">0 registrados</span></div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="abrirFormNuevo()">+ Agregar psicólogo</button>
+        <div class="admin-pill"><div class="admin-avatar">A</div><span id="adminName">admin</span></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div id="gridPsicos" class="grid-3">
+        <div style="text-align:center;padding:60px;color:var(--muted);grid-column:1/-1">Cargando...</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal nuevo/editar psicólogo -->
+  <div class="modal-overlay" id="modalPsico">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modalPsicoTitle">Nuevo psicólogo</span>
+        <button class="btn-close-modal" onclick="cerrarModalPsico()">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label">Nombre completo</label>
+          <input type="text" class="form-input" id="pNombre" placeholder="Dr. Juan Pérez">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Especialidad</label>
+          <input type="text" class="form-input" id="pEspecialidad" placeholder="Ansiedad y depresión">
+        </div>
+        <div class="form-field">
+          <label class="form-label">WhatsApp</label>
+          <input type="tel" class="form-input" id="pWhatsapp" placeholder="5512345678">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="pEmail" placeholder="doctor@email.com">
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Modelo de trabajo</label>
+        <select class="form-select" id="pModelo" onchange="updateModeloDesc()">
+          <option value="A">A — Lead frío ($150–300 MXN por lead)</option>
+          <option value="B">B — Lead + cita agendada ($500–800 MXN)</option>
+          <option value="C">C — Comisión por sesión atendida (30–40%)</option>
+        </select>
+        <div class="modelo-desc" id="modeloDesc">El psicólogo recibe los datos y hace su propio seguimiento.</div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Notas internas</label>
+        <textarea class="form-input" id="pNotas" style="resize:vertical;min-height:70px" placeholder="Disponibilidad, horarios, acuerdos especiales..."></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="guardarPsico()">Guardar psicólogo</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey:"TU_API_KEY", authDomain:"mentecheck.firebaseapp.com", projectId:"mentecheck", storageBucket:"mentecheck.appspot.com", messagingSenderId:"TU_SENDER_ID", appId:"TU_APP_ID" };
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    let psicos = [];
+    let editandoId = null;
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = "index.html"; return; }
+      document.getElementById("adminName").textContent = user.email.split("@")[0];
+      await cargarPsicos();
+    });
+    window.logout = async () => { await signOut(auth); window.location.href = "index.html"; };
+
+    async function cargarPsicos() {
+      const snap = await getDocs(collection(db, "psicologos"));
+      psicos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderPsicos();
+    }
+
+    function renderPsicos() {
+      document.getElementById("totalPsicos").textContent = `${psicos.length} registrado${psicos.length!==1?"s":""}`;
+      const grid = document.getElementById("gridPsicos");
+      if (!psicos.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🧑‍⚕️</div><p>Aún no hay psicólogos registrados.</p></div>`;
+        return;
+      }
+      grid.innerHTML = psicos.map(p => `
+        <div class="psico-card">
+          <span class="badge-modelo modelo-${p.modelo?.toLowerCase()||'a'}">Modelo ${p.modelo||"A"}</span>
+          <div class="psico-header">
+            <div class="psico-avatar">${(p.nombre||"?")[0].toUpperCase()}</div>
+            <div>
+              <div class="psico-name">${p.nombre||"—"}</div>
+              <div class="psico-especialidad">${p.especialidad||"—"}</div>
+              <span class="${p.activo!==false?"badge-activo":"badge-inactivo"}">${p.activo!==false?"Activo":"Inactivo"}</span>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted)">📱 ${p.whatsapp||"—"}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">✉️ ${p.email||"—"}</div>
+          <div class="psico-stats">
+            <div class="psico-stat-item"><div class="psico-stat-val">${p.leads_asignados||0}</div>Leads asignados</div>
+            <div class="psico-stat-item"><div class="psico-stat-val">${p.leads_atendidos||0}</div>Atendidos</div>
+          </div>
+          <div class="psico-actions">
+            <button class="btn btn-ghost btn-sm" style="flex:1" onclick="editarPsico('${p.id}')">✏️ Editar</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleActivo('${p.id}', ${p.activo!==false})">${p.activo!==false?"⏸️":"▶️"}</button>
+          </div>
+        </div>`).join("");
+    }
+
+    window.abrirFormNuevo = () => {
+      editandoId = null;
+      document.getElementById("modalPsicoTitle").textContent = "Nuevo psicólogo";
+      ["pNombre","pEspecialidad","pWhatsapp","pEmail","pNotas"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("pModelo").value = "A";
+      window.updateModeloDesc();
+      document.getElementById("modalPsico").classList.add("show");
+    };
+
+    window.editarPsico = (id) => {
+      const p = psicos.find(x => x.id === id);
+      if (!p) return;
+      editandoId = id;
+      document.getElementById("modalPsicoTitle").textContent = "Editar psicólogo";
+      document.getElementById("pNombre").value      = p.nombre||"";
+      document.getElementById("pEspecialidad").value= p.especialidad||"";
+      document.getElementById("pWhatsapp").value    = p.whatsapp||"";
+      document.getElementById("pEmail").value       = p.email||"";
+      document.getElementById("pModelo").value      = p.modelo||"A";
+      document.getElementById("pNotas").value       = p.notas||"";
+      window.updateModeloDesc();
+      document.getElementById("modalPsico").classList.add("show");
+    };
+
+    window.guardarPsico = async () => {
+      const data = {
+        nombre:       document.getElementById("pNombre").value,
+        especialidad: document.getElementById("pEspecialidad").value,
+        whatsapp:     document.getElementById("pWhatsapp").value,
+        email:        document.getElementById("pEmail").value,
+        modelo:       document.getElementById("pModelo").value,
+        notas:        document.getElementById("pNotas").value,
+        activo: true,
+      };
+      if (editandoId) {
+        await updateDoc(doc(db, "psicologos", editandoId), data);
+      } else {
+        data.fecha_registro = serverTimestamp();
+        data.leads_asignados = 0;
+        data.leads_atendidos = 0;
+        await addDoc(collection(db, "psicologos"), data);
+      }
+      window.cerrarModalPsico();
+      await cargarPsicos();
+    };
+
+    window.toggleActivo = async (id, activo) => {
+      await updateDoc(doc(db, "psicologos", id), { activo: !activo });
+      await cargarPsicos();
+    };
+
+    window.cerrarModalPsico = () => document.getElementById("modalPsico").classList.remove("show");
+
+    window.updateModeloDesc = () => {
+      const val = document.getElementById("pModelo").value;
+      const descs = {
+        A: "El psicólogo recibe los datos del lead y hace su propio seguimiento.",
+        B: "Nosotros contactamos, agendamos y cobramos el anticipo.",
+        C: "Nosotros entregamos el paciente y cobramos comisión por sesión atendida."
+      };
+      document.getElementById("modeloDesc").textContent = descs[val]||"";
+    };
+  </script>
+</body>
+</html>

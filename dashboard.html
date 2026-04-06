@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MenteCheck — Dashboard</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .chart-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-2);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+    canvas { max-height: 200px; }
+
+    /* Funnel */
+    .funnel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .funnel-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .funnel-label {
+      width: 90px;
+      font-size: 12px;
+      color: var(--text-2);
+      flex-shrink: 0;
+    }
+    .funnel-bar-wrap {
+      flex: 1;
+      background: var(--surface);
+      border-radius: 4px;
+      height: 28px;
+      overflow: hidden;
+      position: relative;
+    }
+    .funnel-bar {
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      transition: width .8s cubic-bezier(.22,1,.36,1);
+    }
+    .funnel-pct {
+      width: 44px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Últimos leads */
+    .lead-row-mini {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .lead-row-mini:last-child { border-bottom: none; }
+    .lead-avatar-mini {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--violet), var(--cyan));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .lead-info { flex: 1; min-width: 0; }
+    .lead-name-mini {
+      font-size: 13px;
+      font-weight: 600;
+      truncate: ellipsis;
+    }
+    .lead-test-mini {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .lead-time-mini {
+      font-size: 11px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    /* Alert card */
+    .alert-card {
+      background: rgba(239,68,68,.08);
+      border: 1px solid rgba(239,68,68,.2);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .alert-icon { font-size: 20px; }
+    .alert-text { font-size: 13px; color: #fca5a5; }
+    .alert-text strong { color: #f87171; }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🧠</div>
+      <div class="logo-name">Mente<span>Check</span></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Principal</div>
+      <a href="dashboard.html" class="nav-item active">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="leads.html" class="nav-item">
+        <span class="nav-icon">👥</span> Leads
+        <span class="nav-badge" id="badgeLeads">0</span>
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Gestión</div>
+      <a href="psicologos.html" class="nav-item">
+        <span class="nav-icon">🧑‍⚕️</span> Psicólogos
+      </a>
+      <a href="tests.html" class="nav-item">
+        <span class="nav-icon">🧪</span> Tests
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Sistema</div>
+      <a href="config.html" class="nav-item">
+        <span class="nav-icon">⚙️</span> Configuración
+      </a>
+    </div>
+
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="logout()">
+        <span>🚪</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Dashboard
+        <span class="page-sub">Resumen general en tiempo real</span>
+      </div>
+      <div class="topbar-right">
+        <div class="admin-pill">
+          <div class="admin-avatar">A</div>
+          <span id="adminName">admin</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Alerta leads sin contactar -->
+      <div class="alert-card" id="alertaSinContactar" style="display:none">
+        <span class="alert-icon">🔴</span>
+        <span class="alert-text">
+          Tienes <strong id="countSinContactar">0</strong> leads sin contactar por más de 24 horas.
+          <a href="leads.html?filter=nuevo" style="color:var(--cyan);margin-left:6px;font-weight:600;">Ver leads →</a>
+        </span>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="grid-4 mb-24">
+        <div class="stat-card">
+          <div class="stat-icon">🧠</div>
+          <div class="stat-label">Leads hoy</div>
+          <div class="stat-value violet" id="statHoy">0</div>
+          <div class="stat-delta" id="deltaHoy">Cargando...</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-label">Esta semana</div>
+          <div class="stat-value cyan" id="statSemana">0</div>
+          <div class="stat-delta">Últimos 7 días</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📈</div>
+          <div class="stat-label">Este mes</div>
+          <div class="stat-value" id="statMes">0</div>
+          <div class="stat-delta" id="statMesNombre">Mes actual</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-label">Atendidos</div>
+          <div class="stat-value success" id="statAtendidos">0</div>
+          <div class="stat-delta" id="statConversion">0% conversión</div>
+        </div>
+      </div>
+
+      <!-- GRÁFICAS FILA 1 -->
+      <div class="grid-3 mb-24">
+
+        <!-- Leads por nivel -->
+        <div class="chart-card">
+          <div class="chart-title">Leads por nivel</div>
+          <canvas id="chartNivel"></canvas>
+          <div style="display:flex;gap:16px;margin-top:16px;justify-content:center;flex-wrap:wrap">
+            <span style="font-size:12px;color:var(--success)">● Bajo</span>
+            <span style="font-size:12px;color:var(--warning)">● Moderado</span>
+            <span style="font-size:12px;color:var(--danger)">● Alto</span>
+          </div>
+        </div>
+
+        <!-- Leads por fuente -->
+        <div class="chart-card">
+          <div class="chart-title">Leads por fuente</div>
+          <canvas id="chartFuente"></canvas>
+        </div>
+
+        <!-- Leads por test (top 5) -->
+        <div class="chart-card">
+          <div class="chart-title">Top tests</div>
+          <canvas id="chartTests"></canvas>
+        </div>
+
+      </div>
+
+      <!-- FILA 2: Funnel + Últimos leads -->
+      <div class="grid-2">
+
+        <!-- Funnel de conversión -->
+        <div class="chart-card">
+          <div class="chart-title">Embudo de conversión</div>
+          <div class="funnel" id="funnelChart">
+            <div class="funnel-row">
+              <span class="funnel-label">Nuevos</span>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar" id="barNuevo" style="width:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa)">
+                  <span id="valNuevo">0</span>
+                </div>
+              </div>
+              <span class="funnel-pct">100%</span>
+            </div>
+            <div class="funnel-row">
+              <span class="funnel-label">Contactados</span>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar" id="barContactado" style="width:0%;background:linear-gradient(90deg,#f59e0b,#fbbf24)">
+                  <span id="valContactado">0</span>
+                </div>
+              </div>
+              <span class="funnel-pct" id="pctContactado">0%</span>
+            </div>
+            <div class="funnel-row">
+              <span class="funnel-label">Agendados</span>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar" id="barAgendado" style="width:0%;background:linear-gradient(90deg,#f97316,#fb923c)">
+                  <span id="valAgendado">0</span>
+                </div>
+              </div>
+              <span class="funnel-pct" id="pctAgendado">0%</span>
+            </div>
+            <div class="funnel-row">
+              <span class="funnel-label">Atendidos</span>
+              <div class="funnel-bar-wrap">
+                <div class="funnel-bar" id="barAtendido" style="width:0%;background:linear-gradient(90deg,#10b981,#34d399)">
+                  <span id="valAtendido">0</span>
+                </div>
+              </div>
+              <span class="funnel-pct" id="pctAtendido">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Últimos 8 leads -->
+        <div class="chart-card">
+          <div class="section-header" style="margin-bottom:12px">
+            <div class="chart-title" style="margin:0">Últimos leads</div>
+            <a href="leads.html" class="btn btn-ghost btn-sm">Ver todos →</a>
+          </div>
+          <div id="ultimosLeads">
+            <div class="empty-state">
+              <div class="empty-icon">👥</div>
+              <p>Aún no hay leads.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, query, where, orderBy, limit, Timestamp }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // ⚠️ Reemplaza con tu config
+    const firebaseConfig = {
+      apiKey:            "TU_API_KEY",
+      authDomain:        "mentecheck.firebaseapp.com",
+      projectId:         "mentecheck",
+      storageBucket:     "mentecheck.appspot.com",
+      messagingSenderId: "TU_SENDER_ID",
+      appId:             "TU_APP_ID"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    // Auth guard
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = "index.html"; return; }
+      const el = document.getElementById("adminName");
+      if (el) el.textContent = user.email.split("@")[0];
+      await loadDashboard();
+    });
+
+    window.logout = async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    };
+
+    async function loadDashboard() {
+      const snap = await getDocs(collection(db, "leads"));
+      const leads = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      const now   = new Date();
+      const hoy   = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const semana = new Date(now - 7 * 86400000);
+      const mes    = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      // Contadores básicos
+      let cHoy = 0, cSemana = 0, cMes = 0, cAtendidos = 0;
+      let cNuevo = 0, cContactado = 0, cAgendado = 0, cAtendido = 0;
+      const nivelCount = { bajo: 0, moderado: 0, alto: 0 };
+      const fuenteCount = {};
+      const testCount = {};
+      const sinContactar = [];
+
+      leads.forEach(l => {
+        const fecha = l.fecha?.toDate ? l.fecha.toDate() : new Date(l.fecha || 0);
+
+        if (fecha >= hoy)   cHoy++;
+        if (fecha >= semana) cSemana++;
+        if (fecha >= mes)    cMes++;
+        if (l.estado === "atendido") cAtendidos++;
+
+        // Funnel
+        if (l.estado === "nuevo")      cNuevo++;
+        if (l.estado === "contactado") cContactado++;
+        if (l.estado === "agendado")   cAgendado++;
+        if (l.estado === "atendido")   cAtendido++;
+
+        // Nivel
+        if (l.nivel) nivelCount[l.nivel] = (nivelCount[l.nivel] || 0) + 1;
+
+        // Fuente
+        const f = l.fuente || "directo";
+        fuenteCount[f] = (fuenteCount[f] || 0) + 1;
+
+        // Test
+        const t = l.test || "general";
+        testCount[t] = (testCount[t] || 0) + 1;
+
+        // Sin contactar > 24h
+        if (l.estado === "nuevo") {
+          const diff = (now - fecha) / 3600000;
+          if (diff > 24) sinContactar.push(l);
+        }
+      });
+
+      const total = leads.length;
+
+      // Stats
+      setText("statHoy",      cHoy);
+      setText("statSemana",   cSemana);
+      setText("statMes",      cMes);
+      setText("statAtendidos",cAtendidos);
+      setText("statConversion", total ? Math.round(cAtendidos/total*100)+"% conversión" : "0% conversión");
+      setText("statMesNombre", now.toLocaleString("es-MX",{month:"long"}));
+      setText("deltaHoy", `${total} leads en total`);
+
+      // Alerta sin contactar
+      if (sinContactar.length > 0) {
+        setText("countSinContactar", sinContactar.length);
+        document.getElementById("alertaSinContactar").style.display = "flex";
+      }
+
+      // Badge sidebar
+      setText("badgeLeads", cNuevo);
+
+      // Funnel
+      const base = total || 1;
+      setFunnel("barNuevo",     "valNuevo",     cNuevo,      100);
+      setFunnel("barContactado","valContactado",cContactado, Math.round(cContactado/base*100), "pctContactado");
+      setFunnel("barAgendado",  "valAgendado",  cAgendado,   Math.round(cAgendado/base*100),   "pctAgendado");
+      setFunnel("barAtendido",  "valAtendido",  cAtendido,   Math.round(cAtendido/base*100),   "pctAtendido");
+
+      // Gráfica nivel (dona)
+      new Chart(document.getElementById("chartNivel"), {
+        type: "doughnut",
+        data: {
+          labels: ["Bajo","Moderado","Alto"],
+          datasets: [{
+            data: [nivelCount.bajo||0, nivelCount.moderado||0, nivelCount.alto||0],
+            backgroundColor: ["#10b981","#f59e0b","#ef4444"],
+            borderWidth: 0,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          cutout: "68%",
+        }
+      });
+
+      // Gráfica fuente (barras)
+      const fLabels = Object.keys(fuenteCount);
+      const fData   = Object.values(fuenteCount);
+      new Chart(document.getElementById("chartFuente"), {
+        type: "bar",
+        data: {
+          labels: fLabels.length ? fLabels : ["Sin datos"],
+          datasets: [{
+            data: fData.length ? fData : [0],
+            backgroundColor: ["#7c3aed","#06b6d4","#f59e0b","#10b981","#ef4444"],
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: "rgba(255,255,255,.04)" }, ticks: { color: "#64748b" } },
+            y: { grid: { color: "rgba(255,255,255,.04)" }, ticks: { color: "#64748b" } }
+          }
+        }
+      });
+
+      // Top 5 tests
+      const topTests = Object.entries(testCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      new Chart(document.getElementById("chartTests"), {
+        type: "bar",
+        data: {
+          labels: topTests.length ? topTests.map(t=>t[0]) : ["Sin datos"],
+          datasets: [{
+            data: topTests.length ? topTests.map(t=>t[1]) : [0],
+            backgroundColor: "rgba(124,58,237,.6)",
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: "rgba(255,255,255,.04)" }, ticks: { color: "#64748b" } },
+            y: { grid: { display: false }, ticks: { color: "#94a3b8", font: { size: 11 } } }
+          }
+        }
+      });
+
+      // Últimos 8 leads
+      const recientes = [...leads].sort((a,b) => {
+        const fa = a.fecha?.toDate ? a.fecha.toDate() : new Date(a.fecha||0);
+        const fb = b.fecha?.toDate ? b.fecha.toDate() : new Date(b.fecha||0);
+        return fb - fa;
+      }).slice(0,8);
+
+      if (recientes.length) {
+        const container = document.getElementById("ultimosLeads");
+        container.innerHTML = recientes.map(l => {
+          const fecha = l.fecha?.toDate ? l.fecha.toDate() : new Date(l.fecha||0);
+          const inicial = (l.nombre||"?")[0].toUpperCase();
+          const hace = tiempoRelativo(fecha);
+          return `
+            <div class="lead-row-mini">
+              <div class="lead-avatar-mini">${inicial}</div>
+              <div class="lead-info">
+                <div class="lead-name-mini">${l.nombre || "Anónimo"}</div>
+                <div class="lead-test-mini">${l.test || "—"} · ${badgeNivel(l.nivel)}</div>
+              </div>
+              <span class="lead-time-mini">${hace}</span>
+            </div>`;
+        }).join("");
+      }
+    }
+
+    function setText(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+
+    function setFunnel(barId, valId, count, pct, pctId) {
+      const bar = document.getElementById(barId);
+      const val = document.getElementById(valId);
+      const pctEl = pctId ? document.getElementById(pctId) : null;
+      if (bar) bar.style.width = Math.max(pct, 0) + "%";
+      if (val) val.textContent = count;
+      if (pctEl) pctEl.textContent = pct + "%";
+    }
+
+    function badgeNivel(nivel) {
+      const map = {
+        bajo:     '<span class="badge badge-bajo">Bajo</span>',
+        moderado: '<span class="badge badge-moderado">Moderado</span>',
+        alto:     '<span class="badge badge-alto">Alto</span>',
+      };
+      return map[nivel] || nivel || "—";
+    }
+
+    function tiempoRelativo(fecha) {
+      const diff = (new Date() - fecha) / 60000;
+      if (diff < 1)   return "justo ahora";
+      if (diff < 60)  return Math.round(diff) + "m";
+      if (diff < 1440) return Math.round(diff/60) + "h";
+      return Math.round(diff/1440) + "d";
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MenteCheck — Configuración</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .config-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .config-section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .config-section-desc { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+    .form-field { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing:.8px; text-transform:uppercase; margin-bottom:6px; }
+    .form-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: 'DM Sans',sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+    .form-input:focus { border-color: var(--violet); }
+    textarea.form-input { resize: vertical; min-height: 90px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .save-banner {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--success);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      transform: translateY(80px);
+      transition: transform .3s;
+      z-index: 999;
+      box-shadow: 0 8px 24px rgba(16,185,129,.4);
+    }
+    .save-banner.show { transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">🧠</div><div class="logo-name">Mente<span>Check</span></div></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Principal</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="leads.html" class="nav-item"><span class="nav-icon">👥</span> Leads</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Gestión</div>
+      <a href="psicologos.html" class="nav-item"><span class="nav-icon">🧑‍⚕️</span> Psicólogos</a>
+      <a href="tests.html" class="nav-item"><span class="nav-icon">🧪</span> Tests</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Sistema</div>
+      <a href="config.html" class="nav-item active"><span class="nav-icon">⚙️</span> Configuración</a>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">Configuración <span class="page-sub">Plantillas, integraciones y ajustes</span></div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="guardarTodo()">💾 Guardar cambios</button>
+        <div class="admin-pill"><div class="admin-avatar">A</div><span id="adminName">admin</span></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- WhatsApp plantillas -->
+      <div class="config-section">
+        <div class="config-section-title">💬 Plantillas de WhatsApp</div>
+        <div class="config-section-desc">Mensajes que envías a los leads al contactarlos. Usa {nombre}, {test}, {nivel} como variables.</div>
+        <div class="form-field">
+          <label class="form-label">Mensaje inicial</label>
+          <textarea class="form-input" id="waInicial">Hola {nombre} 👋
+
+Recibimos tu resultado del Test de {test}.
+Tu nivel es: {nivel}.
+
+¿Te gustaría hablar con un psicólogo esta semana? Podemos ayudarte a agendar tu primera consulta sin compromiso 💙</textarea>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Seguimiento 1 (48h sin respuesta)</label>
+          <textarea class="form-input" id="waSeguimiento1">Hola {nombre}, te escribimos de MenteCheck 🧠
+
+Hace un par de días completaste nuestro Test de {test} y quedamos en conectarte con un especialista.
+
+¿Sigues interesado/a? Tenemos disponibilidad esta semana 📅</textarea>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Seguimiento 2 (7 días sin respuesta)</label>
+          <textarea class="form-input" id="waSeguimiento2">Hola {nombre}, último mensaje de nuestra parte 😊
+
+Si en algún momento decides retomar tu proceso, aquí estaremos para ayudarte a conectarte con el psicólogo adecuado.
+
+¡Cuídate mucho! 💙 — Equipo MenteCheck</textarea>
+        </div>
+      </div>
+
+      <!-- EmailJS -->
+      <div class="config-section">
+        <div class="config-section-title">📧 Configuración EmailJS</div>
+        <div class="config-section-desc">Credenciales para el envío automático de emails con resultados. Obtén estas claves en emailjs.com</div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">Service ID</label>
+            <input type="text" class="form-input" id="ejsService" placeholder="service_xxxxxxx">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Template ID</label>
+            <input type="text" class="form-input" id="ejsTemplate" placeholder="template_xxxxxxx">
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Public Key</label>
+          <input type="text" class="form-input" id="ejsPublicKey" placeholder="xxxxxxxxxxxxxxxxx">
+        </div>
+      </div>
+
+      <!-- Agenda -->
+      <div class="config-section">
+        <div class="config-section-title">📅 Link de agenda</div>
+        <div class="config-section-desc">URL que aparece en el botón "Agendar cita" en los emails y landings.</div>
+        <div class="form-field">
+          <label class="form-label">URL de Calendly o página de citas</label>
+          <input type="url" class="form-input" id="linkAgenda" placeholder="https://calendly.com/mentecheck/consulta">
+        </div>
+      </div>
+
+      <!-- Datos del negocio -->
+      <div class="config-section">
+        <div class="config-section-title">🏢 Datos del negocio</div>
+        <div class="config-section-desc">Información que aparece en emails y en las landings.</div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">Nombre del negocio</label>
+            <input type="text" class="form-input" id="negocioNombre" value="MenteCheck">
+          </div>
+          <div class="form-field">
+            <label class="form-label">WhatsApp de contacto</label>
+            <input type="tel" class="form-input" id="negocioWa" placeholder="5512345678">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Email de contacto</label>
+            <input type="email" class="form-input" id="negocioEmail" placeholder="hola@mentecheck.mx">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Sitio web</label>
+            <input type="url" class="form-input" id="negocioWeb" placeholder="https://mentecheck.mx">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <div class="save-banner" id="saveBanner">✅ Configuración guardada</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey:"TU_API_KEY", authDomain:"mentecheck.firebaseapp.com", projectId:"mentecheck", storageBucket:"mentecheck.appspot.com", messagingSenderId:"TU_SENDER_ID", appId:"TU_APP_ID" };
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = "index.html"; return; }
+      document.getElementById("adminName").textContent = user.email.split("@")[0];
+      await cargarConfig();
+    });
+    window.logout = async () => { await signOut(auth); window.location.href = "index.html"; };
+
+    async function cargarConfig() {
+      const snap = await getDoc(doc(db, "config", "general"));
+      if (!snap.exists()) return;
+      const c = snap.data();
+      const map = {
+        waInicial: c.whatsapp_inicial, waSeguimiento1: c.whatsapp_seguimiento1,
+        waSeguimiento2: c.whatsapp_seguimiento2, ejsService: c.emailjs_service_id,
+        ejsTemplate: c.emailjs_template_id, ejsPublicKey: c.emailjs_public_key,
+        linkAgenda: c.link_agenda, negocioNombre: c.negocio_nombre,
+        negocioWa: c.negocio_whatsapp, negocioEmail: c.negocio_email, negocioWeb: c.negocio_web
+      };
+      Object.entries(map).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el && val) el.value = val;
+      });
+    }
+
+    window.guardarTodo = async () => {
+      await setDoc(doc(db, "config", "general"), {
+        whatsapp_inicial:      document.getElementById("waInicial").value,
+        whatsapp_seguimiento1: document.getElementById("waSeguimiento1").value,
+        whatsapp_seguimiento2: document.getElementById("waSeguimiento2").value,
+        emailjs_service_id:    document.getElementById("ejsService").value,
+        emailjs_template_id:   document.getElementById("ejsTemplate").value,
+        emailjs_public_key:    document.getElementById("ejsPublicKey").value,
+        link_agenda:           document.getElementById("linkAgenda").value,
+        negocio_nombre:        document.getElementById("negocioNombre").value,
+        negocio_whatsapp:      document.getElementById("negocioWa").value,
+        negocio_email:         document.getElementById("negocioEmail").value,
+        negocio_web:           document.getElementById("negocioWeb").value,
+      }, { merge: true });
+
+      const banner = document.getElementById("saveBanner");
+      banner.classList.add("show");
+      setTimeout(() => banner.classList.remove("show"), 3000);
+    };
+  </script>
+</body>
+</html>

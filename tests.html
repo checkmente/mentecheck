@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MenteCheck — Tests</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .test-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: border-color .2s;
+    }
+    .test-card:hover { border-color: rgba(124,58,237,.25); }
+    .test-num {
+      width: 36px; height: 36px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .test-info { flex: 1; min-width: 0; }
+    .test-name { font-weight: 600; font-size: 14px; }
+    .test-url  { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: monospace; }
+    .test-stats { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .test-stat-val { font-weight: 700; color: var(--text); }
+
+    /* Toggle switch */
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .toggle { position: relative; width: 44px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 24px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .toggle-slider:before {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      left: 3px; top: 3px;
+      background: var(--muted);
+      border-radius: 50%;
+      transition: transform .2s, background .2s;
+    }
+    .toggle input:checked + .toggle-slider { background: rgba(124,58,237,.3); }
+    .toggle input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+      background: var(--violet);
+    }
+    .toggle-label { font-size: 12px; color: var(--muted); width: 52px; }
+
+    .fase-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 24px 0 10px;
+      padding-left: 4px;
+    }
+    .fase-label:first-child { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">🧠</div><div class="logo-name">Mente<span>Check</span></div></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Principal</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="leads.html" class="nav-item"><span class="nav-icon">👥</span> Leads</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Gestión</div>
+      <a href="psicologos.html" class="nav-item"><span class="nav-icon">🧑‍⚕️</span> Psicólogos</a>
+      <a href="tests.html" class="nav-item active"><span class="nav-icon">🧪</span> Tests</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Sistema</div>
+      <a href="config.html" class="nav-item"><span class="nav-icon">⚙️</span> Configuración</a>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">Tests <span class="page-sub">20 tests · Gestión de estado</span></div>
+      <div class="topbar-right">
+        <div class="admin-pill"><div class="admin-avatar">A</div><span id="adminName">admin</span></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div id="listaTests">
+        <div style="text-align:center;padding:60px;color:var(--muted)">Cargando tests...</div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey:"TU_API_KEY", authDomain:"mentecheck.firebaseapp.com", projectId:"mentecheck", storageBucket:"mentecheck.appspot.com", messagingSenderId:"TU_SENDER_ID", appId:"TU_APP_ID" };
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const TESTS_DEFAULT = [
+      { slug:"ansiedad",             nombre:"Test de ansiedad",                    fase:"Fase 1 — Alto tráfico + conversión" },
+      { slug:"depresion",            nombre:"Test de depresión",                   fase:"Fase 1 — Alto tráfico + conversión" },
+      { slug:"autoestima",           nombre:"Test de autoestima",                  fase:"Fase 1 — Alto tráfico + conversión" },
+      { slug:"burnout",              nombre:"Test de estrés laboral / burnout",     fase:"Fase 1 — Alto tráfico + conversión" },
+      { slug:"ansiedad-social",      nombre:"Test de ansiedad social",             fase:"Fase 1 — Alto tráfico + conversión" },
+      { slug:"relacion-toxica",      nombre:"¿Tu relación es tóxica?",             fase:"Fase 2 — Tests virales" },
+      { slug:"dependencia-emocional",nombre:"Test de dependencia emocional",       fase:"Fase 2 — Tests virales" },
+      { slug:"ex-pareja",            nombre:"¿Sigues atrapado en tu ex?",          fase:"Fase 2 — Tests virales" },
+      { slug:"inteligencia-emocional",nombre:"Test de inteligencia emocional",     fase:"Fase 2 — Tests virales" },
+      { slug:"personalidad",         nombre:"Test de personalidad psicológica",    fase:"Fase 2 — Tests virales" },
+      { slug:"heridas-infancia",     nombre:"Test de heridas de la infancia",      fase:"Fase 3 — Problemas profundos" },
+      { slug:"apego-emocional",      nombre:"Test de apego emocional",             fase:"Fase 3 — Problemas profundos" },
+      { slug:"trauma",               nombre:"Test de trauma emocional",            fase:"Fase 3 — Problemas profundos" },
+      { slug:"miedo-abandono",       nombre:"Test de miedo al abandono",           fase:"Fase 3 — Problemas profundos" },
+      { slug:"impostor",             nombre:"Test de síndrome del impostor",       fase:"Fase 3 — Problemas profundos" },
+      { slug:"adiccion-celular",     nombre:"Test de adicción al celular",         fase:"Fase 4 — Nichos modernos" },
+      { slug:"adiccion-redes",       nombre:"Test de adicción a redes sociales",   fase:"Fase 4 — Nichos modernos" },
+      { slug:"agotamiento-digital",  nombre:"Test de agotamiento mental digital",  fase:"Fase 4 — Nichos modernos" },
+      { slug:"procrastinacion",      nombre:"Test de procrastinación",             fase:"Fase 4 — Nichos modernos" },
+      { slug:"overthinking",         nombre:"Test de sobrepensamiento (overthinking)", fase:"Fase 4 — Nichos modernos" },
+    ];
+
+    let estadosTests = {};
+    let statsTests   = {};
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = "index.html"; return; }
+      document.getElementById("adminName").textContent = user.email.split("@")[0];
+
+      // Cargar estados desde Firestore
+      const snap = await getDocs(collection(db, "tests"));
+      snap.docs.forEach(d => { estadosTests[d.id] = d.data(); });
+
+      // Cargar estadísticas de leads por test
+      const leadsSnap = await getDocs(collection(db, "leads"));
+      leadsSnap.docs.forEach(d => {
+        const t = d.data().test;
+        if (t) statsTests[t] = (statsTests[t] || 0) + 1;
+      });
+
+      renderTests();
+    });
+
+    window.logout = async () => { await signOut(auth); window.location.href = "index.html"; };
+
+    function renderTests() {
+      const fases = [...new Set(TESTS_DEFAULT.map(t => t.fase))];
+      let html = "";
+
+      fases.forEach(fase => {
+        const testsEnFase = TESTS_DEFAULT.filter(t => t.fase === fase);
+        html += `<div class="fase-label">${fase}</div>`;
+        testsEnFase.forEach((t, i) => {
+          const idx    = TESTS_DEFAULT.indexOf(t) + 1;
+          const estado = estadosTests[t.slug];
+          const activo = estado ? estado.activo !== false : false; // por defecto inactivo hasta lanzar
+          const leads  = statsTests[t.slug] || 0;
+          html += `
+            <div class="test-card" style="margin-bottom:8px">
+              <div class="test-num">${String(idx).padStart(2,"0")}</div>
+              <div class="test-info">
+                <div class="test-name">${t.nombre}</div>
+                <div class="test-url">mentecheck.mx/tests/${t.slug}</div>
+                <div class="test-stats">
+                  <span><span class="test-stat-val">${leads}</span> leads</span>
+                  ${activo ? '<span style="color:var(--success)">● Activo</span>' : '<span style="color:var(--muted)">● Inactivo</span>'}
+                </div>
+              </div>
+              <div class="toggle-wrap">
+                <label class="toggle">
+                  <input type="checkbox" ${activo?"checked":""} onchange="toggleTest('${t.slug}', this.checked)">
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">${activo?"Activo":"Pausado"}</span>
+              </div>
+            </div>`;
+        });
+      });
+
+      document.getElementById("listaTests").innerHTML = html;
+    }
+
+    window.toggleTest = async (slug, activo) => {
+      await setDoc(doc(db, "tests", slug), { activo, slug }, { merge: true });
+      estadosTests[slug] = { ...estadosTests[slug], activo };
+      renderTests();
+    };
+  </script>
+</body>
+</html>

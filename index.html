@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MenteCheck — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #08080f;
+      --surface:   #10101e;
+      --card:      #14142a;
+      --border:    #1e1e3a;
+      --violet:    #7c3aed;
+      --violet-2:  #6d28d9;
+      --cyan:      #06b6d4;
+      --cyan-soft: #0891b2;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --danger:    #ef4444;
+      --success:   #10b981;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Animated background */
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      animation: float 8s ease-in-out infinite;
+    }
+    .orb-1 {
+      width: 500px; height: 500px;
+      background: var(--violet);
+      top: -150px; left: -150px;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 400px; height: 400px;
+      background: var(--cyan);
+      bottom: -100px; right: -100px;
+      animation-delay: -4s;
+    }
+    .orb-3 {
+      width: 300px; height: 300px;
+      background: var(--violet-2);
+      top: 50%; left: 60%;
+      animation-delay: -2s;
+    }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(20px, -20px) scale(1.05); }
+      66%       { transform: translate(-15px, 15px) scale(0.95); }
+    }
+
+    /* Grid lines overlay */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* Login card */
+    .login-wrap {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+      animation: slideUp .6s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px 40px;
+      box-shadow: 0 0 80px rgba(124,58,237,.12), 0 40px 80px rgba(0,0,0,.4);
+    }
+
+    /* Logo */
+    .logo {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--violet), var(--cyan));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: -.5px;
+    }
+    .logo-text span { color: var(--cyan); }
+    .logo-sub {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+
+    /* Form */
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input:focus {
+      border-color: var(--violet);
+      box-shadow: 0 0 0 3px rgba(124,58,237,.15);
+    }
+    input::placeholder { color: var(--muted); }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--violet), var(--violet-2));
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: .5px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(124,58,237,.35);
+    }
+    .btn-login:hover {
+      opacity: .9;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(124,58,237,.45);
+    }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    /* Error msg */
+    .error-msg {
+      background: rgba(239,68,68,.1);
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #f87171;
+      margin-top: 14px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 28px;
+    }
+    .footer-note span { color: var(--cyan); }
+  </style>
+</head>
+<body>
+
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="grid-overlay"></div>
+
+  <div class="login-wrap">
+    <div class="login-card">
+
+      <div class="logo">
+        <div class="logo-mark">
+          <div class="logo-icon">🧠</div>
+          <div class="logo-text">Mente<span>Check</span></div>
+        </div>
+        <span class="logo-sub">Panel de administración</span>
+      </div>
+
+      <h1>Bienvenido de vuelta</h1>
+      <p class="subtitle">Ingresa tus credenciales para acceder al panel.</p>
+
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" id="email" placeholder="admin@mentecheck.mx" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <button class="btn-login" id="btnLogin" onclick="handleLogin()">
+        Ingresar al panel
+      </button>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+    </div>
+    <div class="footer-note">
+      MenteCheck © 2025 · <span>Acceso restringido</span>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    // ⚠️ REEMPLAZA CON TU CONFIG DE FIREBASE
+    const firebaseConfig = {
+      apiKey:            "TU_API_KEY",
+      authDomain:        "mentecheck.firebaseapp.com",
+      projectId:         "mentecheck",
+      storageBucket:     "mentecheck.appspot.com",
+      messagingSenderId: "TU_SENDER_ID",
+      appId:             "TU_APP_ID"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Si ya está autenticado, redirige directo
+    onAuthStateChanged(auth, user => {
+      if (user) window.location.href = "dashboard.html";
+    });
+
+    // Exponer al scope global para el botón
+    window.handleLogin = async () => {
+      const email    = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const btn      = document.getElementById("btnLogin");
+      const errMsg   = document.getElementById("errorMsg");
+
+      if (!email || !password) {
+        showError("Por favor ingresa tu correo y contraseña.");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Ingresando...';
+      errMsg.classList.remove("show");
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        // onAuthStateChanged redirige automáticamente
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = "Ingresar al panel";
+        const msgs = {
+          "auth/user-not-found":  "No existe una cuenta con ese correo.",
+          "auth/wrong-password":  "Contraseña incorrecta.",
+          "auth/invalid-email":   "El correo no tiene un formato válido.",
+          "auth/too-many-requests": "Demasiados intentos. Espera unos minutos.",
+        };
+        showError(msgs[err.code] || "Error al iniciar sesión. Intenta de nuevo.");
+      }
+    };
+
+    function showError(msg) {
+      const el = document.getElementById("errorMsg");
+      el.textContent = msg;
+      el.classList.add("show");
+    }
+
+    // Enter key
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter") window.handleLogin();
+    });
+  </script>
+
+</body>
+</html>
