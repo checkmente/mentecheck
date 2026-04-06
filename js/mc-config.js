@@ -54,7 +54,10 @@ async function cargarConfig() {
 
 // Helpers que usan las landings
 export function buildWaLink(numero, texto) {
-  const num = numero.replace(/\D/g, "");
+  // Limpia cualquier formato: +52, espacios, guiones
+  let num = numero.replace(/\D/g, "");
+  // Si ya trae el 52 adelante y tiene más de 10 dígitos, quitarlo
+  if (num.startsWith("52") && num.length > 10) num = num.slice(2);
   return `https://wa.me/52${num}?text=${encodeURIComponent(texto)}`;
 }
 
