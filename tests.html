@@ -73,9 +73,25 @@
       padding-left: 4px;
     }
     .fase-label:first-child { margin-top: 0; }
+
+    .loading-overlay {
+      position: fixed; inset: 0; background: var(--bg); z-index: 999;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px; transition: opacity .3s;
+    }
+    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+    .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--violet); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 13px; color: var(--muted); }
   </style>
 </head>
 <body>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <span class="loading-text">Verificando sesión...</span>
+  </div>
+
   <aside class="sidebar">
     <div class="sidebar-logo"><div class="logo-icon">🧠</div><div class="logo-name">Mente<span>Check</span></div></div>
     <div class="sidebar-section">
@@ -151,6 +167,7 @@
 
     onAuthStateChanged(auth, async user => {
       if (!user) { window.location.href = "index.html"; return; }
+      document.getElementById("loadingOverlay").classList.add("hidden");
       document.getElementById("adminName").textContent = user.email.split("@")[0];
 
       // Cargar estados desde Firestore
