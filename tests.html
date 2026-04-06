@@ -24,55 +24,58 @@
       border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
       font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 13px;
-      color: var(--muted);
-      flex-shrink: 0;
+      font-weight: 800; font-size: 13px;
+      color: var(--muted); flex-shrink: 0;
     }
     .test-info { flex: 1; min-width: 0; }
     .test-name { font-weight: 600; font-size: 14px; }
     .test-url  { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: monospace; }
     .test-stats { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 6px; }
     .test-stat-val { font-weight: 700; color: var(--text); }
-
-    /* Toggle switch */
     .toggle-wrap { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .toggle { position: relative; width: 44px; height: 24px; }
     .toggle input { opacity: 0; width: 0; height: 0; }
     .toggle-slider {
-      position: absolute;
-      inset: 0;
-      background: var(--border);
-      border-radius: 24px;
-      cursor: pointer;
-      transition: background .2s;
+      position: absolute; inset: 0;
+      background: var(--border); border-radius: 24px;
+      cursor: pointer; transition: background .2s;
     }
     .toggle-slider:before {
-      content: '';
-      position: absolute;
-      width: 18px; height: 18px;
-      left: 3px; top: 3px;
-      background: var(--muted);
-      border-radius: 50%;
+      content: ''; position: absolute;
+      width: 18px; height: 18px; left: 3px; top: 3px;
+      background: var(--muted); border-radius: 50%;
       transition: transform .2s, background .2s;
     }
     .toggle input:checked + .toggle-slider { background: rgba(124,58,237,.3); }
-    .toggle input:checked + .toggle-slider:before {
-      transform: translateX(20px);
-      background: var(--violet);
-    }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(20px); background: var(--violet); }
     .toggle-label { font-size: 12px; color: var(--muted); width: 52px; }
-
     .fase-label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 24px 0 10px;
-      padding-left: 4px;
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--muted);
+      margin: 24px 0 10px; padding-left: 4px;
     }
-    .fase-label:first-child { margin-top: 0; }
+    .empty-tests {
+      text-align: center; padding: 60px 20px; color: var(--muted);
+    }
+    .empty-tests .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: .4; }
+    .empty-tests p { font-size: 14px; margin-bottom: 20px; }
+
+    /* Modal registrar test */
+    .form-field { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; }
+    .form-select {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 11px 14px; color: var(--text);
+      font-family: 'DM Sans',sans-serif; font-size: 13px; outline: none;
+    }
+    .form-select:focus { border-color: var(--violet); }
+    .test-preview {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 14px; margin-top: 10px;
+      font-size: 12px; color: var(--muted); display: none;
+    }
+    .test-preview.visible { display: block; }
+    .test-preview strong { color: var(--text); }
 
     .loading-overlay {
       position: fixed; inset: 0; background: var(--bg); z-index: 999;
@@ -83,6 +86,14 @@
     .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--violet); border-radius: 50%; animation: spin .7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 13px; color: var(--muted); }
+
+    .btn-delete {
+      background: none; border: none; color: var(--muted);
+      font-size: 16px; cursor: pointer; padding: 4px 8px;
+      border-radius: 6px; transition: color .15s, background .15s;
+      flex-shrink: 0;
+    }
+    .btn-delete:hover { color: var(--danger); background: rgba(239,68,68,.1); }
   </style>
 </head>
 <body>
@@ -115,107 +126,169 @@
 
   <main class="main">
     <div class="topbar">
-      <div class="topbar-title">Tests <span class="page-sub">20 tests · Gestión de estado</span></div>
+      <div class="topbar-title">
+        Tests
+        <span class="page-sub" id="totalTests">0 registrados</span>
+      </div>
       <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="abrirModalTest()">+ Registrar test</button>
         <div class="admin-pill"><div class="admin-avatar">A</div><span id="adminName">admin</span></div>
       </div>
     </div>
 
     <div class="page-content">
       <div id="listaTests">
-        <div style="text-align:center;padding:60px;color:var(--muted)">Cargando tests...</div>
+        <div style="text-align:center;padding:60px;color:var(--muted)">Cargando...</div>
       </div>
     </div>
   </main>
 
+  <!-- Modal registrar test -->
+  <div class="modal-overlay" id="modalTest">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Registrar test</span>
+        <button class="btn-close-modal" onclick="cerrarModalTest()">✕</button>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px">
+        Solo registra tests que ya tengan su <code style="color:var(--cyan)">index.html</code> subido al repo en <code style="color:var(--cyan)">tests/{slug}/</code>
+      </p>
+      <div class="form-field">
+        <label class="form-label">Selecciona el test</label>
+        <select class="form-select" id="selectTest" onchange="previewTest()">
+          <option value="">— Elige un test —</option>
+        </select>
+        <div class="test-preview" id="testPreview"></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="registrarTest()">
+        Registrar y activar test
+      </button>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc }
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey:"AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo", authDomain:"mentecheck.firebaseapp.com", projectId:"mentecheck", storageBucket:"mentecheck.appspot.com", messagingSenderId:"TU_SENDER_ID", appId:"TU_APP_ID" };
+    const firebaseConfig = {
+      apiKey:            "AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
+      authDomain:        "mentecheck-6f19f.firebaseapp.com",
+      projectId:         "mentecheck-6f19f",
+      storageBucket:     "mentecheck-6f19f.firebasestorage.app",
+      messagingSenderId: "954208277838",
+      appId:             "1:954208277838:web:80a5093ff550676671ba1f"
+    };
+
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    const TESTS_DEFAULT = [
-      { slug:"ansiedad",             nombre:"Test de ansiedad",                    fase:"Fase 1 — Alto tráfico + conversión" },
-      { slug:"depresion",            nombre:"Test de depresión",                   fase:"Fase 1 — Alto tráfico + conversión" },
-      { slug:"autoestima",           nombre:"Test de autoestima",                  fase:"Fase 1 — Alto tráfico + conversión" },
-      { slug:"burnout",              nombre:"Test de estrés laboral / burnout",     fase:"Fase 1 — Alto tráfico + conversión" },
-      { slug:"ansiedad-social",      nombre:"Test de ansiedad social",             fase:"Fase 1 — Alto tráfico + conversión" },
-      { slug:"relacion-toxica",      nombre:"¿Tu relación es tóxica?",             fase:"Fase 2 — Tests virales" },
-      { slug:"dependencia-emocional",nombre:"Test de dependencia emocional",       fase:"Fase 2 — Tests virales" },
-      { slug:"ex-pareja",            nombre:"¿Sigues atrapado en tu ex?",          fase:"Fase 2 — Tests virales" },
-      { slug:"inteligencia-emocional",nombre:"Test de inteligencia emocional",     fase:"Fase 2 — Tests virales" },
-      { slug:"personalidad",         nombre:"Test de personalidad psicológica",    fase:"Fase 2 — Tests virales" },
-      { slug:"heridas-infancia",     nombre:"Test de heridas de la infancia",      fase:"Fase 3 — Problemas profundos" },
-      { slug:"apego-emocional",      nombre:"Test de apego emocional",             fase:"Fase 3 — Problemas profundos" },
-      { slug:"trauma",               nombre:"Test de trauma emocional",            fase:"Fase 3 — Problemas profundos" },
-      { slug:"miedo-abandono",       nombre:"Test de miedo al abandono",           fase:"Fase 3 — Problemas profundos" },
-      { slug:"impostor",             nombre:"Test de síndrome del impostor",       fase:"Fase 3 — Problemas profundos" },
-      { slug:"adiccion-celular",     nombre:"Test de adicción al celular",         fase:"Fase 4 — Nichos modernos" },
-      { slug:"adiccion-redes",       nombre:"Test de adicción a redes sociales",   fase:"Fase 4 — Nichos modernos" },
-      { slug:"agotamiento-digital",  nombre:"Test de agotamiento mental digital",  fase:"Fase 4 — Nichos modernos" },
-      { slug:"procrastinacion",      nombre:"Test de procrastinación",             fase:"Fase 4 — Nichos modernos" },
-      { slug:"overthinking",         nombre:"Test de sobrepensamiento (overthinking)", fase:"Fase 4 — Nichos modernos" },
+    // Catálogo completo de los 20 tests — sirve como fuente del dropdown
+    const CATALOGO = [
+      { slug:"ansiedad",              nombre:"Test de ansiedad",                       fase:"Fase 1" },
+      { slug:"depresion",             nombre:"Test de depresión",                      fase:"Fase 1" },
+      { slug:"autoestima",            nombre:"Test de autoestima",                     fase:"Fase 1" },
+      { slug:"burnout",               nombre:"Test de estrés laboral / burnout",        fase:"Fase 1" },
+      { slug:"ansiedad-social",       nombre:"Test de ansiedad social",                fase:"Fase 1" },
+      { slug:"relacion-toxica",       nombre:"¿Tu relación es tóxica?",                fase:"Fase 2" },
+      { slug:"dependencia-emocional", nombre:"Test de dependencia emocional",          fase:"Fase 2" },
+      { slug:"ex-pareja",             nombre:"¿Sigues atrapado en tu ex?",             fase:"Fase 2" },
+      { slug:"inteligencia-emocional",nombre:"Test de inteligencia emocional",         fase:"Fase 2" },
+      { slug:"personalidad",          nombre:"Test de personalidad psicológica",       fase:"Fase 2" },
+      { slug:"heridas-infancia",      nombre:"Test de heridas de la infancia",         fase:"Fase 3" },
+      { slug:"apego-emocional",       nombre:"Test de apego emocional",                fase:"Fase 3" },
+      { slug:"trauma",                nombre:"Test de trauma emocional",               fase:"Fase 3" },
+      { slug:"miedo-abandono",        nombre:"Test de miedo al abandono",              fase:"Fase 3" },
+      { slug:"impostor",              nombre:"Test de síndrome del impostor",          fase:"Fase 3" },
+      { slug:"adiccion-celular",      nombre:"Test de adicción al celular",            fase:"Fase 4" },
+      { slug:"adiccion-redes",        nombre:"Test de adicción a redes sociales",      fase:"Fase 4" },
+      { slug:"agotamiento-digital",   nombre:"Test de agotamiento mental digital",     fase:"Fase 4" },
+      { slug:"procrastinacion",       nombre:"Test de procrastinación",                fase:"Fase 4" },
+      { slug:"overthinking",          nombre:"Test de sobrepensamiento (overthinking)", fase:"Fase 4" },
     ];
 
-    let estadosTests = {};
-    let statsTests   = {};
+    let testsRegistrados = {}; // los que existen en Firestore
+    let statsTests       = {}; // leads por test
 
     onAuthStateChanged(auth, async user => {
       if (!user) { window.location.href = "index.html"; return; }
       document.getElementById("loadingOverlay").classList.add("hidden");
       document.getElementById("adminName").textContent = user.email.split("@")[0];
 
-      // Cargar estados desde Firestore
-      const snap = await getDocs(collection(db, "tests"));
-      snap.docs.forEach(d => { estadosTests[d.id] = d.data(); });
+      // Cargar en paralelo
+      const [testsSnap, leadsSnap] = await Promise.all([
+        getDocs(collection(db, "tests")),
+        getDocs(collection(db, "leads"))
+      ]);
 
-      // Cargar estadísticas de leads por test
-      const leadsSnap = await getDocs(collection(db, "leads"));
+      testsSnap.docs.forEach(d => { testsRegistrados[d.id] = d.data(); });
       leadsSnap.docs.forEach(d => {
         const t = d.data().test;
         if (t) statsTests[t] = (statsTests[t] || 0) + 1;
       });
 
       renderTests();
+      poblarDropdown();
     });
 
     window.logout = async () => { await signOut(auth); window.location.href = "index.html"; };
 
+    // ── Renderizar solo los tests registrados en Firestore ──
     function renderTests() {
-      const fases = [...new Set(TESTS_DEFAULT.map(t => t.fase))];
-      let html = "";
+      const registrados = Object.keys(testsRegistrados);
+      document.getElementById("totalTests").textContent =
+        `${registrados.length} registrado${registrados.length !== 1 ? "s" : ""}`;
 
-      fases.forEach(fase => {
-        const testsEnFase = TESTS_DEFAULT.filter(t => t.fase === fase);
-        html += `<div class="fase-label">${fase}</div>`;
-        testsEnFase.forEach((t, i) => {
-          const idx    = TESTS_DEFAULT.indexOf(t) + 1;
-          const estado = estadosTests[t.slug];
-          const activo = estado ? estado.activo !== false : false; // por defecto inactivo hasta lanzar
+      if (!registrados.length) {
+        document.getElementById("listaTests").innerHTML = `
+          <div class="empty-tests">
+            <div class="empty-icon">🧪</div>
+            <p>Aún no has registrado ningún test.</p>
+            <button class="btn btn-primary btn-sm" onclick="abrirModalTest()">+ Registrar primer test</button>
+          </div>`;
+        return;
+      }
+
+      // Agrupar por fase
+      const porFase = {};
+      registrados.forEach(slug => {
+        const info = CATALOGO.find(c => c.slug === slug);
+        if (!info) return;
+        const fase = info.fase;
+        if (!porFase[fase]) porFase[fase] = [];
+        porFase[fase].push({ ...info, ...testsRegistrados[slug] });
+      });
+
+      let html = "";
+      Object.keys(porFase).sort().forEach(fase => {
+        html += `<div class="fase-label">${fase} — ${faseName(fase)}</div>`;
+        porFase[fase].forEach((t, idx) => {
+          const activo = t.activo !== false;
           const leads  = statsTests[t.slug] || 0;
+          const num    = CATALOGO.findIndex(c => c.slug === t.slug) + 1;
           html += `
-            <div class="test-card" style="margin-bottom:8px">
-              <div class="test-num">${String(idx).padStart(2,"0")}</div>
+            <div class="test-card" style="margin-bottom:8px" id="card-${t.slug}">
+              <div class="test-num">${String(num).padStart(2,"0")}</div>
               <div class="test-info">
                 <div class="test-name">${t.nombre}</div>
-                <div class="test-url">mentecheck.mx/tests/${t.slug}</div>
+                <div class="test-url">checkmente.github.io/mentecheck/tests/${t.slug}/</div>
                 <div class="test-stats">
-                  <span><span class="test-stat-val">${leads}</span> leads</span>
-                  ${activo ? '<span style="color:var(--success)">● Activo</span>' : '<span style="color:var(--muted)">● Inactivo</span>'}
+                  <span><span class="test-stat-val">${leads}</span> lead${leads!==1?"s":""}</span>
+                  <span id="estado-${t.slug}" style="color:${activo?"var(--success)":"var(--muted)"}">
+                    ● ${activo?"Activo":"Pausado"}
+                  </span>
                 </div>
               </div>
               <div class="toggle-wrap">
                 <label class="toggle">
-                  <input type="checkbox" ${activo?"checked":""} onchange="toggleTest('${t.slug}', this.checked)">
+                  <input type="checkbox" ${activo?"checked":""} onchange="toggleTest('${t.slug}', this.checked, this)">
                   <span class="toggle-slider"></span>
                 </label>
-                <span class="toggle-label">${activo?"Activo":"Pausado"}</span>
+                <span class="toggle-label" id="label-${t.slug}">${activo?"Activo":"Pausado"}</span>
               </div>
+              <button class="btn-delete" onclick="eliminarTest('${t.slug}')" title="Quitar del panel">🗑️</button>
             </div>`;
         });
       });
@@ -223,11 +296,103 @@
       document.getElementById("listaTests").innerHTML = html;
     }
 
-    window.toggleTest = async (slug, activo) => {
-      await setDoc(doc(db, "tests", slug), { activo, slug }, { merge: true });
-      estadosTests[slug] = { ...estadosTests[slug], activo };
-      renderTests();
+    function faseName(fase) {
+      const names = {
+        "Fase 1": "Alto tráfico + conversión",
+        "Fase 2": "Tests virales",
+        "Fase 3": "Problemas profundos",
+        "Fase 4": "Nichos modernos"
+      };
+      return names[fase] || fase;
+    }
+
+    // ── Toggle activo/pausado con feedback inmediato ──
+    window.toggleTest = async (slug, activo, checkbox) => {
+      const estadoEl = document.getElementById(`estado-${slug}`);
+      const labelEl  = document.getElementById(`label-${slug}`);
+      if (estadoEl) { estadoEl.textContent = `● ${activo?"Activo":"Pausado"}`; estadoEl.style.color = activo?"var(--success)":"var(--muted)"; }
+      if (labelEl)  { labelEl.textContent  = activo?"Activo":"Pausado"; }
+      try {
+        await setDoc(doc(db, "tests", slug), { activo, slug }, { merge: true });
+        testsRegistrados[slug] = { ...testsRegistrados[slug], activo };
+      } catch(e) {
+        if (checkbox) checkbox.checked = !activo;
+        if (estadoEl) { estadoEl.textContent = `● ${!activo?"Activo":"Pausado"}`; }
+        if (labelEl)  { labelEl.textContent  = !activo?"Activo":"Pausado"; }
+      }
     };
+
+    // ── Eliminar test del panel (no borra el repo) ──
+    window.eliminarTest = async (slug) => {
+      const info = CATALOGO.find(c => c.slug === slug);
+      if (!confirm(`¿Quitar "${info?.nombre}" del panel?\n\nEl archivo en el repo no se borra, solo deja de aparecer aquí.`)) return;
+      await deleteDoc(doc(db, "tests", slug));
+      delete testsRegistrados[slug];
+      renderTests();
+      poblarDropdown();
+    };
+
+    // ── Dropdown: solo muestra tests NO registrados aún ──
+    function poblarDropdown() {
+      const select = document.getElementById("selectTest");
+      const yaRegistrados = Object.keys(testsRegistrados);
+      const disponibles = CATALOGO.filter(c => !yaRegistrados.includes(c.slug));
+
+      select.innerHTML = `<option value="">— Elige un test —</option>`;
+      const fases = [...new Set(disponibles.map(c => c.fase))];
+      fases.forEach(fase => {
+        const group = document.createElement("optgroup");
+        group.label = `${fase} — ${faseName(fase)}`;
+        disponibles.filter(c => c.fase === fase).forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.slug;
+          opt.textContent = c.nombre;
+          group.appendChild(opt);
+        });
+        select.appendChild(group);
+      });
+
+      // Si no quedan tests disponibles
+      if (!disponibles.length) {
+        select.innerHTML = `<option value="">✅ Todos los tests registrados</option>`;
+      }
+    }
+
+    // ── Preview del test seleccionado ──
+    window.previewTest = () => {
+      const slug = document.getElementById("selectTest").value;
+      const preview = document.getElementById("testPreview");
+      if (!slug) { preview.classList.remove("visible"); return; }
+      const info = CATALOGO.find(c => c.slug === slug);
+      preview.innerHTML = `
+        <strong>${info.nombre}</strong><br>
+        URL: <code style="color:var(--cyan)">tests/${slug}/index.html</code><br>
+        Fase: ${info.fase} — ${faseName(info.fase)}
+      `;
+      preview.classList.add("visible");
+    };
+
+    // ── Registrar test en Firestore ──
+    window.registrarTest = async () => {
+      const slug = document.getElementById("selectTest").value;
+      if (!slug) { alert("Selecciona un test."); return; }
+      const info = CATALOGO.find(c => c.slug === slug);
+      await setDoc(doc(db, "tests", slug), {
+        slug,
+        nombre: info.nombre,
+        fase:   info.fase,
+        activo: true,
+        fecha_registro: new Date().toISOString()
+      });
+      testsRegistrados[slug] = { slug, nombre: info.nombre, fase: info.fase, activo: true };
+      cerrarModalTest();
+      renderTests();
+      poblarDropdown();
+    };
+
+    window.abrirModalTest  = () => { poblarDropdown(); document.getElementById("testPreview").classList.remove("visible"); document.getElementById("modalTest").classList.add("show"); };
+    window.cerrarModalTest = () => document.getElementById("modalTest").classList.remove("show");
+    document.getElementById("modalTest").addEventListener("click", e => { if (e.target === e.currentTarget) window.cerrarModalTest(); });
   </script>
 </body>
 </html>
