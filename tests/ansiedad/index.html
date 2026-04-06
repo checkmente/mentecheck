@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test de Ansiedad — MenteCheck</title>
+  <meta name="description" content="Descubre en 3 minutos si la ansiedad está afectando tu vida. Test gratuito, resultado inmediato y confidencial.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#070711;--surface:#0e0e1f;--card:#13132a;--border:#1f1f40;
+      --violet:#7c3aed;--violet-l:#9d62f5;--cyan:#06b6d4;--cyan-l:#38d4e8;
+      --text:#f0eeff;--text-2:#a89fcc;--muted:#5a5280;
+      --success:#10b981;--warning:#f59e0b;--danger:#ef4444;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{font-size:16px;scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+    .bg-scene{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);animation:breathe 9s ease-in-out infinite;}
+    .orb-1{width:600px;height:600px;background:var(--violet);top:-200px;left:-200px;opacity:.12;animation-delay:0s;}
+    .orb-2{width:400px;height:400px;background:var(--cyan);bottom:-100px;right:-100px;opacity:.1;animation-delay:-4s;}
+    .orb-3{width:300px;height:300px;background:#a855f7;top:40%;left:50%;opacity:.07;animation-delay:-7s;}
+    @keyframes breathe{0%,100%{transform:scale(1) translate(0,0)}50%{transform:scale(1.1) translate(15px,-15px)}}
+    .grain{position:fixed;inset:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:1;animation:grain .5s steps(1) infinite;}
+    @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-2%,-2%)}50%{transform:translate(2%,2%)}75%{transform:translate(-1%,1%)}}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(7,7,17,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(124,58,237,.1);}
+    .nav-logo{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-weight:700;font-size:18px;}
+    .nav-logo .dot{color:var(--cyan);}
+    .nav-badge{font-size:11px;color:var(--text-2);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:4px 12px;}
+
+    section{display:none;min-height:100vh;padding-top:70px;}
+    section.active{display:flex;align-items:center;}
+    .container{position:relative;z-index:10;width:100%;max-width:580px;margin:0 auto;padding:0 20px;}
+    .anim-up{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes bounce{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+
+    /* HERO */
+    #sec-hero .container{padding-top:40px;padding-bottom:60px;}
+    .hero-label{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);border-radius:20px;padding:5px 14px;margin-bottom:28px;}
+    .hero-label::before{content:'';width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+    h1{font-family:'Fraunces',serif;font-size:clamp(34px,8vw,52px);font-weight:700;line-height:1.1;letter-spacing:-.5px;margin-bottom:20px;}
+    h1 em{font-style:italic;color:transparent;background:linear-gradient(135deg,var(--violet-l),var(--cyan-l));-webkit-background-clip:text;background-clip:text;}
+    .hero-sub{font-size:17px;color:var(--text-2);line-height:1.6;margin-bottom:32px;max-width:460px;}
+    .trust-pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;}
+    .trust-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:6px 14px;}
+    .btn-start{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px;background:linear-gradient(135deg,var(--violet),var(--violet-l));border:none;border-radius:14px;color:#fff;font-family:'Fraunces',serif;font-size:18px;font-weight:600;cursor:pointer;box-shadow:0 8px 32px rgba(124,58,237,.4);transition:transform .2s,box-shadow .2s;margin-bottom:14px;}
+    .btn-start:hover{transform:translateY(-2px);box-shadow:0 16px 48px rgba(124,58,237,.5);}
+    .arr{transition:transform .2s;}.btn-start:hover .arr{transform:translateX(4px);}
+    .btn-note{text-align:center;font-size:12px;color:var(--muted);}
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:44px;padding-top:28px;border-top:1px solid var(--border);}
+    .stat-item{text-align:center;}
+    .stat-num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--violet-l);line-height:1;margin-bottom:4px;}
+    .stat-txt{font-size:11px;color:var(--muted);line-height:1.3;}
+
+    /* TEST */
+    #sec-test .container{padding-top:20px;padding-bottom:40px;}
+    .progress-wrap{margin-bottom:24px;}
+    .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+    .progress-label{font-size:12px;color:var(--muted);font-weight:500;}
+    .progress-count{font-size:13px;color:var(--text-2);font-weight:600;}
+    .progress-bar-wrap{height:4px;background:var(--border);border-radius:4px;overflow:hidden;}
+    .progress-bar{height:100%;background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:4px;transition:width .4s cubic-bezier(.22,1,.36,1);}
+
+    .bloque-header{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:12px 16px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:10px;}
+    .bloque-icon{font-size:20px;}
+    .bloque-info{flex:1;}
+    .bloque-name{font-size:13px;font-weight:700;color:var(--violet-l);}
+    .bloque-desc{font-size:11px;color:var(--muted);margin-top:2px;}
+    .bloque-prog{font-size:11px;color:var(--muted);white-space:nowrap;}
+
+    .question-num{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--violet-l);margin-bottom:10px;}
+    .question-text{font-family:'Fraunces',serif;font-size:clamp(18px,4.5vw,24px);font-weight:600;line-height:1.35;margin-bottom:26px;color:var(--text);}
+
+    .options{display:flex;flex-direction:column;gap:8px;}
+    .option{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:border-color .15s,background .15s,transform .15s;text-align:left;width:100%;}
+    .option:hover{border-color:var(--violet);background:rgba(124,58,237,.07);transform:translateX(4px);}
+    .option.selected{border-color:var(--violet);background:rgba(124,58,237,.12);}
+    .opt-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);flex-shrink:0;transition:background .15s,border-color .15s;display:flex;align-items:center;justify-content:center;}
+    .option.selected .opt-dot{background:var(--violet);border-color:var(--violet);}
+    .option.selected .opt-dot::after{content:'✓';font-size:11px;color:#fff;font-weight:700;}
+    .opt-text{font-size:14px;color:var(--text-2);line-height:1.3;}
+    .option.selected .opt-text{color:var(--text);font-weight:500;}
+
+    .btn-next{width:100%;padding:15px;background:linear-gradient(135deg,var(--violet),var(--violet-l));border:none;border-radius:12px;color:#fff;font-family:'Fraunces',serif;font-size:16px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 20px rgba(124,58,237,.35);transition:opacity .2s,transform .15s;display:none;}
+    .btn-next.visible{display:block;}
+    .btn-next:hover{transform:translateY(-1px);opacity:.92;}
+
+    /* CAPTURA */
+    #sec-captura .container{padding-top:24px;padding-bottom:60px;}
+    .captura-icon{font-size:52px;display:block;text-align:center;margin-bottom:16px;animation:bounce .6s ease both;}
+    .captura-title{font-family:'Fraunces',serif;font-size:clamp(22px,5vw,30px);font-weight:700;text-align:center;margin-bottom:10px;}
+    .captura-sub{font-size:15px;color:var(--text-2);line-height:1.6;text-align:center;margin-bottom:28px;}
+    .form-field{margin-bottom:14px;}
+    .form-label{display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+    .form-input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;}
+    .form-input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.12);}
+    .form-input::placeholder{color:var(--muted);}
+    .consent-wrap{display:flex;gap:12px;align-items:flex-start;margin:16px 0;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;}
+    .consent-wrap input[type="checkbox"]{width:18px;height:18px;flex-shrink:0;accent-color:var(--violet);margin-top:2px;cursor:pointer;}
+    .consent-text{font-size:12px;color:var(--muted);line-height:1.5;}
+    .btn-ver{width:100%;padding:17px;background:linear-gradient(135deg,var(--violet),var(--cyan));border:none;border-radius:12px;color:#fff;font-family:'Fraunces',serif;font-size:17px;font-weight:600;cursor:pointer;box-shadow:0 8px 32px rgba(124,58,237,.4);transition:transform .15s,opacity .2s;}
+    .btn-ver:hover{transform:translateY(-2px);opacity:.92;}
+    .btn-ver:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    .spinner{display:inline-block;width:17px;height:17px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:7px;}
+
+    /* RESULTADO */
+    #sec-resultado .container{padding-top:24px;padding-bottom:60px;}
+    .res-top{text-align:center;margin-bottom:28px;}
+    .nivel-badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 20px;border-radius:20px;margin-bottom:18px;}
+    .nivel-bajo{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);}
+    .nivel-moderado{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3);}
+    .nivel-alto{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+    .res-titulo{font-family:'Fraunces',serif;font-size:clamp(22px,5vw,34px);font-weight:700;line-height:1.2;margin-bottom:14px;}
+    .res-sub{font-size:16px;color:var(--text-2);line-height:1.6;margin-bottom:24px;}
+
+    .score-bar-wrap{margin-bottom:28px;}
+    .score-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px;}
+    .score-bar-track{height:10px;background:var(--border);border-radius:10px;overflow:hidden;}
+    .score-bar-fill{height:100%;border-radius:10px;width:0%;transition:width 1.2s cubic-bezier(.22,1,.36,1);}
+    .fill-bajo{background:linear-gradient(90deg,#10b981,#34d399);}
+    .fill-moderado{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+    .fill-alto{background:linear-gradient(90deg,#ef4444,#f87171);}
+    .score-marks{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:5px;}
+
+    .bloques-titulo{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--text-2);margin-bottom:12px;}
+    .bloques-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+    .bloque-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;gap:10px;align-items:flex-start;}
+    .bloque-card-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+    .bloque-card-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+    .bloque-card-desc{font-size:11px;color:var(--muted);line-height:1.4;}
+
+    .explicacion{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--violet);border-radius:10px;padding:20px;margin-bottom:22px;font-size:15px;color:var(--text-2);line-height:1.7;}
+    .stat-ctx{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:16px 20px;margin-bottom:24px;display:flex;gap:14px;align-items:center;}
+    .stat-ctx-num{font-family:'Fraunces',serif;font-size:36px;font-weight:700;color:var(--violet-l);flex-shrink:0;line-height:1;}
+    .stat-ctx-txt{font-size:13px;color:var(--text-2);line-height:1.5;}
+
+    .crisis-box{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;color:#fca5a5;display:none;line-height:1.5;}
+    .crisis-box.visible{display:block;}
+    .crisis-box a{color:#f87171;font-weight:600;}
+
+    .cta-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;margin-bottom:20px;}
+    .cta-titulo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:8px;}
+    .cta-sub{font-size:14px;color:var(--text-2);margin-bottom:20px;line-height:1.5;}
+    .btn-cta{display:block;width:100%;padding:16px;border:none;border-radius:12px;font-family:'Fraunces',serif;font-size:17px;font-weight:600;cursor:pointer;text-decoration:none;text-align:center;margin-bottom:10px;transition:transform .15s,opacity .2s;}
+    .btn-cta:hover{transform:translateY(-1px);opacity:.9;}
+    .btn-bajo{background:linear-gradient(135deg,var(--success),#059669);color:#fff;box-shadow:0 4px 20px rgba(16,185,129,.35);}
+    .btn-moderado{background:linear-gradient(135deg,var(--violet),var(--violet-l));color:#fff;box-shadow:0 4px 20px rgba(124,58,237,.4);}
+    .btn-alto{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;box-shadow:0 4px 20px rgba(239,68,68,.4);}
+    .btn-wa{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:rgba(37,211,102,.1);border:1.5px solid rgba(37,211,102,.3);border-radius:12px;color:#4ade80;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .15s;}
+    .btn-wa:hover{background:rgba(37,211,102,.18);}
+
+    .disclaimer{font-size:11px;color:var(--muted);line-height:1.6;text-align:center;padding:16px;border-top:1px solid var(--border);margin-top:20px;}
+    .footer{text-align:center;padding:16px;font-size:11px;color:var(--muted);position:relative;z-index:10;}
+    .footer span{color:var(--violet-l);}
+
+    @media(max-width:400px){
+      .bloques-grid{grid-template-columns:1fr;}
+      .stats-row{grid-template-columns:1fr;gap:16px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-scene">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+<div class="grain"></div>
+
+<nav>
+  <div class="nav-logo">🧠 Mente<span class="dot">Check</span></div>
+  <div class="nav-badge">Test gratuito · 3 min</div>
+</nav>
+
+<!-- HERO -->
+<section id="sec-hero" class="active">
+  <div class="container anim-up">
+    <div class="hero-label">Test de Ansiedad · 3 minutos</div>
+    <h1>¿Tu mente nunca<br><em>descansa?</em></h1>
+    <p class="hero-sub">La ansiedad no siempre se ve por fuera. A veces es esa voz interna que no para, el corazón acelerado sin razón, o sentir que algo malo está por pasar. <strong>Este test te ayuda a entender qué está pasando.</strong></p>
+    <div class="trust-pills">
+      <div class="trust-pill">🔒 100% confidencial</div>
+      <div class="trust-pill">✅ Resultado inmediato</div>
+      <div class="trust-pill">🎁 Completamente gratis</div>
+      <div class="trust-pill">📋 Basado en criterios clínicos</div>
+    </div>
+    <button class="btn-start" onclick="iniciarTest()">Descubrir mi nivel de ansiedad <span class="arr">→</span></button>
+    <p class="btn-note">30 preguntas · 6 bloques · Sin registro previo · Sin tarjeta</p>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num">1 de 3</div><div class="stat-txt">personas experimenta ansiedad sin identificarla</div></div>
+      <div class="stat-item"><div class="stat-num">3 min</div><div class="stat-txt">para obtener tu resultado personalizado</div></div>
+      <div class="stat-item"><div class="stat-num">0 $</div><div class="stat-txt">sin cobros ni suscripciones ocultas</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TEST -->
+<section id="sec-test">
+  <div class="container">
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span class="progress-label">Tu progreso</span>
+        <span class="progress-count" id="progCount">1 / 30</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progBar" style="width:3%"></div></div>
+    </div>
+    <div class="bloque-header" id="bloqueHeader">
+      <span class="bloque-icon" id="bloqueIcon">🧠</span>
+      <div class="bloque-info">
+        <div class="bloque-name" id="bloqueName"></div>
+        <div class="bloque-desc" id="bloqueDesc"></div>
+      </div>
+      <span class="bloque-prog" id="bloqueProg"></span>
+    </div>
+    <div id="questionWrap">
+      <div class="question-num" id="questionNum"></div>
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsWrap"></div>
+      <button class="btn-next" id="btnNext" onclick="siguientePregunta()">Continuar →</button>
+    </div>
+  </div>
+</section>
+
+<!-- CAPTURA -->
+<section id="sec-captura">
+  <div class="container anim-up">
+    <span class="captura-icon">📊</span>
+    <div class="captura-title">¡Ya casi tienes tu resultado!</div>
+    <p class="captura-sub">Ingresa tus datos para ver tu evaluación personalizada. También te la enviaremos a tu correo para consultarla cuando quieras.</p>
+    <div class="form-field">
+      <label class="form-label">Tu nombre</label>
+      <input type="text" class="form-input" id="inNombre" placeholder="¿Cómo te llamas?" autocomplete="given-name">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Correo electrónico</label>
+      <input type="email" class="form-input" id="inEmail" placeholder="tu@correo.com" autocomplete="email">
+    </div>
+    <div class="form-field">
+      <label class="form-label">WhatsApp <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;font-size:11px">(opcional)</span></label>
+      <input type="tel" class="form-input" id="inWa" placeholder="Ej: 5512345678" autocomplete="tel">
+    </div>
+    <div class="consent-wrap">
+      <input type="checkbox" id="inConsent">
+      <span class="consent-text">Acepto que MenteCheck guarde mis datos para enviarme mi resultado y, si lo deseo, conectarme con un psicólogo. Mis datos no serán compartidos con terceros sin mi consentimiento.</span>
+    </div>
+    <button class="btn-ver" id="btnVer" onclick="verResultado()">Ver mi resultado →</button>
+  </div>
+</section>
+
+<!-- RESULTADO -->
+<section id="sec-resultado">
+  <div class="container anim-up">
+    <div class="res-top">
+      <div class="nivel-badge" id="nivelBadge"></div>
+      <div class="res-titulo" id="resTitulo"></div>
+      <p class="res-sub" id="resSub"></p>
+    </div>
+    <div class="score-bar-wrap">
+      <div class="score-bar-label">
+        <span>Tu puntuación</span>
+        <span id="scoreNum"></span>
+      </div>
+      <div class="score-bar-track"><div class="score-bar-fill" id="scoreBarFill"></div></div>
+      <div class="score-marks"><span>0 (Bajo)</span><span>30</span><span>70</span><span>120 (Alto)</span></div>
+    </div>
+    <div class="bloques-titulo">Áreas donde la ansiedad te está afectando:</div>
+    <div class="bloques-grid" id="bloquesGrid"></div>
+    <div class="explicacion" id="explicacionTxt"></div>
+    <div class="stat-ctx" id="statCtx"></div>
+    <div class="crisis-box" id="crisisBox">
+      🆘 Si estás teniendo pensamientos de hacerte daño, comunícate ahora con una línea de crisis: <a href="tel:800-290-0024">800-290-0024</a> (México, gratuita 24h).
+    </div>
+    <div class="cta-box">
+      <div class="cta-titulo" id="ctaTitulo"></div>
+      <p class="cta-sub" id="ctaSub"></p>
+      <a href="#" class="btn-cta" id="btnCtaMain" target="_blank"></a>
+      <a href="#" class="btn-wa" id="btnCtaWa" target="_blank">💬 Escribir por WhatsApp</a>
+    </div>
+    <div class="disclaimer">⚠️ Este test es orientativo y <strong>no constituye un diagnóstico clínico</strong>. Solo un profesional de la salud mental puede hacer un diagnóstico. Los resultados son para fines de autoconocimiento.</div>
+  </div>
+</section>
+
+<div class="footer">MenteCheck © 2025 · Hecho con 💜 en México · <span>Tu bienestar importa</span></div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const app = initializeApp({
+    apiKey:"AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
+    authDomain:"mentecheck-6f19f.firebaseapp.com",
+    projectId:"mentecheck-6f19f",
+    storageBucket:"mentecheck-6f19f.firebasestorage.app",
+    messagingSenderId:"954208277838",
+    appId:"1:954208277838:web:80a5093ff550676671ba1f"
+  });
+  const db = getFirestore(app);
+  window._db=db; window._col=collection; window._add=addDoc; window._ts=serverTimestamp;
+</script>
+
+<script>
+// ══════════ DATOS DEL TEST ══════════
+const BLOQUES = [
+  { nombre:"Bloque 1 — Pensamientos ansiosos", desc:"Cómo trabaja tu mente cuando se preocupa", icon:"🧠",
+    preguntas:["Me preocupa constantemente que algo malo pueda suceder.","Me cuesta dejar de pensar en problemas o situaciones negativas.","Siento que mi mente no puede \"apagarse\".","Imagino escenarios negativos con frecuencia.","Me cuesta controlar mis pensamientos cuando estoy preocupado/a."]},
+  { nombre:"Bloque 2 — Síntomas físicos", desc:"Cómo se manifiesta la ansiedad en tu cuerpo", icon:"💓",
+    preguntas:["Siento tensión en el cuerpo o los músculos.","Mi corazón late más rápido cuando estoy preocupado/a.","Siento presión en el pecho o dificultad para respirar.","Tengo molestias estomacales cuando estoy nervioso/a.","Siento cansancio por estar preocupado/a."]},
+  { nombre:"Bloque 3 — Problemas de sueño", desc:"Cómo afecta la ansiedad tu descanso", icon:"😴",
+    preguntas:["Me cuesta dormir porque mi mente sigue pensando.","Me despierto durante la noche con preocupaciones.","Siento que no descanso bien por pensamientos constantes.","Me cuesta relajarme antes de dormir.","Siento ansiedad antes de acostarme."]},
+  { nombre:"Bloque 4 — Comportamientos de ansiedad", desc:"Cómo la ansiedad influye en tus decisiones", icon:"🚧",
+    preguntas:["Evito situaciones que me generan nerviosismo.","Me cuesta enfrentar problemas directamente.","Me siento incómodo/a en situaciones sociales.","Prefiero evitar actividades que me generen estrés.","Busco constantemente seguridad o confirmación de otros."]},
+  { nombre:"Bloque 5 — Impacto emocional", desc:"Cómo te sientes emocionalmente", icon:"🌊",
+    preguntas:["Me siento inquieto/a o nervioso/a sin motivo claro.","Me siento abrumado/a por problemas pequeños.","Siento que pierdo el control de mis emociones.","Me cuesta relajarme incluso cuando todo está bien.","Me siento irritable por preocupaciones constantes."]},
+  { nombre:"Bloque 6 — Impacto en la vida diaria", desc:"Cómo afecta la ansiedad tu día a día", icon:"🗓️",
+    preguntas:["Mi ansiedad afecta mi concentración.","Mi ansiedad afecta mi trabajo o estudios.","Mi ansiedad afecta mis relaciones.","Siento que mi ansiedad limita lo que quiero hacer.","Siento que mis preocupaciones afectan mi calidad de vida."]}
+];
+
+const OPCIONES = ["Nunca","Rara vez","A veces","Frecuentemente","Casi siempre"];
+const TOTAL = 30;
+const MAX   = 120;
+
+// ══════════ ESTADO ══════════
+let bloqueIdx=0, pregIdx=0, pregGlobal=0;
+let respuestas=[], seleccion=null, puntuacion=0, waMsg="";
+const fuente = new URLSearchParams(window.location.search).get("utm_source") || "directo";
+
+// ══════════ NAVEGACIÓN ══════════
+function mostrarSeccion(id) {
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  const s = document.getElementById(id);
+  s.classList.remove("active"); void s.offsetWidth; s.classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+window.iniciarTest = () => {
+  bloqueIdx=0;pregIdx=0;pregGlobal=0;respuestas=[];seleccion=null;puntuacion=0;
+  mostrarSeccion("sec-test");
+  renderPregunta();
+};
+
+// ══════════ RENDERIZAR PREGUNTA ══════════
+function renderPregunta() {
+  const b = BLOQUES[bloqueIdx];
+
+  const wrap = document.getElementById("questionWrap");
+  wrap.style.animation="none"; void wrap.offsetWidth;
+  wrap.style.animation="slideIn .4s cubic-bezier(.22,1,.36,1) both";
+
+  document.getElementById("bloqueIcon").textContent = b.icon;
+  document.getElementById("bloqueName").textContent = b.nombre;
+  document.getElementById("bloqueDesc").textContent = b.desc;
+  document.getElementById("bloqueProg").textContent = `${pregIdx+1}/${b.preguntas.length}`;
+  document.getElementById("questionNum").textContent  = `Pregunta ${pregGlobal+1}`;
+  document.getElementById("questionText").textContent = b.preguntas[pregIdx];
+  document.getElementById("progCount").textContent    = `${pregGlobal+1} / ${TOTAL}`;
+  document.getElementById("progBar").style.width      = `${((pregGlobal+1)/TOTAL)*100}%`;
+
+  const container = document.getElementById("optionsWrap");
+  container.innerHTML = "";
+  OPCIONES.forEach((txt,i) => {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.innerHTML = `<span class="opt-dot"></span><span class="opt-text">${txt}</span>`;
+    btn.onclick = () => {
+      document.querySelectorAll(".option").forEach(o=>o.classList.remove("selected"));
+      btn.classList.add("selected");
+      seleccion = i;
+      document.getElementById("btnNext").classList.add("visible");
+    };
+    container.appendChild(btn);
+  });
+
+  seleccion = null;
+  document.getElementById("btnNext").classList.remove("visible");
+}
+
+window.siguientePregunta = () => {
+  if (seleccion === null) return;
+  const b = BLOQUES[bloqueIdx];
+  respuestas.push({ bloque:b.nombre, pregunta:b.preguntas[pregIdx], respuesta:OPCIONES[seleccion], valor:seleccion });
+  puntuacion += seleccion;
+  pregGlobal++;
+  pregIdx++;
+  if (pregIdx >= b.preguntas.length) { bloqueIdx++; pregIdx=0; }
+  if (pregGlobal < TOTAL) renderPregunta();
+  else mostrarSeccion("sec-captura");
+};
+
+// ══════════ VER RESULTADO ══════════
+window.verResultado = async () => {
+  const nombre  = document.getElementById("inNombre").value.trim();
+  const email   = document.getElementById("inEmail").value.trim();
+  const wa      = document.getElementById("inWa").value.trim();
+  const consent = document.getElementById("inConsent").checked;
+
+  if (!nombre)                   { alert("Por favor ingresa tu nombre.");          return; }
+  if (!email||!email.includes("@")){ alert("Por favor ingresa un email válido."); return; }
+  if (!consent)                  { alert("Necesitamos tu consentimiento.");         return; }
+
+  const btn = document.getElementById("btnVer");
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Calculando...';
+
+  // Nivel según rangos oficiales
+  const nivel = puntuacion<=30 ? "bajo" : puntuacion<=70 ? "moderado" : "alto";
+
+  // Firebase
+  try {
+    await window._add(window._col(window._db,"leads"),{
+      nombre,email,whatsapp:wa||"",test:"ansiedad",nivel,
+      puntuacion,puntuacion_max:MAX,respuestas,fuente,
+      estado:"nuevo",consentimiento:true,fecha:window._ts(),notas:""
+    });
+  } catch(e){ console.warn("Firebase:",e.message); }
+
+  // WA automático
+  if (wa) {
+    const num = wa.replace(/\D/g,"");
+    waMsg = `https://wa.me/52${num}?text=${encodeURIComponent(`Hola ${nombre} 👋\n\nRecibimos tu resultado del Test de Ansiedad de MenteCheck.\nTu nivel es: *${nivel.charAt(0).toUpperCase()+nivel.slice(1)}* (${puntuacion}/${MAX} puntos).\n\n¿Te gustaría hablar con un psicólogo esta semana? Podemos ayudarte sin compromiso 💙\n\n— Equipo MenteCheck`)}`;
+  }
+
+  renderResultado(nombre,nivel,puntuacion);
+  mostrarSeccion("sec-resultado");
+  btn.disabled=false; btn.innerHTML="Ver mi resultado →";
+};
+
+// ══════════ RESULTADO ══════════
+function renderResultado(nombre, nivel, pts) {
+  const pct = Math.round((pts/MAX)*100);
+
+  document.getElementById("nivelBadge").className   = `nivel-badge nivel-${nivel}`;
+  document.getElementById("nivelBadge").textContent = nivel==="bajo"?"Ansiedad Baja":nivel==="moderado"?"Ansiedad Moderada":"Ansiedad Alta";
+  document.getElementById("scoreNum").textContent   = `${pts} / ${MAX} puntos`;
+  setTimeout(()=>{
+    const f = document.getElementById("scoreBarFill");
+    f.className = `score-bar-fill fill-${nivel}`;
+    f.style.width = pct+"%";
+  },300);
+
+  const C = {
+    bajo:{
+      titulo:`${nombre}, tu ansiedad está en un nivel manejable`,
+      sub:"Tus respuestas indican niveles bajos de ansiedad. Una buena señal, aunque siempre vale conocerse mejor y aprender herramientas para mantener ese equilibrio.",
+      bloques:[
+        {icon:"😌",name:"Pensamientos",desc:"Tu mente logra calmarse con relativa facilidad"},
+        {icon:"💪",name:"Cuerpo",desc:"Pocos síntomas físicos asociados a la ansiedad"},
+        {icon:"😴",name:"Sueño",desc:"Tu descanso no parece muy comprometido"},
+        {icon:"🌱",name:"Vida diaria",desc:"La ansiedad no limita significativamente tus actividades"}
+      ],
+      exp:"Aunque tu nivel es bajo, nadie está exento de que la ansiedad crezca en momentos de estrés. Conocer cómo funciona tu mente es una de las mejores inversiones para tu bienestar a largo plazo.",
+      stat:{num:"1 de 3",txt:"personas experimenta ansiedad en algún momento. Conocerte a tiempo marca la diferencia."},
+      ctaTitulo:"Sigue cuidando tu bienestar",
+      ctaSub:"Hablar con un psicólogo de forma preventiva puede darte herramientas valiosas antes de momentos difíciles.",
+      ctaBtn:"Conocer nuestros psicólogos →",ctaClase:"btn-cta btn-bajo"
+    },
+    moderado:{
+      titulo:`${nombre}, la ansiedad sí está afectando tu vida`,
+      sub:"Tus respuestas indican niveles moderados de ansiedad. No estás exagerando — lo que sientes es real y merece atención. La buena noticia es que este nivel es muy tratable.",
+      bloques:[
+        {icon:"🧠",name:"Pensamientos",desc:"Tendencia a anticipar lo peor y rumiación frecuente"},
+        {icon:"💓",name:"Síntomas físicos",desc:"Señales corporales de tensión con regularidad"},
+        {icon:"😴",name:"Sueño",desc:"Dificultad para desconectar la mente al descansar"},
+        {icon:"🔄",name:"Vida diaria",desc:"Algunas actividades y relaciones se ven limitadas"}
+      ],
+      exp:"El nivel moderado es el más común y también el más tratable. Muchas personas viven años con este nivel sin saber que hay formas concretas de sentirse mejor. Un psicólogo puede ayudarte a identificar los patrones específicos de tu ansiedad.",
+      stat:{num:"78%",txt:"de las personas con ansiedad moderada mejoran significativamente con acompañamiento psicológico en menos de 3 meses."},
+      ctaTitulo:"Hablar con un psicólogo esta semana",
+      ctaSub:"No tienes que seguir cargando esto solo/a. Tenemos psicólogos especializados en ansiedad disponibles para ti.",
+      ctaBtn:"Hablar con un psicólogo →",ctaClase:"btn-cta btn-moderado"
+    },
+    alto:{
+      titulo:`${nombre}, tu ansiedad necesita atención pronto`,
+      sub:"Tus respuestas indican niveles elevados de ansiedad que podrían beneficiarse del apoyo de un profesional. Lo que sientes tiene solución — merece atención prioritaria.",
+      bloques:[
+        {icon:"🚨",name:"Pensamientos",desc:"Estado de alerta mental casi constante"},
+        {icon:"😰",name:"Síntomas físicos",desc:"Señales corporales intensas y frecuentes"},
+        {icon:"🚧",name:"Comportamiento",desc:"La ansiedad bloquea actividades importantes"},
+        {icon:"🌀",name:"Vida diaria",desc:"Impacto significativo en trabajo, relaciones y bienestar"}
+      ],
+      exp:"Un nivel alto de ansiedad no significa que algo esté 'mal' contigo — significa que tu sistema nervioso ha aprendido a estar en modo de emergencia casi todo el tiempo. Eso tiene solución. La terapia especializada puede transformar cómo te sientes en semanas.",
+      stat:{num:"94%",txt:"de las personas con ansiedad alta que buscan apoyo profesional reportan mejoras importantes en su calidad de vida."},
+      ctaTitulo:"Atención prioritaria — Te ayudamos hoy",
+      ctaSub:"No dejes pasar más tiempo. Tenemos psicólogos especializados disponibles esta semana.",
+      ctaBtn:"Agenda una consulta psicológica online →",ctaClase:"btn-cta btn-alto"
+    }
+  };
+
+  const c = C[nivel];
+  document.getElementById("resTitulo").textContent     = c.titulo;
+  document.getElementById("resSub").textContent        = c.sub;
+  document.getElementById("explicacionTxt").textContent= c.exp;
+  document.getElementById("bloquesGrid").innerHTML     = c.bloques.map(b=>`<div class="bloque-card"><span class="bloque-card-icon">${b.icon}</span><div><div class="bloque-card-name">${b.name}</div><div class="bloque-card-desc">${b.desc}</div></div></div>`).join("");
+  document.getElementById("statCtx").innerHTML         = `<div class="stat-ctx-num">${c.stat.num}</div><div class="stat-ctx-txt">${c.stat.txt}</div>`;
+  document.getElementById("ctaTitulo").textContent     = c.ctaTitulo;
+  document.getElementById("ctaSub").textContent        = c.ctaSub;
+
+  const btnMain = document.getElementById("btnCtaMain");
+  btnMain.textContent = c.ctaBtn;
+  btnMain.className   = c.ctaClase;
+  // ⚠️ Reemplaza TUNUMERO con tu número de WhatsApp de MenteCheck
+  const waBase = `https://wa.me/52TUNUMERO?text=${encodeURIComponent("Hola, hice el test de ansiedad en MenteCheck y quiero agendar una consulta.")}`;
+  btnMain.href = waBase;
+  document.getElementById("btnCtaWa").href = waMsg || waBase;
+
+  if (nivel==="alto") document.getElementById("crisisBox").classList.add("visible");
+}
+</script>
+</body>
+</html>
