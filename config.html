@@ -13,12 +13,7 @@
       padding: 24px;
       margin-bottom: 20px;
     }
-    .config-section-title {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
+    .config-section-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 4px; }
     .config-section-desc { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
     .form-field { margin-bottom: 16px; }
     .form-label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing:.8px; text-transform:uppercase; margin-bottom:6px; }
@@ -51,9 +46,38 @@
       box-shadow: 0 8px 24px rgba(16,185,129,.4);
     }
     .save-banner.show { transform: translateY(0); }
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      transition: opacity .3s;
+    }
+    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+    .loading-spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--violet);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 13px; color: var(--muted); }
   </style>
 </head>
 <body>
+
+  <!-- Overlay de carga — evita parpadeo mientras Firebase confirma sesión -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <span class="loading-text">Verificando sesión...</span>
+  </div>
+
   <aside class="sidebar">
     <div class="sidebar-logo"><div class="logo-icon">🧠</div><div class="logo-name">Mente<span>Check</span></div></div>
     <div class="sidebar-section">
@@ -86,10 +110,9 @@
 
     <div class="page-content">
 
-      <!-- WhatsApp plantillas -->
       <div class="config-section">
         <div class="config-section-title">💬 Plantillas de WhatsApp</div>
-        <div class="config-section-desc">Mensajes que envías a los leads al contactarlos. Usa {nombre}, {test}, {nivel} como variables.</div>
+        <div class="config-section-desc">Mensajes que envías a los leads. Usa {nombre}, {test}, {nivel} como variables.</div>
         <div class="form-field">
           <label class="form-label">Mensaje inicial</label>
           <textarea class="form-input" id="waInicial">Hola {nombre} 👋
@@ -111,16 +134,15 @@ Hace un par de días completaste nuestro Test de {test} y quedamos en conectarte
           <label class="form-label">Seguimiento 2 (7 días sin respuesta)</label>
           <textarea class="form-input" id="waSeguimiento2">Hola {nombre}, último mensaje de nuestra parte 😊
 
-Si en algún momento decides retomar tu proceso, aquí estaremos para ayudarte a conectarte con el psicólogo adecuado.
+Si en algún momento decides retomar tu proceso, aquí estaremos para ayudarte.
 
 ¡Cuídate mucho! 💙 — Equipo MenteCheck</textarea>
         </div>
       </div>
 
-      <!-- EmailJS -->
       <div class="config-section">
         <div class="config-section-title">📧 Configuración EmailJS</div>
-        <div class="config-section-desc">Credenciales para el envío automático de emails con resultados. Obtén estas claves en emailjs.com</div>
+        <div class="config-section-desc">Credenciales para el envío automático de emails. Obtén estas claves en emailjs.com</div>
         <div class="form-grid">
           <div class="form-field">
             <label class="form-label">Service ID</label>
@@ -137,20 +159,18 @@ Si en algún momento decides retomar tu proceso, aquí estaremos para ayudarte a
         </div>
       </div>
 
-      <!-- Agenda -->
       <div class="config-section">
         <div class="config-section-title">📅 Link de agenda</div>
-        <div class="config-section-desc">URL que aparece en el botón "Agendar cita" en los emails y landings.</div>
+        <div class="config-section-desc">URL del botón "Agendar cita" en emails y landings.</div>
         <div class="form-field">
           <label class="form-label">URL de Calendly o página de citas</label>
           <input type="url" class="form-input" id="linkAgenda" placeholder="https://calendly.com/mentecheck/consulta">
         </div>
       </div>
 
-      <!-- Datos del negocio -->
       <div class="config-section">
         <div class="config-section-title">🏢 Datos del negocio</div>
-        <div class="config-section-desc">Información que aparece en emails y en las landings.</div>
+        <div class="config-section-desc">Información que aparece en emails y landings.</div>
         <div class="form-grid">
           <div class="form-field">
             <label class="form-label">Nombre del negocio</label>
@@ -177,33 +197,63 @@ Si en algún momento decides retomar tu proceso, aquí estaremos para ayudarte a
   <div class="save-banner" id="saveBanner">✅ Configuración guardada</div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey:"TU_API_KEY", authDomain:"mentecheck.firebaseapp.com", projectId:"mentecheck", storageBucket:"mentecheck.appspot.com", messagingSenderId:"TU_SENDER_ID", appId:"TU_APP_ID" };
+    const firebaseConfig = {
+      apiKey:            "AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
+      authDomain:        "mentecheck-6f19f.firebaseapp.com",
+      projectId:         "mentecheck-6f19f",
+      storageBucket:     "mentecheck-6f19f.firebasestorage.app",
+      messagingSenderId: "954208277838",
+      appId:             "1:954208277838:web:80a5093ff550676671ba1f"
+    };
+
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
+    const overlay = document.getElementById("loadingOverlay");
+
     onAuthStateChanged(auth, async user => {
-      if (!user) { window.location.href = "index.html"; return; }
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+      // Sesión confirmada — ocultar overlay y mostrar contenido
+      overlay.classList.add("hidden");
       document.getElementById("adminName").textContent = user.email.split("@")[0];
-      await cargarConfig();
+      try {
+        await cargarConfig();
+      } catch(e) {
+        console.warn("Config sin datos aún, se mostrará vacía:", e.message);
+      }
     });
-    window.logout = async () => { await signOut(auth); window.location.href = "index.html"; };
+
+    window.logout = async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    };
 
     async function cargarConfig() {
       const snap = await getDoc(doc(db, "config", "general"));
-      if (!snap.exists()) return;
+      if (!snap.exists()) return; // primera vez — formulario vacío, todo bien
       const c = snap.data();
       const map = {
-        waInicial: c.whatsapp_inicial, waSeguimiento1: c.whatsapp_seguimiento1,
-        waSeguimiento2: c.whatsapp_seguimiento2, ejsService: c.emailjs_service_id,
-        ejsTemplate: c.emailjs_template_id, ejsPublicKey: c.emailjs_public_key,
-        linkAgenda: c.link_agenda, negocioNombre: c.negocio_nombre,
-        negocioWa: c.negocio_whatsapp, negocioEmail: c.negocio_email, negocioWeb: c.negocio_web
+        waInicial:      c.whatsapp_inicial,
+        waSeguimiento1: c.whatsapp_seguimiento1,
+        waSeguimiento2: c.whatsapp_seguimiento2,
+        ejsService:     c.emailjs_service_id,
+        ejsTemplate:    c.emailjs_template_id,
+        ejsPublicKey:   c.emailjs_public_key,
+        linkAgenda:     c.link_agenda,
+        negocioNombre:  c.negocio_nombre,
+        negocioWa:      c.negocio_whatsapp,
+        negocioEmail:   c.negocio_email,
+        negocioWeb:     c.negocio_web
       };
       Object.entries(map).forEach(([id, val]) => {
         const el = document.getElementById(id);
@@ -212,23 +262,27 @@ Si en algún momento decides retomar tu proceso, aquí estaremos para ayudarte a
     }
 
     window.guardarTodo = async () => {
-      await setDoc(doc(db, "config", "general"), {
-        whatsapp_inicial:      document.getElementById("waInicial").value,
-        whatsapp_seguimiento1: document.getElementById("waSeguimiento1").value,
-        whatsapp_seguimiento2: document.getElementById("waSeguimiento2").value,
-        emailjs_service_id:    document.getElementById("ejsService").value,
-        emailjs_template_id:   document.getElementById("ejsTemplate").value,
-        emailjs_public_key:    document.getElementById("ejsPublicKey").value,
-        link_agenda:           document.getElementById("linkAgenda").value,
-        negocio_nombre:        document.getElementById("negocioNombre").value,
-        negocio_whatsapp:      document.getElementById("negocioWa").value,
-        negocio_email:         document.getElementById("negocioEmail").value,
-        negocio_web:           document.getElementById("negocioWeb").value,
-      }, { merge: true });
+      try {
+        await setDoc(doc(db, "config", "general"), {
+          whatsapp_inicial:      document.getElementById("waInicial").value,
+          whatsapp_seguimiento1: document.getElementById("waSeguimiento1").value,
+          whatsapp_seguimiento2: document.getElementById("waSeguimiento2").value,
+          emailjs_service_id:    document.getElementById("ejsService").value,
+          emailjs_template_id:   document.getElementById("ejsTemplate").value,
+          emailjs_public_key:    document.getElementById("ejsPublicKey").value,
+          link_agenda:           document.getElementById("linkAgenda").value,
+          negocio_nombre:        document.getElementById("negocioNombre").value,
+          negocio_whatsapp:      document.getElementById("negocioWa").value,
+          negocio_email:         document.getElementById("negocioEmail").value,
+          negocio_web:           document.getElementById("negocioWeb").value,
+        }, { merge: true });
 
-      const banner = document.getElementById("saveBanner");
-      banner.classList.add("show");
-      setTimeout(() => banner.classList.remove("show"), 3000);
+        const banner = document.getElementById("saveBanner");
+        banner.classList.add("show");
+        setTimeout(() => banner.classList.remove("show"), 3000);
+      } catch(e) {
+        alert("Error al guardar: " + e.message);
+      }
     };
   </script>
 </body>
