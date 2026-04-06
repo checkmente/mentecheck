@@ -257,19 +257,59 @@
 <div class="footer">MenteCheck © 2025 · Hecho con 💜 en México · <span>Tu bienestar importa</span></div>
 
 <script type="module">
-  // ── Importar config global (número de WA viene de aquí) ──
-  import { mcConfig, buildWaLink, interpolar, db } from "../../js/mc-config.js";
-  import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  // ── Firebase y config se cargan en background, no bloquean la UI ──
+  import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // Cargar config al inicio
-  let CFG = await mcConfig;
-  window._CFG = CFG;
+  const app = initializeApp({
+    apiKey:            "AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
+    authDomain:        "mentecheck-6f19f.firebaseapp.com",
+    projectId:         "mentecheck-6f19f",
+    storageBucket:     "mentecheck-6f19f.firebasestorage.app",
+    messagingSenderId: "954208277838",
+    appId:             "1:954208277838:web:80a5093ff550676671ba1f"
+  });
+  const db = getFirestore(app);
+
+  // Exponer Firebase inmediatamente
   window._db  = db;
   window._col = collection;
   window._add = addDoc;
   window._ts  = serverTimestamp;
-  window._buildWaLink  = buildWaLink;
-  window._interpolar   = interpolar;
+
+  // Cargar config en background SIN bloquear la UI
+  // El número de WA estará listo cuando el usuario termine el test
+  window._CFG = { whatsapp: "5500000000", whatsapp_inicial: "Hola {nombre} 👋
+
+Recibimos tu resultado del Test de {test}.
+Tu nivel es: *{nivel}*.
+
+¿Te gustaría hablar con un psicólogo esta semana? 💙
+
+— Equipo MenteCheck" };
+
+  getDoc(doc(db, "config", "general")).then(snap => {
+    if (snap.exists()) {
+      const d = snap.data();
+      window._CFG = {
+        whatsapp:         d.negocio_whatsapp || "5500000000",
+        whatsapp_inicial: d.whatsapp_inicial || window._CFG.whatsapp_inicial,
+      };
+    }
+  }).catch(e => console.warn("Config:", e.message));
+
+  window._buildWaLink = (num, txt) => {
+    // Limpia cualquier formato: +52, 52, espacios, guiones
+    let n = num.replace(/\D/g,"");
+    // Si ya trae el 52 adelante y tiene más de 10 dígitos, quitarlo
+    if (n.startsWith("52") && n.length > 10) n = n.slice(2);
+    return `https://wa.me/52${n}?text=${encodeURIComponent(txt)}`;
+  };
+  window._interpolar = (tpl, vars) => tpl
+    .replace(/{nombre}/g, vars.nombre||"")
+    .replace(/{test}/g,   vars.test||"")
+    .replace(/{nivel}/g,  vars.nivel||"");
 </script>
 
 <script>
@@ -360,7 +400,8 @@ window.verResultado=async()=>{
 
   // WA automático usando config del panel
   if(wa && window._CFG){
-    const num=wa.replace(/\D/g,"");
+    let num=wa.replace(/\D/g,"");
+    if(num.startsWith("52") && num.length > 10) num=num.slice(2);
     const msg=window._interpolar(window._CFG.whatsapp_inicial,{nombre,test:"Ansiedad",nivel:nivel.charAt(0).toUpperCase()+nivel.slice(1)});
     waAutoMsg=`https://wa.me/52${num}?text=${encodeURIComponent(msg)}`;
   }
