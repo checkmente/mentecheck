@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MenteCheck — Precios</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .precio-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px 24px; display:flex; align-items:center; gap:16px; margin-bottom:10px; transition:border-color .2s; position:relative; }
+    .precio-card:hover { border-color:rgba(124,58,237,.25); }
+    .precio-card.destacado { border-color:rgba(124,58,237,.4); }
+    .precio-icon { font-size:28px; flex-shrink:0; }
+    .precio-info { flex:1; min-width:0; }
+    .precio-nombre { font-weight:700; font-size:15px; margin-bottom:3px; display:flex; align-items:center; gap:8px; }
+    .precio-desc { font-size:12px; color:var(--muted); margin-bottom:6px; }
+    .precio-meta { display:flex; gap:12px; font-size:12px; flex-wrap:wrap; }
+    .precio-mxn { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:var(--violet); flex-shrink:0; }
+    .precio-tipo { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:3px 10px; border-radius:20px; }
+    .tipo-sesion  { background:rgba(6,182,212,.12); color:#38d4e8; border:1px solid rgba(6,182,212,.2); }
+    .tipo-paquete { background:rgba(124,58,237,.12); color:#a78bfa; border:1px solid rgba(124,58,237,.2); }
+    .badge-dest { background:linear-gradient(135deg,var(--violet),var(--violet-2)); color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; }
+    .badge-inact { background:var(--surface); color:var(--muted); border:1px solid var(--border); font-size:10px; padding:2px 8px; border-radius:20px; }
+    .precio-actions { display:flex; gap:8px; flex-shrink:0; }
+    /* Tabs */
+    .tabs { display:flex; gap:4px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:4px; margin-bottom:24px; width:fit-content; }
+    .tab { padding:8px 20px; border:none; border-radius:6px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; background:transparent; color:var(--muted); transition:background .15s,color .15s; }
+    .tab.active { background:var(--violet); color:#fff; }
+    /* Form */
+    .form-field { margin-bottom:14px; }
+    .form-label { display:block; font-size:11px; color:var(--muted); font-weight:600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; }
+    .form-input, .form-select, .form-textarea { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px; outline:none; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--violet); }
+    .form-textarea { resize:vertical; min-height:70px; }
+    .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    /* Features */
+    .features-list { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+    .feature-item { display:flex; gap:8px; align-items:center; }
+    .feature-input { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px; outline:none; }
+    .feature-input:focus { border-color:var(--violet); }
+    .btn-rm { background:none; border:none; color:var(--muted); cursor:pointer; font-size:16px; padding:4px; transition:color .15s; }
+    .btn-rm:hover { color:var(--danger); }
+    /* Toggle destacado */
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; }
+    .toggle-row-label { font-size:13px; color:var(--text-2); }
+    .sw { position:relative; width:44px; height:24px; flex-shrink:0; }
+    .sw input { opacity:0; width:0; height:0; }
+    .sw-slider { position:absolute; inset:0; background:var(--border); border-radius:24px; cursor:pointer; transition:background .2s; }
+    .sw-slider:before { content:''; position:absolute; width:18px; height:18px; left:3px; top:3px; background:var(--muted); border-radius:50%; transition:transform .2s,background .2s; }
+    .sw input:checked + .sw-slider { background:rgba(124,58,237,.3); }
+    .sw input:checked + .sw-slider:before { transform:translateX(20px); background:var(--violet); }
+    .loading-overlay { position:fixed; inset:0; background:var(--bg); z-index:999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; transition:opacity .3s; }
+    .loading-overlay.hidden { opacity:0; pointer-events:none; }
+    .loading-spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--violet); border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loading-text { font-size:13px; color:var(--muted); }
+    .save-banner { position:fixed; bottom:24px; right:24px; background:var(--success); color:#fff; padding:12px 20px; border-radius:10px; font-size:13px; font-weight:600; transform:translateY(80px); transition:transform .3s; z-index:999; box-shadow:0 8px 24px rgba(16,185,129,.4); }
+    .save-banner.show { transform:translateY(0); }
+  </style>
+</head>
+<body>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <span class="loading-text">Verificando sesión...</span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">🧠</div><div class="logo-name">Mente<span>Check</span></div></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Principal</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="leads.html" class="nav-item"><span class="nav-icon">👥</span> Leads</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Gestión</div>
+      <a href="psicologos.html" class="nav-item"><span class="nav-icon">🧑‍⚕️</span> Psicólogos</a>
+      <a href="tests.html" class="nav-item"><span class="nav-icon">🧪</span> Tests</a>
+      <a href="precios.html" class="nav-item active"><span class="nav-icon">💰</span> Precios</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Sistema</div>
+      <a href="config.html" class="nav-item"><span class="nav-icon">⚙️</span> Configuración</a>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">Precios <span class="page-sub" id="totalPrecios">0 planes</span></div>
+      <div class="topbar-right">
+        <a href="../../precios/" target="_blank" class="btn btn-ghost btn-sm">👁️ Ver página pública</a>
+        <button class="btn btn-primary btn-sm" onclick="abrirFormNuevo()">+ Agregar plan</button>
+        <div class="admin-pill"><div class="admin-avatar">A</div><span id="adminName">admin</span></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="tabs">
+        <button class="tab active" id="tabSesion"  onclick="setTab('sesion')">Por sesión</button>
+        <button class="tab"        id="tabPaquete" onclick="setTab('paquete')">Paquetes</button>
+      </div>
+      <div id="listaPrecios">
+        <div style="text-align:center;padding:40px;color:var(--muted)">Cargando...</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal crear/editar plan -->
+  <div class="modal-overlay" id="modalPrecio">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modalPrecioTitle">Nuevo plan</span>
+        <button class="btn-close-modal" onclick="cerrarModal()">✕</button>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-field">
+          <label class="form-label">Nombre del plan</label>
+          <input type="text" class="form-input" id="mNombre" placeholder="Ej: Sesión individual">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Ícono (emoji)</label>
+          <input type="text" class="form-input" id="mIcono" placeholder="🧠" maxlength="4">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Precio (MXN)</label>
+          <input type="number" class="form-input" id="mPrecio" placeholder="550">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Precio original (opcional)</label>
+          <input type="number" class="form-input" id="mPrecioOrig" placeholder="700 (para mostrar ahorro)">
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Descripción corta</label>
+        <input type="text" class="form-input" id="mDesc" placeholder="Ej: Tu espacio semanal con un psicólogo especializado">
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-field">
+          <label class="form-label">Duración / detalle</label>
+          <input type="text" class="form-input" id="mDuracion" placeholder="50 minutos">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" id="mTipo">
+            <option value="sesion">Por sesión</option>
+            <option value="paquete">Paquete</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Badge (etiqueta)</label>
+          <input type="text" class="form-input" id="mBadge" placeholder="Más popular, Mejor valor...">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Orden de aparición</label>
+          <input type="number" class="form-input" id="mOrden" placeholder="1" min="1">
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Beneficios incluidos</label>
+        <div class="features-list" id="featuresList"></div>
+        <button class="btn btn-ghost btn-sm" onclick="agregarFeature()">+ Agregar beneficio</button>
+      </div>
+
+      <div class="toggle-row">
+        <span class="toggle-row-label">¿Plan destacado? (aparece resaltado)</span>
+        <label class="sw"><input type="checkbox" id="mDestacado"><span class="sw-slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-row-label">¿Plan activo? (visible en la página)</span>
+        <label class="sw"><input type="checkbox" id="mActivo" checked><span class="sw-slider"></span></label>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="guardarPlan()">
+        Guardar plan
+      </button>
+    </div>
+  </div>
+
+  <div class="save-banner" id="saveBanner">✅ Plan guardado correctamente</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey:            "AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
+      authDomain:        "mentecheck-6f19f.firebaseapp.com",
+      projectId:         "mentecheck-6f19f",
+      storageBucket:     "mentecheck-6f19f.firebasestorage.app",
+      messagingSenderId: "954208277838",
+      appId:             "1:954208277838:web:80a5093ff550676671ba1f"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    let planes     = [];
+    let editandoId = null;
+    let tabActual  = "sesion";
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = "index.html"; return; }
+      document.getElementById("loadingOverlay").classList.add("hidden");
+      document.getElementById("adminName").textContent = user.email.split("@")[0];
+      await cargarPlanes();
+    });
+
+    window.logout = async () => { await signOut(auth); window.location.href = "index.html"; };
+
+    async function cargarPlanes() {
+      try {
+        const snap = await getDocs(query(collection(db, "precios"), orderBy("orden")));
+        planes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      } catch(e) {
+        // Si no existe la colección aún, empieza vacía
+        planes = [];
+      }
+      renderPlanes();
+    }
+
+    window.setTab = (tab) => {
+      tabActual = tab;
+      document.getElementById("tabSesion").classList.toggle("active",  tab === "sesion");
+      document.getElementById("tabPaquete").classList.toggle("active", tab === "paquete");
+      renderPlanes();
+    };
+
+    function renderPlanes() {
+      const filtrados = planes.filter(p => p.tipo === tabActual);
+      document.getElementById("totalPrecios").textContent = `${planes.length} plan${planes.length!==1?"es":""}`;
+      const lista = document.getElementById("listaPrecios");
+
+      if (!filtrados.length) {
+        lista.innerHTML = `<div class="empty-state"><div class="empty-icon">💰</div><p>No hay planes de tipo "${tabActual}". <button class="btn btn-primary btn-sm" onclick="abrirFormNuevo()" style="margin-left:10px">+ Agregar</button></p></div>`;
+        return;
+      }
+
+      lista.innerHTML = filtrados.map(p => {
+        const ahorro = p.precio_original ? Math.round(((p.precio_original - p.precio) / p.precio_original) * 100) : 0;
+        return `
+        <div class="precio-card ${p.destacado ? "destacado" : ""}">
+          <span class="precio-icon">${p.icon||"🧠"}</span>
+          <div class="precio-info">
+            <div class="precio-nombre">
+              ${p.nombre}
+              ${p.destacado ? '<span class="badge-dest">Destacado</span>' : ""}
+              ${p.activo===false ? '<span class="badge-inact">Inactivo</span>' : ""}
+            </div>
+            <div class="precio-desc">${p.desc||"—"}</div>
+            <div class="precio-meta">
+              <span class="precio-tipo tipo-${p.tipo}">${p.tipo}</span>
+              <span style="color:var(--muted)">${p.duracion||"—"}</span>
+              ${p.badge ? `<span style="color:var(--warning);font-size:11px">🏷️ ${p.badge}</span>` : ""}
+              ${ahorro ? `<span style="color:var(--success);font-size:11px">Ahorro ${ahorro}%</span>` : ""}
+              <span style="color:var(--muted);font-size:11px">${(p.features||[]).length} beneficios</span>
+            </div>
+          </div>
+          <div class="precio-mxn">$${Number(p.precio).toLocaleString("es-MX")}</div>
+          <div class="precio-actions">
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="editarPlan('${p.id}')" title="Editar">✏️</button>
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="eliminarPlan('${p.id}')" title="Eliminar">🗑️</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    window.abrirFormNuevo = () => {
+      editandoId = null;
+      document.getElementById("modalPrecioTitle").textContent = "Nuevo plan";
+      ["mNombre","mIcono","mDesc","mDuracion","mBadge"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("mPrecio").value     = "";
+      document.getElementById("mPrecioOrig").value = "";
+      document.getElementById("mOrden").value      = planes.length + 1;
+      document.getElementById("mTipo").value       = tabActual;
+      document.getElementById("mDestacado").checked = false;
+      document.getElementById("mActivo").checked    = true;
+      document.getElementById("featuresList").innerHTML = "";
+      window.agregarFeature(); window.agregarFeature(); window.agregarFeature();
+      document.getElementById("modalPrecio").classList.add("show");
+    };
+
+    window.editarPlan = (id) => {
+      const p = planes.find(x => x.id === id);
+      if (!p) return;
+      editandoId = id;
+      document.getElementById("modalPrecioTitle").textContent = "Editar plan";
+      document.getElementById("mNombre").value     = p.nombre||"";
+      document.getElementById("mIcono").value      = p.icon||"";
+      document.getElementById("mPrecio").value     = p.precio||"";
+      document.getElementById("mPrecioOrig").value = p.precio_original||"";
+      document.getElementById("mDesc").value       = p.desc||"";
+      document.getElementById("mDuracion").value   = p.duracion||"";
+      document.getElementById("mBadge").value      = p.badge||"";
+      document.getElementById("mOrden").value      = p.orden||1;
+      document.getElementById("mTipo").value       = p.tipo||"sesion";
+      document.getElementById("mDestacado").checked = !!p.destacado;
+      document.getElementById("mActivo").checked    = p.activo !== false;
+      // Features
+      const lista = document.getElementById("featuresList");
+      lista.innerHTML = "";
+      (p.features||[]).forEach(f => agregarFeature(f));
+      if (!p.features?.length) { agregarFeature(); agregarFeature(); }
+      document.getElementById("modalPrecio").classList.add("show");
+    };
+
+    window.agregarFeature = (valor = "") => {
+      const div = document.createElement("div");
+      div.className = "feature-item";
+      div.innerHTML = `<input type="text" class="feature-input" placeholder="Ej: Sesión individual online" value="${valor}"><button class="btn-rm" onclick="this.parentElement.remove()">✕</button>`;
+      document.getElementById("featuresList").appendChild(div);
+    };
+
+    window.guardarPlan = async () => {
+      const nombre = document.getElementById("mNombre").value.trim();
+      if (!nombre) { alert("El nombre del plan es obligatorio."); return; }
+
+      const features = [...document.querySelectorAll(".feature-input")]
+        .map(i => i.value.trim()).filter(Boolean);
+
+      const data = {
+        nombre,
+        icon:           document.getElementById("mIcono").value.trim() || "🧠",
+        precio:         parseInt(document.getElementById("mPrecio").value)||0,
+        precio_original:parseInt(document.getElementById("mPrecioOrig").value)||0,
+        desc:           document.getElementById("mDesc").value.trim(),
+        duracion:       document.getElementById("mDuracion").value.trim(),
+        badge:          document.getElementById("mBadge").value.trim(),
+        orden:          parseInt(document.getElementById("mOrden").value)||1,
+        tipo:           document.getElementById("mTipo").value,
+        destacado:      document.getElementById("mDestacado").checked,
+        activo:         document.getElementById("mActivo").checked,
+        features,
+      };
+      if (!data.precio_original) delete data.precio_original;
+
+      try {
+        if (editandoId) {
+          await updateDoc(doc(db, "precios", editandoId), data);
+        } else {
+          data.fecha_creacion = serverTimestamp();
+          await addDoc(collection(db, "precios"), data);
+        }
+        cerrarModal();
+        await cargarPlanes();
+        const banner = document.getElementById("saveBanner");
+        banner.classList.add("show");
+        setTimeout(() => banner.classList.remove("show"), 3000);
+      } catch(e) {
+        alert("Error al guardar: " + e.message);
+      }
+    };
+
+    window.eliminarPlan = async (id) => {
+      const p = planes.find(x => x.id === id);
+      if (!confirm(`¿Eliminar el plan "${p?.nombre}"? Esta acción no se puede deshacer.`)) return;
+      await deleteDoc(doc(db, "precios", id));
+      await cargarPlanes();
+    };
+
+    window.cerrarModal = () => document.getElementById("modalPrecio").classList.remove("show");
+    document.getElementById("modalPrecio").addEventListener("click", e => {
+      if (e.target === e.currentTarget) window.cerrarModal();
+    });
+  </script>
+</body>
+</html>
