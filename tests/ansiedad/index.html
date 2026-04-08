@@ -160,6 +160,31 @@
     .btn-omitir{display:block;width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:13px;cursor:pointer;text-align:center;transition:color .15s;}
     .btn-omitir:hover{color:var(--text-2);}
     .spinner{display:inline-block;width:17px;height:17px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:7px;}
+
+    /* ═══ BURBUJA MENÚ ═══ */
+    .bubble-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s;}
+    .bubble-overlay.open{opacity:1;pointer-events:all;}
+    .bubble-menu{position:fixed;bottom:0;left:0;right:0;z-index:201;background:var(--surface);border-top:1px solid var(--border);border-radius:24px 24px 0 0;padding:20px 20px 32px;transform:translateY(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);}
+    .bubble-overlay.open .bubble-menu{transform:translateY(0);}
+    .bubble-handle{width:36px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 20px;}
+    .bubble-header{margin-bottom:20px;}
+    .bubble-brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .bubble-brand-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--violet),var(--cyan));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .bubble-brand-name{font-family:'Fraunces',serif;font-weight:700;font-size:16px;}
+    .bubble-brand-name span{color:var(--cyan);}
+    .bubble-subtitle{font-size:13px;color:var(--muted);}
+    .bubble-items{display:flex;flex-direction:column;gap:10px;}
+    .bubble-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:border-color .15s,background .15s;text-decoration:none;}
+    .bubble-item:hover{border-color:var(--violet);background:rgba(124,58,237,.08);}
+    .bubble-item-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+    .bubble-item-icon.green{background:rgba(37,211,102,.12);}
+    .bubble-item-icon.violet{background:rgba(124,58,237,.12);}
+    .bubble-item-icon.cyan{background:rgba(6,182,212,.12);}
+    .bubble-item-icon.orange{background:rgba(245,158,11,.12);}
+    .bubble-item-text{flex:1;}
+    .bubble-item-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px;}
+    .bubble-item-sub{font-size:12px;color:var(--muted);}
+    .bubble-item-arr{color:var(--muted);font-size:16px;}
     .disclaimer{font-size:11px;color:var(--muted);line-height:1.6;text-align:center;padding:16px;border-top:1px solid var(--border);margin-top:20px;}
     .footer{text-align:center;padding:16px;font-size:11px;color:var(--muted);position:relative;z-index:10;}
     .footer span{color:var(--violet-l);}
@@ -282,12 +307,60 @@
         <input type="checkbox" id="inConsent">
         <span class="consent-text">Acepto que MenteCheck guarde mis datos para conectarme con un psicólogo. No serán compartidos sin mi consentimiento.</span>
       </div>
-      <button class="btn-wa-cta" id="btnEnviar" onclick="enviarYContactar()">💬 Hablar con un psicólogo por WhatsApp</button>
+      <button class="btn-wa-cta" id="btnEnviar" onclick="enviarYAbrirMenu()">💬 Hablar con un psicólogo →</button>
       <button class="btn-omitir" onclick="document.getElementById('capturaCard').style.display='none'">Solo ver mi resultado, sin dejar datos →</button>
     </div>
     <div class="disclaimer">⚠️ Este test es orientativo y <strong>no constituye un diagnóstico clínico</strong>. Solo un profesional puede hacer un diagnóstico.</div>
   </div>
 </section>
+
+<!-- BURBUJA MENÚ -->
+<div class="bubble-overlay" id="bubbleOverlay" onclick="cerrarBurbuja(event)">
+  <div class="bubble-menu" id="bubbleMenu">
+    <div class="bubble-handle"></div>
+    <div class="bubble-header">
+      <div class="bubble-brand">
+        <div class="bubble-brand-icon">🧠</div>
+        <div class="bubble-brand-name">Mente<span>Check</span></div>
+      </div>
+      <div class="bubble-subtitle">¿En qué te podemos ayudar hoy?</div>
+    </div>
+    <div class="bubble-items">
+      <a class="bubble-item" id="itemAgendar" href="#" onclick="irAgendar(event)">
+        <div class="bubble-item-icon violet">🗓️</div>
+        <div class="bubble-item-text">
+          <div class="bubble-item-title">Agendar una cita</div>
+          <div class="bubble-item-sub">Elige horario, psicólogo y paga</div>
+        </div>
+        <span class="bubble-item-arr">›</span>
+      </a>
+      <a class="bubble-item" id="itemPrecios" href="#" onclick="irPrecios(event)">
+        <div class="bubble-item-icon cyan">💰</div>
+        <div class="bubble-item-text">
+          <div class="bubble-item-title">Ver precios</div>
+          <div class="bubble-item-sub">Consultas individuales y paquetes</div>
+        </div>
+        <span class="bubble-item-arr">›</span>
+      </a>
+      <a class="bubble-item" id="itemHablar" href="#" onclick="irWhatsApp('hablar', event)">
+        <div class="bubble-item-icon green">💬</div>
+        <div class="bubble-item-text">
+          <div class="bubble-item-title">Hablar con alguien primero</div>
+          <div class="bubble-item-sub">Resuelve tus dudas antes de decidir</div>
+        </div>
+        <span class="bubble-item-arr">›</span>
+      </a>
+      <a class="bubble-item" id="itemPregunta" href="#" onclick="irWhatsApp('pregunta', event)">
+        <div class="bubble-item-icon orange">❓</div>
+        <div class="bubble-item-text">
+          <div class="bubble-item-title">Tengo una pregunta</div>
+          <div class="bubble-item-sub">Te respondemos por WhatsApp</div>
+        </div>
+        <span class="bubble-item-arr">›</span>
+      </a>
+    </div>
+  </div>
+</div>
 
 <div class="footer">MenteCheck © 2025 · Hecho con 💜 en México · <span>Tu bienestar importa</span></div>
 
@@ -427,21 +500,21 @@ function renderResultado(){
   document.getElementById("scoreNum").textContent=`${pts} / ${MAX} puntos`;
   setTimeout(()=>{const f=document.getElementById("scoreBarFill");f.className=`score-bar-fill fill-${nivel}`;f.style.width=pct+"%";},400);
   const C={
-    bajo:{titulo:"Tu ansiedad está en un nivel manejable",sub:"Tus respuestas indican niveles bajos de ansiedad. Una buena señal, aunque siempre vale conocerse mejor.",
+    bajo:{titulo:"Tu ansiedad está en un nivel manejable",sub:"Tus respuestas indican niveles bajos de ansiedad. Eso es positivo — pero no significa que no valga la pena seguir prestándole atención a tu bienestar emocional.",
       bloques:[{icon:"😌",name:"Pensamientos",desc:"Tu mente logra calmarse con relativa facilidad"},{icon:"💪",name:"Cuerpo",desc:"Pocos síntomas físicos de ansiedad"},{icon:"😴",name:"Sueño",desc:"Tu descanso no parece muy comprometido"},{icon:"🌱",name:"Vida diaria",desc:"La ansiedad no limita significativamente tus actividades"}],
-      exp:"Aunque tu nivel es bajo, conocer cómo funciona tu mente es una de las mejores inversiones para tu bienestar.",
-      stat:{num:"1 de 3",txt:"personas experimenta ansiedad en algún momento. Conocerte a tiempo marca la diferencia."},
-      captTitulo:"¿Quieres hablar con alguien?",captSub:"Un psicólogo puede darte herramientas valiosas para mantener este equilibrio."},
-    moderado:{titulo:"La ansiedad sí está afectando tu vida",sub:"Tus respuestas indican niveles moderados de ansiedad. No estás exagerando — lo que sientes es real y merece atención.",
-      bloques:[{icon:"🧠",name:"Pensamientos",desc:"Tendencia a anticipar lo peor con frecuencia"},{icon:"💓",name:"Síntomas físicos",desc:"Señales corporales de tensión con regularidad"},{icon:"😴",name:"Sueño",desc:"Dificultad para desconectar la mente"},{icon:"🔄",name:"Vida diaria",desc:"Algunas actividades y relaciones se ven limitadas"}],
-      exp:"El nivel moderado es el más común y también el más tratable. Un psicólogo puede ayudarte a identificar los patrones específicos de tu ansiedad.",
-      stat:{num:"78%",txt:"de las personas con ansiedad moderada mejoran con acompañamiento psicológico en menos de 3 meses."},
-      captTitulo:"Habla con un psicólogo esta semana",captSub:"No tienes que seguir cargando esto solo/a. Déjanos tu WhatsApp y te conectamos con un especialista."},
-    alto:{titulo:"Tu ansiedad necesita atención pronto",sub:"Tus respuestas indican niveles elevados de ansiedad. Lo que sientes tiene solución — merece atención prioritaria.",
+      exp:"La ansiedad en niveles bajos es como una alarma que suena de vez en cuando — está ahí, pero no domina tu vida. Sin embargo, el estrés sostenido, los cambios importantes o las épocas difíciles pueden elevar ese nivel sin que te des cuenta. Conocer tus patrones emocionales hoy es la mejor forma de proteger tu bienestar mañana. Muchas personas en esta etapa descubren, al hablar con un psicólogo, que había cosas que cargaban sin saberlo.",
+      stat:{num:"1 de 3",txt:"personas experimenta ansiedad en algún momento de su vida. Conocerte a tiempo es la ventaja más grande que puedes tener."},
+      captTitulo:"¿Quieres seguir conociéndote?",captSub:"Hablar con un psicólogo no es solo para crisis — es para quienes quieren vivir mejor. Un psicólogo puede darte herramientas concretas para mantener este equilibrio y prepararte para los momentos difíciles."},
+    moderado:{titulo:"La ansiedad sí está afectando tu vida",sub:"Tus respuestas indican niveles moderados de ansiedad. No estás exagerando — lo que sientes es real, tiene nombre, y tiene solución.",
+      bloques:[{icon:"🧠",name:"Pensamientos",desc:"Tendencia a anticipar lo peor con frecuencia"},{icon:"💓",name:"Síntomas físicos",desc:"Señales corporales de tensión con regularidad"},{icon:"😴",name:"Sueño",desc:"Dificultad para desconectar la mente al descansar"},{icon:"🔄",name:"Vida diaria",desc:"Algunas actividades y relaciones se ven limitadas"}],
+      exp:"La ansiedad moderada sostenida en el tiempo no solo se siente mal — también tiene consecuencias físicas reales: afecta la calidad del sueño, debilita el sistema inmune, reduce la concentración y puede deteriorar tus relaciones. No porque seas débil, sino porque tu sistema nervioso está trabajando en modo de alerta constantemente, y eso agota. La buena noticia: la ansiedad moderada es una de las condiciones más tratables en psicología. Con el acompañamiento adecuado, la mayoría de las personas notan cambios significativos en pocas semanas.",
+      stat:{num:"78%",txt:"de las personas con ansiedad moderada mejoran significativamente con acompañamiento psicológico en menos de 3 meses."},
+      captTitulo:"Habla con un psicólogo esta semana",captSub:"No tienes que seguir cargando esto solo/a. Un especialista puede ayudarte a entender qué está detrás de tu ansiedad y darte herramientas reales para manejarla."},
+    alto:{titulo:"Tu ansiedad necesita atención pronto",sub:"Tus respuestas indican niveles elevados de ansiedad. Lo que sientes tiene solución — y merece atención ahora, no después.",
       bloques:[{icon:"🚨",name:"Pensamientos",desc:"Estado de alerta mental casi constante"},{icon:"😰",name:"Síntomas físicos",desc:"Señales corporales intensas y frecuentes"},{icon:"🚧",name:"Comportamiento",desc:"La ansiedad bloquea actividades importantes"},{icon:"🌀",name:"Vida diaria",desc:"Impacto significativo en trabajo, relaciones y bienestar"}],
-      exp:"Un nivel alto no significa que algo esté 'mal' contigo — significa que tu sistema nervioso aprendió a estar en alerta. Eso tiene solución.",
-      stat:{num:"94%",txt:"de las personas con ansiedad alta que buscan apoyo profesional reportan mejoras importantes."},
-      captTitulo:"Atención prioritaria — Te ayudamos hoy",captSub:"No dejes pasar más tiempo. Déjanos tu WhatsApp y te contactamos hoy mismo."}
+      exp:"Un nivel alto de ansiedad sostenido no es solo agotador emocionalmente — tiene consecuencias físicas documentadas: aumenta el riesgo de hipertensión, debilita el sistema inmune, genera problemas digestivos y altera profundamente el sueño. Tu cerebro lleva tiempo en modo de supervivencia, procesando el mundo como si hubiera una amenaza constante. Eso no es un defecto tuyo — es lo que le pasa al sistema nervioso cuando ha sido muy exigido. La terapia especializada en ansiedad es altamente efectiva: la mayoría de las personas con niveles altos reportan mejoras notables en las primeras semanas de tratamiento.",
+      stat:{num:"94%",txt:"de las personas con ansiedad alta que inician terapia reportan mejoras importantes en su calidad de vida."},
+      captTitulo:"Atención prioritaria — Te ayudamos hoy",captSub:"No dejes pasar más tiempo. Cada semana sin atención es una semana más de desgaste innecesario. Déjanos tu WhatsApp y te contactamos hoy mismo."}
   };
   const c=C[nivel];
   document.getElementById("resTitulo").textContent=c.titulo;
@@ -454,39 +527,90 @@ function renderResultado(){
   if(nivel==="alto")document.getElementById("crisisBox").classList.add("visible");
 }
 
-window.enviarYContactar=async()=>{
-  const nombre=document.getElementById("inNombre").value.trim();
-  const wa=document.getElementById("inWa").value.trim();
-  const email=document.getElementById("inEmail").value.trim();
-  const consent=document.getElementById("inConsent").checked;
-  if(!nombre){alert("Por favor ingresa tu nombre.");return;}
-  if(!wa){alert("Por favor ingresa tu WhatsApp.");return;}
-  if(!consent){alert("Necesitamos tu consentimiento para continuar.");return;}
+// Datos del lead capturados al abrir el menú
+let _leadGuardado = false;
+let _nombreLead   = "";
+let _nivelLead    = "";
+let _waLead       = "";
 
-  const btn=document.getElementById("btnEnviar");
-  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Conectando...';
+window.enviarYAbrirMenu = async () => {
+  const nombre  = document.getElementById("inNombre").value.trim();
+  const wa      = document.getElementById("inWa").value.trim();
+  const email   = document.getElementById("inEmail").value.trim();
+  const consent = document.getElementById("inConsent").checked;
 
-  // Guardar en Firebase
-  try{
-    await window._add(window._col(window._db,"leads"),{
-      nombre,email:email||"",whatsapp:wa,
-      genero,edad,
-      menor_autorizado:edad<18?menorAutorizado:false,
-      test:"ansiedad",nivel:nivelFinal,
-      puntuacion,puntuacion_max:MAX,
-      respuestas,fuente,
-      estado:"nuevo",consentimiento:true,
-      fecha:window._ts(),notas:""
-    });
-  }catch(e){console.warn("Firebase:",e.message);}
+  if(!nombre)  { alert("Por favor ingresa tu nombre."); return; }
+  if(!wa)      { alert("Por favor ingresa tu WhatsApp."); return; }
+  if(!consent) { alert("Necesitamos tu consentimiento para continuar."); return; }
 
-  // Abrir WhatsApp con el número de MenteCheck
-  const wa_mc=window._WA||"5523202164";
-  const nivel=nivelFinal.charAt(0).toUpperCase()+nivelFinal.slice(1);
-  const msg=encodeURIComponent(`Hola, soy ${nombre} 👋\n\nAcabo de completar el Test de Ansiedad en MenteCheck.\nMi nivel es: *${nivel}* (${puntuacion}/${MAX} puntos).\n\n¿Me pueden conectar con un psicólogo? 💙`);
-  window.open(`https://wa.me/52${wa_mc}?text=${msg}`,"_blank");
+  const btn = document.getElementById("btnEnviar");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Guardando...';
 
-  btn.disabled=false;btn.innerHTML="💬 Hablar con un psicólogo por WhatsApp";
+  // Guardar lead en Firebase
+  if (!_leadGuardado) {
+    try {
+      await window._add(window._col(window._db, "leads"), {
+        nombre, email: email||"", whatsapp: wa,
+        genero, edad,
+        menor_autorizado: edad < 18 ? menorAutorizado : false,
+        test: "ansiedad", nivel: nivelFinal,
+        puntuacion, puntuacion_max: MAX,
+        respuestas, fuente,
+        estado: "nuevo", consentimiento: true,
+        fecha: window._ts(), notas: ""
+      });
+      _leadGuardado = true;
+    } catch(e) { console.warn("Firebase:", e.message); }
+  }
+
+  _nombreLead = nombre;
+  _nivelLead  = nivelFinal;
+  _waLead     = wa;
+
+  btn.disabled = false;
+  btn.innerHTML = "💬 Hablar con un psicólogo →";
+
+  // Abrir burbuja
+  document.getElementById("bubbleOverlay").classList.add("open");
+};
+
+window.cerrarBurbuja = (e) => {
+  if (e.target === document.getElementById("bubbleOverlay")) {
+    document.getElementById("bubbleOverlay").classList.remove("open");
+  }
+};
+
+window.irAgendar = (e) => {
+  e.preventDefault();
+  // Por ahora lleva a WA — cuando exista la página de agenda se cambia la URL
+  const wa  = window._WA || "5523202164";
+  const nivel = _nivelLead.charAt(0).toUpperCase() + _nivelLead.slice(1);
+  const msg = encodeURIComponent(
+    `Hola, soy ${_nombreLead} 👋\n\nQuiero agendar una cita con un psicólogo.\nHice el Test de Ansiedad y mi nivel es: *${nivel}*. \n\n¿Qué horarios tienen disponibles? 📅`
+  );
+  window.open(`https://wa.me/525523202164?text=${msg}`, "_blank");
+};
+
+window.irPrecios = (e) => {
+  e.preventDefault();
+  // Cuando exista la página de precios: window.location.href = '../precios/';
+  const wa  = window._WA || "5523202164";
+  const msg = encodeURIComponent(
+    `Hola 👋 Acabo de hacer el Test de Ansiedad en MenteCheck y me gustaría saber los precios de las consultas. ¿Me pueden informar? 💙`
+  );
+  window.open(`https://wa.me/525523202164?text=${msg}`, "_blank");
+};
+
+window.irWhatsApp = (tipo, e) => {
+  e.preventDefault();
+  const wa   = window._WA || "5523202164";
+  const msgs = {
+    hablar:   `Hola, soy ${_nombreLead} 👋\n\nAcabé de hacer el Test de Ansiedad en MenteCheck (nivel: *${_nivelLead}*).\n\nMe gustaría hablar con alguien antes de tomar una decisión. ¿Podemos platicar? 💙`,
+    pregunta: `Hola 👋 Hice el Test de Ansiedad en MenteCheck y tengo una pregunta. ¿Me pueden ayudar?`
+  };
+  const msg = encodeURIComponent(msgs[tipo] || msgs.pregunta);
+  window.open(`https://wa.me/525523202164?text=${msg}`, "_blank");
 };
 </script>
 </body>
