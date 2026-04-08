@@ -6,83 +6,33 @@
   <title>MenteCheck — Psicólogos</title>
   <link rel="stylesheet" href="css/admin.css">
   <style>
-    .psico-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      transition: border-color .2s;
-      position: relative;
-    }
-    .psico-card:hover { border-color: rgba(124,58,237,.3); }
-    .psico-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 16px;
-    }
-    .psico-avatar {
-      width: 46px; height: 46px;
-      background: linear-gradient(135deg, var(--violet), var(--cyan));
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-      font-weight: 700;
-      color: #fff;
-      flex-shrink: 0;
-    }
-    .psico-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
-    .psico-especialidad { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .psico-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
-    }
-    .psico-stat-item { font-size: 12px; color: var(--muted); }
-    .psico-stat-val  { font-weight: 700; color: var(--text); font-size: 15px; }
-    .badge-modelo {
-      position: absolute;
-      top: 14px; right: 14px;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-    .modelo-a { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.25); }
-    .modelo-b { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.25); }
-    .modelo-c { background: rgba(124,58,237,.15); color: #a78bfa; border: 1px solid rgba(124,58,237,.25); }
-    .psico-actions { display: flex; gap: 8px; margin-top: 14px; }
-    .badge-activo   { background: rgba(16,185,129,.12); color: #34d399; border: 1px solid rgba(16,185,129,.2); font-size:10px; padding:2px 8px; border-radius:20px; }
-    .badge-inactivo { background: rgba(100,116,139,.12); color: #94a3b8; border: 1px solid rgba(100,116,139,.2); font-size:10px; padding:2px 8px; border-radius:20px; }
-    .form-field { margin-bottom: 16px; }
-    .form-label { display: block; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; }
-    .form-input, .form-select {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 11px 14px;
-      color: var(--text);
-      font-family: 'DM Sans',sans-serif;
-      font-size: 13px;
-      outline: none;
-    }
-    .form-input:focus, .form-select:focus { border-color: var(--violet); }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .modelo-desc { font-size: 11px; color: var(--muted); margin-top: 6px; }
-
-    .loading-overlay {
-      position: fixed; inset: 0; background: var(--bg); z-index: 999;
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 16px; transition: opacity .3s;
-    }
-    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-    .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--violet); border-radius: 50%; animation: spin .7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 13px; color: var(--muted); }
+    .psico-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; transition:border-color .2s; position:relative; }
+    .psico-card:hover { border-color:rgba(124,58,237,.3); }
+    .psico-header { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+    .psico-avatar { width:46px; height:46px; background:linear-gradient(135deg,var(--violet),var(--cyan)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; color:#fff; flex-shrink:0; }
+    .psico-name { font-family:'Syne',sans-serif; font-weight:700; font-size:15px; }
+    .psico-especialidad { font-size:12px; color:var(--muted); margin-top:2px; }
+    .psico-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+    .psico-stat-item { font-size:12px; color:var(--muted); }
+    .psico-stat-val { font-weight:700; color:var(--text); font-size:15px; }
+    .badge-modelo { position:absolute; top:14px; right:14px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+    .modelo-a { background:rgba(16,185,129,.15); color:#34d399; border:1px solid rgba(16,185,129,.25); }
+    .modelo-b { background:rgba(245,158,11,.15); color:#fbbf24; border:1px solid rgba(245,158,11,.25); }
+    .modelo-c { background:rgba(124,58,237,.15); color:#a78bfa; border:1px solid rgba(124,58,237,.25); }
+    .psico-actions { display:flex; gap:8px; margin-top:14px; }
+    .badge-activo   { background:rgba(16,185,129,.12); color:#34d399; border:1px solid rgba(16,185,129,.2); font-size:10px; padding:2px 8px; border-radius:20px; }
+    .badge-inactivo { background:rgba(100,116,139,.12); color:#94a3b8; border:1px solid rgba(100,116,139,.2); font-size:10px; padding:2px 8px; border-radius:20px; }
+    .form-field { margin-bottom:16px; }
+    .form-label { display:block; font-size:12px; color:var(--muted); font-weight:600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; }
+    .form-input, .form-select { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:11px 14px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px; outline:none; }
+    .form-input:focus, .form-select:focus { border-color:var(--violet); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .modelo-desc { font-size:11px; color:var(--muted); margin-top:6px; }
+    .loading-overlay { position:fixed; inset:0; background:var(--bg); z-index:999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; transition:opacity .3s; }
+    .loading-overlay.hidden { opacity:0; pointer-events:none; }
+    .loading-spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--violet); border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loading-text { font-size:13px; color:var(--muted); }
   </style>
 </head>
 <body>
@@ -103,6 +53,7 @@
       <div class="sidebar-section-label">Gestión</div>
       <a href="psicologos.html" class="nav-item active"><span class="nav-icon">🧑‍⚕️</span> Psicólogos</a>
       <a href="tests.html" class="nav-item"><span class="nav-icon">🧪</span> Tests</a>
+      <a href="precios.html" class="nav-item"><span class="nav-icon">💰</span> Precios</a>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-section-label">Sistema</div>
@@ -121,7 +72,6 @@
         <div class="admin-pill"><div class="admin-avatar">A</div><span id="adminName">admin</span></div>
       </div>
     </div>
-
     <div class="page-content">
       <div id="gridPsicos" class="grid-3">
         <div style="text-align:center;padding:60px;color:var(--muted);grid-column:1/-1">Cargando...</div>
@@ -129,7 +79,6 @@
     </div>
   </main>
 
-  <!-- Modal nuevo/editar psicólogo -->
   <div class="modal-overlay" id="modalPsico">
     <div class="modal">
       <div class="modal-header">
@@ -137,21 +86,17 @@
         <button class="btn-close-modal" onclick="cerrarModalPsico()">✕</button>
       </div>
       <div class="form-grid">
-        <div class="form-field">
-          <label class="form-label">Nombre completo</label>
-          <input type="text" class="form-input" id="pNombre" placeholder="Dr. Juan Pérez">
-        </div>
-        <div class="form-field">
-          <label class="form-label">Especialidad</label>
-          <input type="text" class="form-input" id="pEspecialidad" placeholder="Ansiedad y depresión">
-        </div>
-        <div class="form-field">
-          <label class="form-label">WhatsApp</label>
-          <input type="tel" class="form-input" id="pWhatsapp" placeholder="5512345678">
-        </div>
-        <div class="form-field">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" id="pEmail" placeholder="doctor@email.com">
+        <div class="form-field"><label class="form-label">Nombre completo</label><input type="text" class="form-input" id="pNombre" placeholder="Dr. Juan Pérez"></div>
+        <div class="form-field"><label class="form-label">Especialidad</label><input type="text" class="form-input" id="pEspecialidad" placeholder="Ansiedad y depresión"></div>
+        <div class="form-field"><label class="form-label">WhatsApp</label><input type="tel" class="form-input" id="pWhatsapp" placeholder="5512345678"></div>
+        <div class="form-field"><label class="form-label">Email</label><input type="email" class="form-input" id="pEmail" placeholder="doctor@email.com"></div>
+        <div class="form-field"><label class="form-label">Precio por sesión (MXN)</label><input type="number" class="form-input" id="pPrecio" placeholder="550"></div>
+        <div class="form-field"><label class="form-label">Duración de sesión</label>
+          <select class="form-select" id="pDuracion">
+            <option value="50 minutos">50 minutos</option>
+            <option value="60 minutos">60 minutos</option>
+            <option value="80 minutos">80 minutos</option>
+          </select>
         </div>
       </div>
       <div class="form-field">
@@ -164,8 +109,24 @@
         <div class="modelo-desc" id="modeloDesc">El psicólogo recibe los datos y hace su propio seguimiento.</div>
       </div>
       <div class="form-field">
+        <label class="form-label">Días disponibles</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+          <label id="cb-lun" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Lunes" onchange="toggleDia(this)"> Lun</label>
+          <label id="cb-mar" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Martes" onchange="toggleDia(this)"> Mar</label>
+          <label id="cb-mie" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Miércoles" onchange="toggleDia(this)"> Mié</label>
+          <label id="cb-jue" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Jueves" onchange="toggleDia(this)"> Jue</label>
+          <label id="cb-vie" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Viernes" onchange="toggleDia(this)"> Vie</label>
+          <label id="cb-sab" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Sábado" onchange="toggleDia(this)"> Sáb</label>
+          <label id="cb-dom" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Domingo" onchange="toggleDia(this)"> Dom</label>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-field"><label class="form-label">Horario inicio</label><input type="time" class="form-input" id="pHoraInicio" value="09:00"></div>
+        <div class="form-field"><label class="form-label">Horario fin</label><input type="time" class="form-input" id="pHoraFin" value="18:00"></div>
+      </div>
+      <div class="form-field">
         <label class="form-label">Notas internas</label>
-        <textarea class="form-input" id="pNotas" style="resize:vertical;min-height:70px" placeholder="Disponibilidad, horarios, acuerdos especiales..."></textarea>
+        <textarea class="form-input" id="pNotas" style="resize:vertical;min-height:70px" placeholder="Acuerdos especiales, observaciones..."></textarea>
       </div>
       <button class="btn btn-primary" style="width:100%" onclick="guardarPsico()">Guardar psicólogo</button>
     </div>
@@ -177,12 +138,22 @@
     import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, serverTimestamp }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey:"AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo", authDomain:"mentecheck.firebaseapp.com", projectId:"mentecheck", storageBucket:"mentecheck.appspot.com", messagingSenderId:"TU_SENDER_ID", appId:"TU_APP_ID" };
+    // ✅ Credenciales correctas
+    const firebaseConfig = {
+      apiKey:            "AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
+      authDomain:        "mentecheck-6f19f.firebaseapp.com",
+      projectId:         "mentecheck-6f19f",
+      storageBucket:     "mentecheck-6f19f.firebasestorage.app",
+      messagingSenderId: "954208277838",
+      appId:             "1:954208277838:web:80a5093ff550676671ba1f"
+    };
+
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
-    let psicos = [];
+    let psicos     = [];
     let editandoId = null;
+    let diasSel    = [];
 
     onAuthStateChanged(auth, async user => {
       if (!user) { window.location.href = "index.html"; return; }
@@ -190,12 +161,17 @@
       document.getElementById("adminName").textContent = user.email.split("@")[0];
       await cargarPsicos();
     });
+
     window.logout = async () => { await signOut(auth); window.location.href = "index.html"; };
 
     async function cargarPsicos() {
-      const snap = await getDocs(collection(db, "psicologos"));
-      psicos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderPsicos();
+      try {
+        const snap = await getDocs(collection(db, "psicologos"));
+        psicos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderPsicos();
+      } catch(e) {
+        console.error("Error cargando psicólogos:", e);
+      }
     }
 
     function renderPsicos() {
@@ -207,7 +183,7 @@
       }
       grid.innerHTML = psicos.map(p => `
         <div class="psico-card">
-          <span class="badge-modelo modelo-${p.modelo?.toLowerCase()||'a'}">Modelo ${p.modelo||"A"}</span>
+          <span class="badge-modelo modelo-${(p.modelo||'A').toLowerCase()}">Modelo ${p.modelo||"A"}</span>
           <div class="psico-header">
             <div class="psico-avatar">${(p.nombre||"?")[0].toUpperCase()}</div>
             <div>
@@ -217,23 +193,58 @@
             </div>
           </div>
           <div style="font-size:12px;color:var(--muted)">📱 ${p.whatsapp||"—"}</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:4px">✉️ ${p.email||"—"}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">✉️ ${p.email||"—"}</div>
+          ${p.precio ? `<div style="font-size:12px;color:var(--muted);margin-top:3px">💰 $${p.precio} MXN · ${p.duracion||"50 min"}</div>` : ""}
+          ${p.dias_disponibles?.length ? `<div style="font-size:11px;color:var(--muted);margin-top:3px">📅 ${p.dias_disponibles.join(", ")} · ${p.hora_inicio||""}–${p.hora_fin||""}</div>` : ""}
           <div class="psico-stats">
             <div class="psico-stat-item"><div class="psico-stat-val">${p.leads_asignados||0}</div>Leads asignados</div>
             <div class="psico-stat-item"><div class="psico-stat-val">${p.leads_atendidos||0}</div>Atendidos</div>
           </div>
           <div class="psico-actions">
             <button class="btn btn-ghost btn-sm" style="flex:1" onclick="editarPsico('${p.id}')">✏️ Editar</button>
-            <button class="btn btn-ghost btn-sm" onclick="toggleActivo('${p.id}', ${p.activo!==false})">${p.activo!==false?"⏸️":"▶️"}</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleActivo('${p.id}',${p.activo!==false})">${p.activo!==false?"⏸️":"▶️"}</button>
           </div>
         </div>`).join("");
+    }
+
+    window.toggleDia = (cb) => {
+      if (cb.checked) { if (!diasSel.includes(cb.value)) diasSel.push(cb.value); }
+      else { diasSel = diasSel.filter(d => d !== cb.value); }
+      cb.closest("label").style.borderColor = cb.checked ? "var(--violet)" : "var(--border)";
+      cb.closest("label").style.background  = cb.checked ? "rgba(124,58,237,.1)" : "var(--surface)";
+    };
+
+    function resetDias() {
+      diasSel = [];
+      document.querySelectorAll("#modalPsico input[type=checkbox]").forEach(cb => {
+        cb.checked = false;
+        cb.closest("label").style.borderColor = "var(--border)";
+        cb.closest("label").style.background  = "var(--surface)";
+      });
+    }
+
+    function setDias(dias) {
+      resetDias();
+      if (!dias?.length) return;
+      document.querySelectorAll("#modalPsico input[type=checkbox]").forEach(cb => {
+        if (dias.includes(cb.value)) {
+          cb.checked = true;
+          diasSel.push(cb.value);
+          cb.closest("label").style.borderColor = "var(--violet)";
+          cb.closest("label").style.background  = "rgba(124,58,237,.1)";
+        }
+      });
     }
 
     window.abrirFormNuevo = () => {
       editandoId = null;
       document.getElementById("modalPsicoTitle").textContent = "Nuevo psicólogo";
-      ["pNombre","pEspecialidad","pWhatsapp","pEmail","pNotas"].forEach(id => document.getElementById(id).value = "");
-      document.getElementById("pModelo").value = "A";
+      ["pNombre","pEspecialidad","pWhatsapp","pEmail","pNotas","pPrecio"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("pModelo").value    = "A";
+      document.getElementById("pDuracion").value  = "50 minutos";
+      document.getElementById("pHoraInicio").value = "09:00";
+      document.getElementById("pHoraFin").value    = "18:00";
+      resetDias();
       window.updateModeloDesc();
       document.getElementById("modalPsico").classList.add("show");
     };
@@ -243,36 +254,55 @@
       if (!p) return;
       editandoId = id;
       document.getElementById("modalPsicoTitle").textContent = "Editar psicólogo";
-      document.getElementById("pNombre").value      = p.nombre||"";
-      document.getElementById("pEspecialidad").value= p.especialidad||"";
-      document.getElementById("pWhatsapp").value    = p.whatsapp||"";
-      document.getElementById("pEmail").value       = p.email||"";
-      document.getElementById("pModelo").value      = p.modelo||"A";
-      document.getElementById("pNotas").value       = p.notas||"";
+      document.getElementById("pNombre").value       = p.nombre||"";
+      document.getElementById("pEspecialidad").value = p.especialidad||"";
+      document.getElementById("pWhatsapp").value     = p.whatsapp||"";
+      document.getElementById("pEmail").value        = p.email||"";
+      document.getElementById("pModelo").value       = p.modelo||"A";
+      document.getElementById("pNotas").value        = p.notas||"";
+      document.getElementById("pPrecio").value       = p.precio||"";
+      document.getElementById("pDuracion").value     = p.duracion||"50 minutos";
+      document.getElementById("pHoraInicio").value   = p.hora_inicio||"09:00";
+      document.getElementById("pHoraFin").value      = p.hora_fin||"18:00";
+      setDias(p.dias_disponibles||[]);
       window.updateModeloDesc();
       document.getElementById("modalPsico").classList.add("show");
     };
 
     window.guardarPsico = async () => {
+      const nombre = document.getElementById("pNombre").value.trim();
+      if (!nombre) { alert("El nombre es obligatorio."); return; }
+
       const data = {
-        nombre:       document.getElementById("pNombre").value,
-        especialidad: document.getElementById("pEspecialidad").value,
-        whatsapp:     document.getElementById("pWhatsapp").value,
-        email:        document.getElementById("pEmail").value,
-        modelo:       document.getElementById("pModelo").value,
-        notas:        document.getElementById("pNotas").value,
-        activo: true,
+        nombre,
+        especialidad:     document.getElementById("pEspecialidad").value.trim(),
+        whatsapp:         document.getElementById("pWhatsapp").value.trim(),
+        email:            document.getElementById("pEmail").value.trim(),
+        modelo:           document.getElementById("pModelo").value,
+        notas:            document.getElementById("pNotas").value.trim(),
+        precio:           parseInt(document.getElementById("pPrecio").value)||0,
+        duracion:         document.getElementById("pDuracion").value,
+        dias_disponibles: diasSel,
+        hora_inicio:      document.getElementById("pHoraInicio").value,
+        hora_fin:         document.getElementById("pHoraFin").value,
+        activo:           true,
       };
-      if (editandoId) {
-        await updateDoc(doc(db, "psicologos", editandoId), data);
-      } else {
-        data.fecha_registro = serverTimestamp();
-        data.leads_asignados = 0;
-        data.leads_atendidos = 0;
-        await addDoc(collection(db, "psicologos"), data);
+
+      try {
+        if (editandoId) {
+          await updateDoc(doc(db, "psicologos", editandoId), data);
+        } else {
+          data.fecha_registro  = serverTimestamp();
+          data.leads_asignados = 0;
+          data.leads_atendidos = 0;
+          await addDoc(collection(db, "psicologos"), data);
+        }
+        window.cerrarModalPsico();
+        await cargarPsicos();
+      } catch(e) {
+        alert("Error al guardar: " + e.message);
+        console.error(e);
       }
-      window.cerrarModalPsico();
-      await cargarPsicos();
     };
 
     window.toggleActivo = async (id, activo) => {
@@ -281,15 +311,17 @@
     };
 
     window.cerrarModalPsico = () => document.getElementById("modalPsico").classList.remove("show");
+    document.getElementById("modalPsico").addEventListener("click", e => {
+      if (e.target === e.currentTarget) window.cerrarModalPsico();
+    });
 
     window.updateModeloDesc = () => {
-      const val = document.getElementById("pModelo").value;
       const descs = {
         A: "El psicólogo recibe los datos del lead y hace su propio seguimiento.",
         B: "Nosotros contactamos, agendamos y cobramos el anticipo.",
         C: "Nosotros entregamos el paciente y cobramos comisión por sesión atendida."
       };
-      document.getElementById("modeloDesc").textContent = descs[val]||"";
+      document.getElementById("modeloDesc").textContent = descs[document.getElementById("pModelo").value]||"";
     };
   </script>
 </body>
