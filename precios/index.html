@@ -186,7 +186,7 @@
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, query, where, orderBy }
+  import { getFirestore, collection, getDocs }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const app = initializeApp({
@@ -198,12 +198,9 @@
     appId:             "1:954208277838:web:80a5093ff550676671ba1f"
   });
   const db = getFirestore(app);
-  window._db  = db;
-  window._col = collection;
+  window._db     = db;
+  window._col    = collection;
   window._getDocs = getDocs;
-  window._query   = query;
-  window._where   = where;
-  window._orderBy = orderBy;
 
   // Cargar planes desde Firebase
   await cargarPlanes();
@@ -350,9 +347,8 @@ let planesFirebase = null;
 
 async function cargarPlanes() {
   try {
-    const snap = await window._getDocs(
-      window._query(window._col(window._db, "precios"), window._orderBy("orden"))
-    );
+    // Sin orderBy para evitar requerir índice en Firestore — ordenamos en cliente
+    const snap = await window._getDocs(window._col(window._db, "precios"));
     if (snap.docs.length > 0) {
       planesFirebase = { sesion: [], paquete: [] };
       snap.docs.forEach(d => {
@@ -362,6 +358,9 @@ async function cargarPlanes() {
           else planesFirebase.paquete.push(p);
         }
       });
+      // Ordenar por campo "orden" en el cliente
+      planesFirebase.sesion.sort((a,b) => (a.orden||99) - (b.orden||99));
+      planesFirebase.paquete.sort((a,b) => (a.orden||99) - (b.orden||99));
     }
   } catch(e) {
     console.warn("Usando precios por defecto:", e.message);
