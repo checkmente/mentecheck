@@ -583,23 +583,13 @@ window.cerrarBurbuja = (e) => {
 
 window.irAgendar = (e) => {
   e.preventDefault();
-  // Por ahora lleva a WA — cuando exista la página de agenda se cambia la URL
-  const wa  = window._WA || "5523202164";
-  const nivel = _nivelLead.charAt(0).toUpperCase() + _nivelLead.slice(1);
-  const msg = encodeURIComponent(
-    `Hola, soy ${_nombreLead} 👋\n\nQuiero agendar una cita con un psicólogo.\nHice el Test de Ansiedad y mi nivel es: *${nivel}*. \n\n¿Qué horarios tienen disponibles? 📅`
-  );
-  window.open(`https://wa.me/525523202164?text=${msg}`, "_blank");
+  // Lleva a la página de agenda con los datos del paciente
+  window.location.href = '../../agendar/';
 };
 
 window.irPrecios = (e) => {
   e.preventDefault();
-  // Cuando exista la página de precios: window.location.href = '../precios/';
-  const wa  = window._WA || "5523202164";
-  const msg = encodeURIComponent(
-    `Hola 👋 Acabo de hacer el Test de Ansiedad en MenteCheck y me gustaría saber los precios de las consultas. ¿Me pueden informar? 💙`
-  );
-  window.open(`https://wa.me/525523202164?text=${msg}`, "_blank");
+  window.location.href = '../../precios/';
 };
 
 window.irWhatsApp = (tipo, e) => {
