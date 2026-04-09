@@ -318,12 +318,15 @@ function renderHorarios(){
     return;
   }
 
+  // Guardar slotsMap globalmente para acceder desde selHora
+  window._slotsMap = slotsMap;
+
   let html="";
   horas.forEach(hora=>{
     const psicos=slotsMap[hora];
     const esSel=hora===horaSel;
     let clase="horario-btn"+(esSel?" selected":"");
-    html+=`<button class="${clase}" onclick="selHora('${hora}',${JSON.stringify(psicos).replace(/"/g,"'").replace(/'/g,'"')})">${hora}<br><span style="font-size:10px;color:var(--muted)">${psicos.length} lugar${psicos.length!==1?"es":""}</span></button>`;
+    html+=`<button class="${clase}" onclick="selHora('${hora}')">${hora}<br><span style="font-size:10px;color:var(--muted)">${psicos.length} lugar${psicos.length!==1?"es":""}</span></button>`;
   });
   document.getElementById("horariosGrid").innerHTML=html;
 }
@@ -340,10 +343,12 @@ function generarSlots(inicio,fin,dur){
   return slots;
 }
 
-window.selHora=(hora,psicos)=>{
+window.selHora=(hora)=>{
   horaSel=hora;
-  // Asignar automáticamente el psicólogo con menos citas ese día
-  psicoAsignado=psicos[0];
+  // Leer psicólogos disponibles del mapa global
+  const psicos = window._slotsMap?.[hora] || [];
+  // Asignar automáticamente el primero disponible
+  psicoAsignado=psicos[0]||null;
   document.getElementById("btnHora").disabled=false;
   renderHorarios();
 };
