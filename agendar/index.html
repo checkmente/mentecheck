@@ -92,6 +92,34 @@
     .loading-spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--violet);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px;}
     .nota{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px;}
     .footer{text-align:center;padding:20px;font-size:11px;color:var(--muted);position:relative;z-index:10;}
+
+    /* ═══ RESPONSIVE ═══ */
+    @media(max-width:600px){
+      nav{padding:10px 16px;}
+      .page{padding:24px 16px 60px;}
+      /* Pasos — ocultar texto, solo números */
+      .step{font-size:0;}
+      .step-num{font-size:11px;width:24px;height:24px;}
+      .step-line{margin:0 4px;}
+      /* Calendario */
+      .cal-header{font-size:9px;padding:6px 0;}
+      .cal-day{font-size:12px;border-radius:8px;}
+      /* Horarios — 2 columnas en móvil */
+      .horarios-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+      .horario-btn{padding:10px 6px;font-size:13px;}
+      /* Resumen */
+      .resumen-row{font-size:13px;}
+      /* Pago */
+      .pago-clabe{font-size:16px;letter-spacing:1px;}
+      /* Botones */
+      .btn-primary{font-size:15px;padding:14px;}
+      .sec-title{font-size:22px;}
+    }
+    @media(max-width:380px){
+      .horarios-grid{grid-template-columns:repeat(2,1fr);}
+      .cal-day{font-size:11px;}
+      .pago-clabe{font-size:14px;}
+    }
   </style>
 </head>
 <body>
