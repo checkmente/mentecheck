@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MenteCheck — Citas</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .cita-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:10px;transition:border-color .2s;}
+    .cita-card:hover{border-color:rgba(124,58,237,.25);}
+    .cita-card.urgente{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.03);}
+    .cita-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
+    .cita-fecha{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;}
+    .cita-hora{font-size:13px;color:var(--muted);margin-top:2px;}
+    .cita-paciente{font-weight:600;font-size:14px;}
+    .cita-psico{font-size:12px;color:var(--muted);margin-top:2px;}
+    .cita-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+    .cita-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+    .btn-estado{font-size:11px;padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-weight:600;transition:opacity .15s;}
+    .btn-confirmar{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);}
+    .btn-cancelar{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.25);}
+    .btn-reasignar{background:rgba(124,58,237,.12);color:#a78bfa;border:1px solid rgba(124,58,237,.25);}
+
+    .badge-pendiente{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.25);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;}
+    .badge-confirmada{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.25);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;}
+    .badge-cancelada{background:rgba(100,116,139,.12);color:#94a3b8;border:1px solid rgba(100,116,139,.2);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;}
+    .badge-completada{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.2);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;}
+
+    .tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px;margin-bottom:20px;width:fit-content;}
+    .tab{padding:8px 16px;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:background .15s,color .15s;}
+    .tab.active{background:var(--violet);color:#fff;}
+
+    .form-field{margin-bottom:14px;}
+    .form-label{display:block;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+    .form-input,.form-select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+    .form-input:focus,.form-select:focus{border-color:var(--violet);}
+
+    .loading-overlay{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .3s;}
+    .loading-overlay.hidden{opacity:0;pointer-events:none;}
+    .loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--violet);border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .loading-text{font-size:13px;color:var(--muted);}
+
+    .stat-mini{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;}
+    .stat-mini-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1;margin-bottom:4px;}
+    .stat-mini-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+    .save-banner{position:fixed;bottom:24px;right:24px;background:var(--success);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;transform:translateY(80px);transition:transform .3s;z-index:999;}
+    .save-banner.show{transform:translateY(0);}
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <span class="loading-text">Verificando sesión...</span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">🧠</div><div class="logo-name">Mente<span>Check</span></div></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Principal</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="leads.html" class="nav-item"><span class="nav-icon">👥</span> Leads</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Gestión</div>
+      <a href="psicologos.html" class="nav-item"><span class="nav-icon">🧑‍⚕️</span> Psicólogos</a>
+      <a href="tests.html" class="nav-item"><span class="nav-icon">🧪</span> Tests</a>
+      <a href="precios.html" class="nav-item"><span class="nav-icon">💰</span> Precios</a>
+      <a href="citas.html" class="nav-item active"><span class="nav-icon">📅</span> Citas</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Sistema</div>
+      <a href="config.html" class="nav-item"><span class="nav-icon">⚙️</span> Configuración</a>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">Citas <span class="page-sub" id="totalCitas">Cargando...</span></div>
+      <div class="topbar-right">
+        <a href="https://checkmente.github.io/mentecheck/agendar/" target="_blank" class="btn btn-ghost btn-sm">📅 Ver página de agenda</a>
+        <div class="admin-pill"><div class="admin-avatar">A</div><span id="adminName">admin</span></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- Stats rápidos -->
+      <div class="grid-4 mb-24" id="statsGrid">
+        <div class="stat-mini"><div class="stat-mini-val violet" id="sPendientes">0</div><div class="stat-mini-lbl">Pendientes pago</div></div>
+        <div class="stat-mini"><div class="stat-mini-val cyan" id="sConfirmadas">0</div><div class="stat-mini-lbl">Confirmadas</div></div>
+        <div class="stat-mini"><div class="stat-mini-val success" id="sCompletadas">0</div><div class="stat-mini-lbl">Completadas</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" style="color:var(--muted)" id="sCanceladas">0</div><div class="stat-mini-lbl">Canceladas</div></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" id="tabTodas"      onclick="setTab('todas')">Todas</button>
+        <button class="tab"        id="tabPendientes" onclick="setTab('pendiente_pago')">Pendientes 💛</button>
+        <button class="tab"        id="tabConfirmadas"onclick="setTab('confirmada')">Confirmadas ✅</button>
+        <button class="tab"        id="tabHoy"        onclick="setTab('hoy')">Hoy 📆</button>
+      </div>
+
+      <div id="listaCitas">
+        <div style="text-align:center;padding:40px;color:var(--muted)">Cargando citas...</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal reasignar psicólogo -->
+  <div class="modal-overlay" id="modalReasignar">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Reasignar psicólogo</span>
+        <button class="btn-close-modal" onclick="cerrarModalR()">✕</button>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px" id="reasignarInfo"></p>
+      <div class="form-field">
+        <label class="form-label">Selecciona el nuevo psicólogo</label>
+        <select class="form-select" id="selectPsico"></select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Motivo del cambio (interno)</label>
+        <input type="text" class="form-input" id="motivoCambio" placeholder="Ej: Imprevisto del psicólogo original">
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="confirmarReasignacion()">Reasignar psicólogo</button>
+    </div>
+  </div>
+
+  <!-- Modal agregar meet -->
+  <div class="modal-overlay" id="modalMeet">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Confirmar cita y enviar Meet</span>
+        <button class="btn-close-modal" onclick="cerrarModalM()">✕</button>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px" id="meetInfo"></p>
+      <div class="form-field">
+        <label class="form-label">Liga de Google Meet</label>
+        <input type="url" class="form-input" id="meetLink" placeholder="https://meet.google.com/xxx-xxxx-xxx">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Notas para el paciente (opcional)</label>
+        <input type="text" class="form-input" id="meetNotas" placeholder="Ej: Conéctate 5 min antes">
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="confirmarYEnviar()">✅ Confirmar y abrir WhatsApp</button>
+    </div>
+  </div>
+
+  <div class="save-banner" id="saveBanner">✅ Cambio guardado</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, getDoc }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey:"AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
+      authDomain:"mentecheck-6f19f.firebaseapp.com",
+      projectId:"mentecheck-6f19f",
+      storageBucket:"mentecheck-6f19f.firebasestorage.app",
+      messagingSenderId:"954208277838",
+      appId:"1:954208277838:web:80a5093ff550676671ba1f"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    let citas=[], psicologos=[], tabActual="todas", citaEditando=null;
+
+    onAuthStateChanged(auth, async user => {
+      if(!user){window.location.href="index.html";return;}
+      document.getElementById("loadingOverlay").classList.add("hidden");
+      document.getElementById("adminName").textContent=user.email.split("@")[0];
+
+      const [citasSnap, psicosSnap] = await Promise.all([
+        getDocs(collection(db,"citas")),
+        getDocs(collection(db,"psicologos"))
+      ]);
+      citas     = citasSnap.docs.map(d=>({id:d.id,...d.data()}));
+      psicologos= psicosSnap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.activo!==false);
+
+      actualizarStats();
+      renderCitas();
+    });
+
+    window.logout=async()=>{await signOut(auth);window.location.href="index.html";};
+
+    function actualizarStats(){
+      const hoy=new Date().toISOString().slice(0,10);
+      document.getElementById("sPendientes").textContent  = citas.filter(c=>c.estado==="pendiente_pago").length;
+      document.getElementById("sConfirmadas").textContent = citas.filter(c=>c.estado==="confirmada").length;
+      document.getElementById("sCompletadas").textContent = citas.filter(c=>c.estado==="completada").length;
+      document.getElementById("sCanceladas").textContent  = citas.filter(c=>c.estado==="cancelada").length;
+      document.getElementById("totalCitas").textContent   = `${citas.length} total`;
+    }
+
+    window.setTab=(tab)=>{
+      tabActual=tab;
+      ["todas","pendientes","confirmadas","hoy"].forEach(t=>{
+        document.getElementById(`tab${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.toggle("active",
+          (t==="todas"&&tab==="todas")||(t==="pendientes"&&tab==="pendiente_pago")||
+          (t==="confirmadas"&&tab==="confirmada")||(t==="hoy"&&tab==="hoy")
+        );
+      });
+      renderCitas();
+    };
+
+    function renderCitas(){
+      const hoy=new Date().toISOString().slice(0,10);
+      let filtradas=citas;
+      if(tabActual==="hoy") filtradas=citas.filter(c=>c.fecha_cita===hoy);
+      else if(tabActual!=="todas") filtradas=citas.filter(c=>c.estado===tabActual);
+
+      // Ordenar por fecha y hora
+      filtradas.sort((a,b)=>`${a.fecha_cita}${a.hora_cita}`.localeCompare(`${b.fecha_cita}${b.hora_cita}`));
+
+      if(!filtradas.length){
+        document.getElementById("listaCitas").innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><p>No hay citas en esta categoría.</p></div>`;
+        return;
+      }
+
+      document.getElementById("listaCitas").innerHTML=filtradas.map(c=>{
+        const fecha=new Date(c.fecha_cita+"T12:00:00");
+        const fechaF=fecha.toLocaleDateString("es-MX",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+        const esHoy=c.fecha_cita===hoy;
+        const esPasada=c.fecha_cita<hoy;
+        let badgeClase=`badge-${c.estado?.replace("_pago","")||"pendiente"}`;
+        const badgeTxt={pendiente_pago:"⏳ Pendiente pago",confirmada:"✅ Confirmada",cancelada:"❌ Cancelada",completada:"🎯 Completada"}[c.estado]||c.estado;
+
+        return `<div class="cita-card${esHoy?" urgente":""}">
+          <div class="cita-header">
+            <div>
+              <div class="cita-fecha">${fechaF}${esHoy?' <span style="color:var(--warning);font-size:12px">— HOY</span>':""}</div>
+              <div class="cita-hora">⏰ ${c.hora_cita} hrs · ${c.duracion||"50 min"}</div>
+            </div>
+            <span class="${badgeClase}">${badgeTxt}</span>
+          </div>
+          <div class="cita-paciente">👤 ${c.paciente_nombre||"—"}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">📱 ${c.paciente_wa||"—"} ${c.paciente_email?`· ✉️ ${c.paciente_email}`:""}</div>
+          <div class="cita-psico">🧑‍⚕️ ${c.psicologo_nombre||"Por asignar"}</div>
+          <div class="cita-meta">
+            <span style="font-size:12px;color:var(--violet-l);font-weight:700">💰 $${Number(c.precio||0).toLocaleString("es-MX")} MXN</span>
+            ${c.meet_link?`<a href="${c.meet_link}" target="_blank" style="font-size:12px;color:var(--cyan)">🎥 Meet</a>`:""}
+            ${c.notas?`<span style="font-size:11px;color:var(--muted)">📝 ${c.notas}</span>`:""}
+          </div>
+          <div class="cita-actions">
+            ${c.estado==="pendiente_pago"?`<button class="btn-estado btn-confirmar" onclick="abrirModalMeet('${c.id}')">✅ Confirmar pago + Meet</button>`:""}
+            ${c.estado==="confirmada"?`<button class="btn-estado btn-confirmar" onclick="cambiarEstado('${c.id}','completada')">🎯 Marcar completada</button>`:""}
+            <button class="btn-estado btn-reasignar" onclick="abrirModalReasignar('${c.id}')">🔄 Reasignar</button>
+            ${c.estado!=="cancelada"?`<button class="btn-estado btn-cancelar" onclick="cambiarEstado('${c.id}','cancelada')">❌ Cancelar</button>`:""}
+            <a class="btn-estado" style="background:rgba(37,211,102,.1);color:#4ade80;border:1px solid rgba(37,211,102,.25);text-decoration:none;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700" href="https://wa.me/52${(c.paciente_wa||'').replace(/\D/g,'')}" target="_blank">💬 WhatsApp</a>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    window.cambiarEstado=async(id,estado)=>{
+      await updateDoc(doc(db,"citas",id),{estado});
+      const c=citas.find(x=>x.id===id);
+      if(c) c.estado=estado;
+      actualizarStats(); renderCitas();
+      mostrarBanner();
+    };
+
+    // ── Modal Confirmar + Meet ──
+    window.abrirModalMeet=(id)=>{
+      citaEditando=citas.find(x=>x.id===id);
+      if(!citaEditando)return;
+      const fecha=new Date(citaEditando.fecha_cita+"T12:00:00");
+      const fechaF=fecha.toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long"});
+      document.getElementById("meetInfo").textContent=`${citaEditando.paciente_nombre} · ${fechaF} a las ${citaEditando.hora_cita} hrs`;
+      document.getElementById("meetLink").value=citaEditando.meet_link||"";
+      document.getElementById("meetNotas").value=citaEditando.notas||"";
+      document.getElementById("modalMeet").classList.add("show");
+    };
+
+    window.confirmarYEnviar=async()=>{
+      const link =document.getElementById("meetLink").value.trim();
+      const notas=document.getElementById("meetNotas").value.trim();
+      if(!link){alert("Por favor ingresa la liga de Meet.");return;}
+
+      await updateDoc(doc(db,"citas",citaEditando.id),{estado:"confirmada",meet_link:link,notas});
+      const c=citas.find(x=>x.id===citaEditando.id);
+      if(c){c.estado="confirmada";c.meet_link=link;c.notas=notas;}
+
+      const fecha=new Date(citaEditando.fecha_cita+"T12:00:00");
+      const fechaF=fecha.toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long"});
+      const wa=(citaEditando.paciente_wa||"").replace(/\D/g,"");
+      const msg=encodeURIComponent(`Hola ${citaEditando.paciente_nombre} 👋\n\n¡Tu cita está confirmada! ✅\n\n📅 *${fechaF}*\n⏰ *${citaEditando.hora_cita} hrs*\n🧑‍⚕️ *${citaEditando.psicologo_nombre}*\n\n🎥 Liga de Meet:\n${link}\n\n${notas?`📝 ${notas}\n\n`:""}Te esperamos. ¡Ánimo! 💙\n— Equipo MenteCheck`);
+      window.open(`https://wa.me/52${wa}?text=${msg}`,"_blank");
+
+      cerrarModalM();
+      actualizarStats(); renderCitas(); mostrarBanner();
+    };
+
+    window.cerrarModalM=()=>document.getElementById("modalMeet").classList.remove("show");
+    document.getElementById("modalMeet").addEventListener("click",e=>{if(e.target===e.currentTarget)cerrarModalM();});
+
+    // ── Modal Reasignar ──
+    window.abrirModalReasignar=(id)=>{
+      citaEditando=citas.find(x=>x.id===id);
+      if(!citaEditando)return;
+      document.getElementById("reasignarInfo").textContent=`Cita de ${citaEditando.paciente_nombre} · ${citaEditando.fecha_cita} ${citaEditando.hora_cita} hrs`;
+      const sel=document.getElementById("selectPsico");
+      sel.innerHTML=psicologos.map(p=>`<option value="${p.id}" data-nombre="${p.nombre}" ${p.id===citaEditando.psicologo_id?"selected":""}>${p.nombre} — ${p.especialidad||""}</option>`).join("");
+      document.getElementById("motivoCambio").value="";
+      document.getElementById("modalReasignar").classList.add("show");
+    };
+
+    window.confirmarReasignacion=async()=>{
+      const sel=document.getElementById("selectPsico");
+      const psicoId=sel.value;
+      const psicoNombre=sel.options[sel.selectedIndex]?.dataset.nombre||"";
+      const motivo=document.getElementById("motivoCambio").value.trim();
+      await updateDoc(doc(db,"citas",citaEditando.id),{psicologo_id:psicoId,psicologo_nombre:psicoNombre,notas:motivo||citaEditando.notas||""});
+      const c=citas.find(x=>x.id===citaEditando.id);
+      if(c){c.psicologo_id=psicoId;c.psicologo_nombre=psicoNombre;}
+      cerrarModalR(); renderCitas(); mostrarBanner();
+    };
+
+    window.cerrarModalR=()=>document.getElementById("modalReasignar").classList.remove("show");
+    document.getElementById("modalReasignar").addEventListener("click",e=>{if(e.target===e.currentTarget)cerrarModalR();});
+
+    function mostrarBanner(){
+      const b=document.getElementById("saveBanner");
+      b.classList.add("show");
+      setTimeout(()=>b.classList.remove("show"),3000);
+    }
+  </script>
+</body>
+</html>
