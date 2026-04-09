@@ -118,6 +118,23 @@
     .loading-plans{text-align:center;padding:40px;color:var(--muted);font-size:14px;}
     .spinner-sm{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--violet);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:8px;}
     @keyframes spin{to{transform:rotate(360deg)}}
+    /* ═══ RESPONSIVE EXTRA ═══ */
+    @media(max-width:600px){
+      nav{padding:10px 16px;}
+      .page{padding:32px 16px 60px;}
+      .hero{margin-bottom:40px;}
+      .hero-sub{font-size:15px;}
+      .billing-toggle{margin-bottom:28px;}
+      .billing-btn{padding:7px 14px;font-size:12px;}
+      .plan-card{padding:24px 20px;}
+      .plan-price{font-size:36px;}
+      .cta-final{padding:24px 16px;}
+      .cta-final-btns{flex-direction:column;}
+      .btn-wa-final,.btn-ghost-final{width:100%;justify-content:center;}
+    }
+    @media(max-width:380px){
+      .billing-toggle{width:100%;justify-content:center;}
+    }
   </style>
 </head>
 <body>
