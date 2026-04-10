@@ -3,208 +3,409 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agendar cita — MenteCheck</title>
+  <title>Test de Ansiedad — MenteCheck</title>
+  <meta name="description" content="Descubre en 3 minutos si la ansiedad está afectando tu vida. Test gratuito, resultado inmediato y confidencial.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"></noscript>
   <style>
     :root{--bg:#070711;--surface:#0e0e1f;--card:#13132a;--border:#1f1f40;--violet:#7c3aed;--violet-l:#9d62f5;--cyan:#06b6d4;--cyan-l:#38d4e8;--text:#f0eeff;--text-2:#a89fcc;--muted:#5a5280;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;}
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     html{font-size:16px;scroll-behavior:smooth;}
     body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
     .bg-scene{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
-    .orb{position:absolute;border-radius:50%;filter:blur(100px);animation:breathe 10s ease-in-out infinite;}
-    .orb-1{width:600px;height:600px;background:var(--violet);top:-200px;left:-200px;opacity:.1;}
-    .orb-2{width:400px;height:400px;background:var(--cyan);bottom:-100px;right:-100px;opacity:.08;animation-delay:-5s;}
-    @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.08) translate(10px,-10px)}}
-    nav{position:sticky;top:0;z-index:100;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(7,7,17,.9);backdrop-filter:blur(20px);border-bottom:1px solid rgba(124,58,237,.1);}
-    .nav-logo{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-weight:700;font-size:18px;text-decoration:none;color:var(--text);}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);animation:breathe 9s ease-in-out infinite;}
+    .orb-1{width:600px;height:600px;background:var(--violet);top:-200px;left:-200px;opacity:.12;}
+    @media(max-width:768px){.orb{filter:blur(60px);}.orb-1{width:300px;height:300px;}.orb-2{width:200px;height:200px;}.orb-3{display:none;}}
+    .orb-2{width:400px;height:400px;background:var(--cyan);bottom:-100px;right:-100px;opacity:.1;animation-delay:-4s;}
+    .orb-3{width:300px;height:300px;background:#a855f7;top:40%;left:50%;opacity:.07;animation-delay:-7s;}
+    @keyframes breathe{0%,100%{transform:scale(1) translate(0,0)}50%{transform:scale(1.1) translate(15px,-15px)}}
+    @media(max-width:768px){.orb{animation:none;}.grain{animation:none;}}
+    .grain{position:fixed;inset:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:1;animation:grain .5s steps(1) infinite;}
+    @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-2%,-2%)}50%{transform:translate(2%,2%)}75%{transform:translate(-1%,1%)}}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(7,7,17,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(124,58,237,.1);}
+    .nav-logo{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-weight:700;font-size:18px;}
     .nav-logo .dot{color:var(--cyan);}
-    .nav-back{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;}
-    .nav-back:hover{color:var(--text);}
-    .page{position:relative;z-index:10;max-width:640px;margin:0 auto;padding:40px 20px 80px;}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .nav-badge{font-size:11px;color:var(--text-2);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:4px 12px;}
+    section{display:none;min-height:100vh;padding-top:70px;}
+    section.active{display:flex;align-items:center;}
+    .container{position:relative;z-index:10;width:100%;max-width:580px;margin:0 auto;padding:0 20px;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
     @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes bounce{0%{transform:scale(.5)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
-
-    .steps{display:flex;align-items:center;margin-bottom:40px;animation:fadeUp .5s ease both;}
-    .step{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--muted);}
-    .step.active{color:var(--violet-l);}
-    .step.done{color:var(--success);}
-    .step-num{width:26px;height:26px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
-    .step.done .step-num{background:var(--success);border-color:var(--success);color:#fff;}
-    .step.active .step-num{background:var(--violet);border-color:var(--violet);color:#fff;}
-    .step-line{flex:1;height:2px;background:var(--border);margin:0 8px;}
-    .step-line.done{background:var(--success);}
-
-    .sec{display:none;animation:fadeUp .4s ease both;}
-    .sec.active{display:block;}
-    .sec-title{font-family:'Fraunces',serif;font-size:clamp(22px,5vw,30px);font-weight:700;margin-bottom:8px;}
-    .sec-sub{font-size:15px;color:var(--text-2);line-height:1.6;margin-bottom:28px;}
-
-    .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-    .cal-mes{font-family:'Fraunces',serif;font-size:17px;font-weight:700;}
-    .cal-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text-2);font-size:16px;padding:6px 12px;cursor:pointer;transition:background .15s;}
-    .cal-btn:hover{background:var(--surface);}
-    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:24px;}
-    .cal-header{text-align:center;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;padding:8px 0;}
-    .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:14px;cursor:pointer;transition:background .15s,color .15s;border:1.5px solid transparent;}
-    .cal-day.empty{cursor:default;}
-    .cal-day.pasado{color:var(--muted);cursor:not-allowed;}
-    .cal-day.disponible:hover{background:rgba(124,58,237,.15);border-color:rgba(124,58,237,.3);}
-    .cal-day.disponible{color:var(--text);}
-    .cal-day.seleccionado{background:var(--violet);color:#fff;border-color:var(--violet);}
-    .cal-day.sin-disp{color:var(--muted);cursor:not-allowed;opacity:.35;}
-    .cal-day.hoy{border-color:var(--cyan);color:var(--cyan-l);}
-
-    .horarios-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
-    .horario-btn{padding:12px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;color:var(--text-2);font-size:14px;font-weight:500;cursor:pointer;transition:border-color .15s,background .15s;text-align:center;}
-    .horario-btn:hover{border-color:var(--violet);background:rgba(124,58,237,.08);}
-    .horario-btn.selected{border-color:var(--violet);background:rgba(124,58,237,.15);color:var(--text);font-weight:700;}
-    .horario-btn.ocupado{opacity:.4;cursor:not-allowed;}
-
-    .resumen-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;}
-    .resumen-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;}
-    .resumen-row:last-child{border-bottom:none;}
-    .resumen-label{color:var(--muted);}
-    .resumen-val{font-weight:600;}
-
-    .form-field{margin-bottom:14px;}
+    @keyframes pulse2{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    /* HERO */
+    #sec-hero .container{padding-top:40px;padding-bottom:60px;animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both;}
+    .hero-label{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);border-radius:20px;padding:5px 14px;margin-bottom:28px;}
+    .hero-label::before{content:'';width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:pulse2 2s ease-in-out infinite;}
+    h1{font-family:'Fraunces',serif;font-size:clamp(34px,8vw,52px);font-weight:700;line-height:1.1;letter-spacing:-.5px;margin-bottom:20px;}
+    h1 em{font-style:italic;color:transparent;background:linear-gradient(135deg,var(--violet-l),var(--cyan-l));-webkit-background-clip:text;background-clip:text;}
+    .hero-sub{font-size:17px;color:var(--text-2);line-height:1.6;margin-bottom:32px;max-width:460px;}
+    .trust-pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;}
+    .trust-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:6px 14px;}
+    .btn-start{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px;background:linear-gradient(135deg,var(--violet),var(--violet-l));border:none;border-radius:14px;color:#fff;font-family:'Fraunces',serif;font-size:18px;font-weight:600;cursor:pointer;box-shadow:0 8px 32px rgba(124,58,237,.4);transition:transform .2s,box-shadow .2s;margin-bottom:14px;}
+    .btn-start:hover{transform:translateY(-2px);box-shadow:0 16px 48px rgba(124,58,237,.5);}
+    .arr{transition:transform .2s;}.btn-start:hover .arr{transform:translateX(4px);}
+    .btn-note{text-align:center;font-size:12px;color:var(--muted);}
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:44px;padding-top:28px;border-top:1px solid var(--border);}
+    .stat-item{text-align:center;}
+    .stat-num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--violet-l);line-height:1;margin-bottom:4px;}
+    .stat-txt{font-size:11px;color:var(--muted);line-height:1.3;}
+    /* PERFIL */
+    #sec-perfil .container{padding-top:20px;padding-bottom:60px;animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both;}
+    .perfil-title{font-family:'Fraunces',serif;font-size:clamp(22px,5vw,30px);font-weight:700;margin-bottom:10px;}
+    .perfil-sub{font-size:15px;color:var(--text-2);line-height:1.6;margin-bottom:32px;}
+    .field-label{display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+    .genero-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px;}
+    .genero-btn{padding:16px 12px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:border-color .15s,background .15s;font-family:'DM Sans',sans-serif;}
+    .genero-btn:hover{border-color:var(--violet);background:rgba(124,58,237,.07);}
+    .genero-btn.selected{border-color:var(--violet);background:rgba(124,58,237,.12);}
+    .genero-icon{font-size:28px;margin-bottom:8px;display:block;}
+    .genero-label{font-size:13px;font-weight:500;color:var(--text-2);}
+    .genero-btn.selected .genero-label{color:var(--text);}
+    .edad-wrap{margin-bottom:24px;}
+    .edad-input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s;}
+    .edad-input:focus{border-color:var(--violet);}
+    .edad-input::placeholder{color:var(--muted);}
+    .aviso-menor{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:18px;margin-bottom:20px;display:none;animation:fadeIn .3s ease;}
+    .aviso-menor.visible{display:block;}
+    .aviso-menor-title{font-weight:700;color:#fbbf24;margin-bottom:8px;font-size:14px;}
+    .aviso-menor-txt{font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:14px;}
+    .aviso-menor-btns{display:flex;gap:10px;}
+    .btn-autorizo{flex:1;padding:11px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:8px;color:#fbbf24;font-size:13px;font-weight:600;cursor:pointer;}
+    .btn-salir{flex:1;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;}
+    /* TEST */
+    #sec-test .container{padding-top:20px;padding-bottom:40px;}
+    .progress-wrap{margin-bottom:24px;}
+    .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+    .progress-label{font-size:12px;color:var(--muted);font-weight:500;}
+    .progress-count{font-size:13px;color:var(--text-2);font-weight:600;}
+    .progress-bar-wrap{height:4px;background:var(--border);border-radius:4px;overflow:hidden;}
+    .progress-bar{height:100%;background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:4px;transition:width .4s cubic-bezier(.22,1,.36,1);}
+    .bloque-header{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:12px 16px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:10px;}
+    .bloque-icon{font-size:20px;}.bloque-info{flex:1;}
+    .bloque-name{font-size:13px;font-weight:700;color:var(--violet-l);}
+    .bloque-desc{font-size:11px;color:var(--muted);margin-top:2px;}
+    .bloque-prog{font-size:11px;color:var(--muted);white-space:nowrap;}
+    .question-num{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--violet-l);margin-bottom:10px;}
+    .question-text{font-family:'Fraunces',serif;font-size:clamp(18px,4.5vw,24px);font-weight:600;line-height:1.35;margin-bottom:26px;}
+    .options{display:flex;flex-direction:column;gap:8px;}
+    .option{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:border-color .15s,background .15s,transform .15s;text-align:left;width:100%;}
+    .option:hover{border-color:var(--violet);background:rgba(124,58,237,.07);transform:translateX(4px);}
+    .option.selected{border-color:var(--violet);background:rgba(124,58,237,.12);}
+    .opt-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s;}
+    .option.selected .opt-dot{background:var(--violet);border-color:var(--violet);}
+    .option.selected .opt-dot::after{content:'✓';font-size:11px;color:#fff;font-weight:700;}
+    .opt-text{font-size:14px;color:var(--text-2);line-height:1.3;}
+    .option.selected .opt-text{color:var(--text);font-weight:500;}
+    .btn-next{width:100%;padding:15px;background:linear-gradient(135deg,var(--violet),var(--violet-l));border:none;border-radius:12px;color:#fff;font-family:'Fraunces',serif;font-size:16px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 20px rgba(124,58,237,.35);transition:opacity .2s,transform .15s;display:none;}
+    .btn-next.visible{display:block;}
+    .btn-next:hover{transform:translateY(-1px);opacity:.92;}
+    /* ANÁLISIS */
+    #sec-analisis{justify-content:center;align-items:center;text-align:center;}
+    #sec-analisis .container{padding:40px 20px;}
+    .analisis-icon{font-size:56px;margin-bottom:24px;display:block;animation:pulse2 1.5s ease-in-out infinite;}
+    .analisis-msg{font-family:'Fraunces',serif;font-size:clamp(20px,5vw,28px);font-weight:600;margin-bottom:12px;}
+    .analisis-sub{font-size:14px;color:var(--muted);}
+    .analisis-dots{display:flex;justify-content:center;gap:8px;margin-top:24px;}
+    .analisis-dot{width:8px;height:8px;border-radius:50%;background:var(--border);animation:dot-pulse 1.4s ease-in-out infinite;}
+    .analisis-dot:nth-child(2){animation-delay:.2s;}
+    .analisis-dot:nth-child(3){animation-delay:.4s;}
+    @keyframes dot-pulse{0%,80%,100%{background:var(--border);transform:scale(1)}40%{background:var(--violet);transform:scale(1.3)}}
+    /* RESULTADO */
+    #sec-resultado .container{padding-top:24px;padding-bottom:40px;animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both;}
+    .res-top{text-align:center;margin-bottom:28px;}
+    .nivel-badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 20px;border-radius:20px;margin-bottom:18px;}
+    .nivel-bajo{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);}
+    .nivel-moderado{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3);}
+    .nivel-alto{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+    .res-titulo{font-family:'Fraunces',serif;font-size:clamp(22px,5vw,34px);font-weight:700;line-height:1.2;margin-bottom:14px;}
+    .res-sub{font-size:16px;color:var(--text-2);line-height:1.6;margin-bottom:24px;}
+    .score-bar-wrap{margin-bottom:28px;}
+    .score-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px;}
+    .score-bar-track{height:10px;background:var(--border);border-radius:10px;overflow:hidden;}
+    .score-bar-fill{height:100%;border-radius:10px;width:0%;transition:width 1.2s cubic-bezier(.22,1,.36,1);}
+    .fill-bajo{background:linear-gradient(90deg,#10b981,#34d399);}
+    .fill-moderado{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+    .fill-alto{background:linear-gradient(90deg,#ef4444,#f87171);}
+    .score-marks{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:5px;}
+    .bloques-titulo{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--text-2);margin-bottom:12px;}
+    .bloques-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+    .bloque-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;gap:10px;align-items:flex-start;}
+    .bloque-card-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+    .bloque-card-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+    .bloque-card-desc{font-size:11px;color:var(--muted);line-height:1.4;}
+    .explicacion{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--violet);border-radius:10px;padding:20px;margin-bottom:22px;font-size:15px;color:var(--text-2);line-height:1.7;}
+    .stat-ctx{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:16px 20px;margin-bottom:24px;display:flex;gap:14px;align-items:center;}
+    .stat-ctx-num{font-family:'Fraunces',serif;font-size:36px;font-weight:700;color:var(--violet-l);flex-shrink:0;line-height:1;}
+    .stat-ctx-txt{font-size:13px;color:var(--text-2);line-height:1.5;}
+    .crisis-box{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;color:#fca5a5;display:none;line-height:1.5;}
+    .crisis-box.visible{display:block;}
+    .crisis-box a{color:#f87171;font-weight:600;}
+    /* CAPTURA */
+    .captura-card{background:var(--card);border:1px solid rgba(124,58,237,.25);border-radius:16px;padding:28px;margin-bottom:20px;position:relative;overflow:hidden;}
+    .captura-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--violet),var(--cyan));}
+    .captura-card-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:8px;}
+    .captura-card-sub{font-size:14px;color:var(--text-2);margin-bottom:22px;line-height:1.5;}
+    .form-field{margin-bottom:13px;}
     .form-label{display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
-    .form-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s;}
-    .form-input:focus{border-color:var(--violet);}
+    .form-optional{font-size:11px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;}
+    .form-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;}
+    .form-input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.12);}
     .form-input::placeholder{color:var(--muted);}
+    .consent-wrap{display:flex;gap:12px;align-items:flex-start;margin:16px 0;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;}
+    .consent-wrap input[type="checkbox"]{width:18px;height:18px;flex-shrink:0;accent-color:var(--violet);margin-top:2px;cursor:pointer;}
+    .consent-text{font-size:12px;color:var(--muted);line-height:1.5;}
+    .btn-wa-cta{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:17px;background:linear-gradient(135deg,#25d366,#128c7e);border:none;border-radius:12px;color:#fff;font-family:'Fraunces',serif;font-size:17px;font-weight:600;cursor:pointer;box-shadow:0 8px 32px rgba(37,211,102,.3);transition:transform .15s,opacity .2s;margin-bottom:10px;}
+    .btn-wa-cta:hover{transform:translateY(-2px);opacity:.92;}
+    .btn-wa-cta:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    .btn-omitir{display:block;width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:13px;cursor:pointer;text-align:center;transition:color .15s;}
+    .btn-omitir:hover{color:var(--text-2);}
+    .spinner{display:inline-block;width:17px;height:17px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:7px;}
 
-    .btn-primary{width:100%;padding:16px;background:linear-gradient(135deg,var(--violet),var(--violet-l));border:none;border-radius:12px;color:#fff;font-family:'Fraunces',serif;font-size:17px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(124,58,237,.35);transition:opacity .2s,transform .15s;margin-bottom:10px;display:block;text-align:center;text-decoration:none;}
-    .btn-primary:hover{opacity:.9;transform:translateY(-1px);}
-    .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-    .btn-ghost{width:100%;padding:13px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:14px;cursor:pointer;transition:color .15s;}
-    .btn-ghost:hover{color:var(--text-2);}
-
-    .pago-card{background:var(--card);border:1px solid rgba(124,58,237,.25);border-radius:14px;padding:24px;margin-bottom:20px;position:relative;overflow:hidden;}
-    .pago-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--violet),var(--cyan));}
-    .pago-clabe{font-family:monospace;font-size:20px;font-weight:700;color:var(--text);letter-spacing:2px;margin:6px 0;}
-    .btn-copy{background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);border-radius:8px;color:var(--violet-l);font-size:12px;font-weight:600;padding:6px 14px;cursor:pointer;margin-top:10px;transition:background .15s;}
-    .btn-copy:hover{background:rgba(124,58,237,.25);}
-
-    .exito-icon{font-size:64px;text-align:center;margin-bottom:20px;display:block;animation:bounce .6s ease;}
-    .spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:8px;}
-    .loading-box{text-align:center;padding:40px;color:var(--muted);}
-    .loading-spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--violet);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px;}
-    .nota{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px;}
-    .footer{text-align:center;padding:20px;font-size:11px;color:var(--muted);position:relative;z-index:10;}
-
+    /* ═══ BURBUJA MENÚ ═══ */
+    .bubble-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s;}
+    .bubble-overlay.open{opacity:1;pointer-events:all;}
+    .bubble-menu{position:fixed;bottom:0;left:0;right:0;z-index:201;background:var(--surface);border-top:1px solid var(--border);border-radius:24px 24px 0 0;padding:20px 20px 32px;transform:translateY(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);}
+    .bubble-overlay.open .bubble-menu{transform:translateY(0);}
+    .bubble-handle{width:36px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 20px;}
+    .bubble-header{margin-bottom:20px;}
+    .bubble-brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .bubble-brand-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--violet),var(--cyan));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .bubble-brand-name{font-family:'Fraunces',serif;font-weight:700;font-size:16px;}
+    .bubble-brand-name span{color:var(--cyan);}
+    .bubble-subtitle{font-size:13px;color:var(--muted);}
+    .bubble-items{display:flex;flex-direction:column;gap:10px;}
+    .bubble-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:border-color .15s,background .15s;text-decoration:none;}
+    .bubble-item:hover{border-color:var(--violet);background:rgba(124,58,237,.08);}
+    .bubble-item-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+    .bubble-item-icon.green{background:rgba(37,211,102,.12);}
+    .bubble-item-icon.violet{background:rgba(124,58,237,.12);}
+    .bubble-item-icon.cyan{background:rgba(6,182,212,.12);}
+    .bubble-item-icon.orange{background:rgba(245,158,11,.12);}
+    .bubble-item-text{flex:1;}
+    .bubble-item-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px;}
+    .bubble-item-sub{font-size:12px;color:var(--muted);}
+    .bubble-item-arr{color:var(--muted);font-size:16px;}
+    .disclaimer{font-size:11px;color:var(--muted);line-height:1.6;text-align:center;padding:16px;border-top:1px solid var(--border);margin-top:20px;}
+    .footer{text-align:center;padding:16px;font-size:11px;color:var(--muted);position:relative;z-index:10;}
+    .footer span{color:var(--violet-l);}
     /* ═══ RESPONSIVE ═══ */
     @media(max-width:600px){
+      /* Nav */
       nav{padding:10px 16px;}
-      .page{padding:24px 16px 60px;}
-      /* Pasos — ocultar texto, solo números */
-      .step{font-size:0;}
-      .step-num{font-size:11px;width:24px;height:24px;}
-      .step-line{margin:0 4px;}
-      /* Calendario */
-      .cal-header{font-size:9px;padding:6px 0;}
-      .cal-day{font-size:12px;border-radius:8px;}
-      /* Horarios — 2 columnas en móvil */
-      .horarios-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
-      .horario-btn{padding:10px 6px;font-size:13px;}
-      /* Resumen */
-      .resumen-row{font-size:13px;}
-      /* Pago */
-      .pago-clabe{font-size:16px;letter-spacing:1px;}
-      /* Botones */
-      .btn-primary{font-size:15px;padding:14px;}
-      .sec-title{font-size:22px;}
+      .nav-badge{display:none;}
+      /* Hero */
+      #sec-hero .container{padding-top:24px;padding-bottom:40px;}
+      .trust-pills{gap:6px;}
+      .trust-pill{font-size:11px;padding:5px 10px;}
+      .stats-row{grid-template-columns:1fr;gap:10px;margin-top:28px;}
+      /* Perfil */
+      .genero-grid{grid-template-columns:1fr 1fr 1fr;gap:8px;}
+      .genero-btn{padding:12px 6px;}
+      .genero-icon{font-size:22px;}
+      /* Test */
+      .bloque-header{flex-wrap:wrap;gap:6px;}
+      .bloque-prog{width:100%;text-align:right;}
+      .option{padding:11px 12px;}
+      /* Resultado */
+      .bloques-grid{grid-template-columns:1fr;}
+      .stat-ctx{flex-direction:column;gap:6px;text-align:center;}
+      .stat-ctx-num{font-size:28px;}
+      /* Captura */
+      .captura-card{padding:20px 16px;}
+      /* Burbuja */
+      .bubble-menu{padding:16px 16px 28px;}
+      .bubble-item{padding:12px;}
+      .bubble-item-icon{width:36px;height:36px;font-size:16px;}
+      .bubble-item-title{font-size:14px;}
     }
     @media(max-width:380px){
-      .horarios-grid{grid-template-columns:repeat(2,1fr);}
-      .cal-day{font-size:11px;}
-      .pago-clabe{font-size:14px;}
+      h1{font-size:28px;}
+      .btn-start{font-size:15px;padding:15px;}
+      .stats-row{grid-template-columns:1fr;}
+      .genero-label{font-size:11px;}
     }
   </style>
 </head>
 <body>
-<div class="bg-scene"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
-
+<div class="bg-scene"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+<div class="grain"></div>
 <nav>
-  <a class="nav-logo" href="../">🧠 Mente<span class="dot">Check</span></a>
-  <a class="nav-back" href="javascript:history.back()">← Volver</a>
+  <div class="nav-logo">🧠 Mente<span class="dot">Check</span></div>
+  <div class="nav-badge">Test gratuito · 3 min</div>
 </nav>
 
-<div class="page">
-  <!-- Pasos -->
-  <div class="steps" id="stepsBar">
-    <div class="step active" id="stp1"><div class="step-num">1</div>Fecha</div>
-    <div class="step-line" id="ln1"></div>
-    <div class="step" id="stp2"><div class="step-num">2</div>Hora</div>
-    <div class="step-line" id="ln2"></div>
-    <div class="step" id="stp3"><div class="step-num">3</div>Datos</div>
-    <div class="step-line" id="ln3"></div>
-    <div class="step" id="stp4"><div class="step-num">4</div>Pago</div>
-  </div>
-
-  <!-- PASO 1: Fecha -->
-  <div class="sec active" id="sec1">
-    <div class="sec-title">¿Cuándo quieres tu cita?</div>
-    <p class="sec-sub">Selecciona una fecha disponible.</p>
-    <div id="calWrap"><div class="loading-box"><div class="loading-spin"></div>Cargando disponibilidad...</div></div>
-    <button class="btn-primary" id="btnFecha" onclick="irPaso(2)" disabled>Continuar →</button>
-  </div>
-
-  <!-- PASO 2: Hora -->
-  <div class="sec" id="sec2">
-    <div class="sec-title">¿A qué hora prefieres?</div>
-    <p class="sec-sub" id="subHora">Horarios disponibles.</p>
-    <div class="horarios-grid" id="horariosGrid"><div class="loading-box" style="grid-column:1/-1"><div class="loading-spin"></div></div></div>
-    <button class="btn-primary" id="btnHora" onclick="irPaso(3)" disabled>Continuar →</button>
-    <button class="btn-ghost" onclick="irPaso(1)">← Cambiar fecha</button>
-  </div>
-
-  <!-- PASO 3: Datos -->
-  <div class="sec" id="sec3">
-    <div class="sec-title">Tus datos</div>
-    <p class="sec-sub">Para confirmar tu cita y enviarte la liga de la sesión.</p>
-    <div class="resumen-card" id="resumenCita"></div>
-    <div class="form-field"><label class="form-label">Tu nombre</label><input type="text" class="form-input" id="pNombre" placeholder="¿Cómo te llamas?"></div>
-    <div class="form-field"><label class="form-label">WhatsApp</label><input type="tel" class="form-input" id="pWa" placeholder="Ej: 5512345678"></div>
-    <div class="form-field"><label class="form-label">Email <span style="color:var(--muted);font-size:11px;text-transform:none;letter-spacing:0">(opcional)</span></label><input type="email" class="form-input" id="pEmail" placeholder="tu@correo.com"></div>
-    <button class="btn-primary" onclick="irPaso(4)">Ver resumen y pagar →</button>
-    <button class="btn-ghost" onclick="irPaso(2)">← Cambiar horario</button>
-  </div>
-
-  <!-- PASO 4: Pago -->
-  <div class="sec" id="sec4">
-    <div class="sec-title">Realiza tu pago</div>
-    <p class="sec-sub">Tu cita queda confirmada al verificar tu transferencia.</p>
-    <div class="resumen-card" id="resumenPago"></div>
-    <div class="pago-card">
-      <div style="font-size:13px;font-weight:700;color:var(--text-2);margin-bottom:14px">📤 Datos para transferencia</div>
-      <div style="font-size:12px;color:var(--muted)" id="pagoBanco">BBVA</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:8px">CLABE interbancaria</div>
-      <div class="pago-clabe" id="pagoClabe">Configura tu CLABE en el panel</div>
-      <div style="font-size:13px;color:var(--muted)" id="pagoNombre">MenteCheck</div>
-      <button class="btn-copy" onclick="copiarClabe()">📋 Copiar CLABE</button>
+<!-- HERO -->
+<section id="sec-hero" class="active">
+  <div class="container">
+    <div class="hero-label">Test de Ansiedad · 3 minutos</div>
+    <h1>¿Tu mente nunca<br><em>descansa?</em></h1>
+    <p class="hero-sub">La ansiedad no siempre se ve por fuera. A veces es esa voz interna que no para, el corazón acelerado sin razón, o sentir que algo malo está por pasar. <strong>Este test te ayuda a entender qué está pasando.</strong></p>
+    <div class="trust-pills">
+      <div class="trust-pill">🎁 Test gratuito</div>
+      <div class="trust-pill">📊 Resultado personalizado</div>
+      <div class="trust-pill">🔒 100% confidencial</div>
     </div>
-    <p class="nota">⚠️ Una vez realizada la transferencia, envía tu comprobante por WhatsApp. Te confirmamos tu cita y la liga de Meet en menos de 2 horas.</p>
-    <button class="btn-primary" id="btnConfirmar" onclick="confirmarCita()" style="margin-top:16px">✅ Ya realicé mi pago — Confirmar</button>
-    <button class="btn-ghost" onclick="irPaso(3)">← Editar datos</button>
+    <button class="btn-start" onclick="irAPerfil()">Descubrir mi nivel de ansiedad <span class="arr">→</span></button>
+    <p class="btn-note">30 preguntas · 6 bloques · Basado en criterios clínicos</p>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num">1 de 3</div><div class="stat-txt">personas experimenta ansiedad sin identificarla</div></div>
+      <div class="stat-item"><div class="stat-num">3 min</div><div class="stat-txt">para obtener tu resultado personalizado</div></div>
+      <div class="stat-item"><div class="stat-num">0 $</div><div class="stat-txt">sin cobros ni suscripciones ocultas</div></div>
+    </div>
   </div>
+</section>
 
-  <!-- PASO 5: Éxito -->
-  <div class="sec" id="sec5">
-    <span class="exito-icon">🎉</span>
-    <div class="sec-title" style="text-align:center">¡Cita registrada!</div>
-    <p class="sec-sub" style="text-align:center">Recibimos tu solicitud. Te confirmamos por WhatsApp al verificar tu pago (menos de 2 horas).</p>
-    <div class="resumen-card" id="resumenExito"></div>
-    <a class="btn-primary" id="btnWaExito" href="#" target="_blank">💬 Enviar comprobante por WhatsApp</a>
-    <p class="nota" style="text-align:center;margin-top:16px">Escríbenos si tienes dudas sobre tu cita.</p>
+<!-- PERFIL -->
+<section id="sec-perfil">
+  <div class="container">
+    <div class="perfil-title">Antes de empezar</div>
+    <p class="perfil-sub">Esta información nos ayuda a personalizar tu resultado. Solo toma 10 segundos.</p>
+    <label class="field-label">¿Con qué género te identificas?</label>
+    <div class="genero-grid">
+      <button class="genero-btn" onclick="selGenero('hombre',this)"><span class="genero-icon">👨</span><span class="genero-label">Hombre</span></button>
+      <button class="genero-btn" onclick="selGenero('mujer',this)"><span class="genero-icon">👩</span><span class="genero-label">Mujer</span></button>
+      <button class="genero-btn" onclick="selGenero('otro',this)"><span class="genero-icon">🧑</span><span class="genero-label">Otro</span></button>
+    </div>
+    <div class="edad-wrap">
+      <label class="field-label" for="inputEdad">¿Cuántos años tienes?</label>
+      <input type="number" class="edad-input" id="inputEdad" placeholder="Ej: 28" min="10" max="99" oninput="checkEdad()">
+    </div>
+    <div class="aviso-menor" id="avisoMenor">
+      <div class="aviso-menor-title">⚠️ Eres menor de edad</div>
+      <p class="aviso-menor-txt">Este test está diseñado para mayores de 18 años. Si eres menor, necesitas la autorización de un padre o tutor para continuar. Al presionar "Continuar con autorización" confirmas que tienes el permiso de tus padres o tutores.</p>
+      <div class="aviso-menor-btns">
+        <button class="btn-autorizo" onclick="autorizarMenor()">✅ Continuar con autorización</button>
+        <button class="btn-salir" onclick="mostrarSeccion('sec-hero')">← Salir</button>
+      </div>
+    </div>
+    <button class="btn-start" onclick="continuarPerfil()" style="margin-top:8px">Comenzar el test <span class="arr">→</span></button>
+  </div>
+</section>
+
+<!-- TEST -->
+<section id="sec-test">
+  <div class="container">
+    <div class="progress-wrap">
+      <div class="progress-top"><span class="progress-label">Tu progreso</span><span class="progress-count" id="progCount">1 / 30</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progBar" style="width:3%"></div></div>
+    </div>
+    <div class="bloque-header">
+      <span class="bloque-icon" id="bloqueIcon">🧠</span>
+      <div class="bloque-info"><div class="bloque-name" id="bloqueName"></div><div class="bloque-desc" id="bloqueDesc"></div></div>
+      <span class="bloque-prog" id="bloqueProg"></span>
+    </div>
+    <div id="questionWrap">
+      <div class="question-num" id="questionNum"></div>
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsWrap"></div>
+      <button class="btn-next" id="btnNext" onclick="siguientePregunta()">Continuar →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ANÁLISIS -->
+<section id="sec-analisis" style="justify-content:center;align-items:center;text-align:center;">
+  <div class="container" style="padding:40px 20px;">
+    <span class="analisis-icon" id="analisisIcon">🔍</span>
+    <div class="analisis-msg" id="analisisMsg">Analizando tus respuestas...</div>
+    <div class="analisis-sub" id="analisisSub">Esto solo toma un momento</div>
+    <div class="analisis-dots"><div class="analisis-dot"></div><div class="analisis-dot"></div><div class="analisis-dot"></div></div>
+  </div>
+</section>
+
+<!-- RESULTADO -->
+<section id="sec-resultado">
+  <div class="container">
+    <div class="res-top">
+      <div class="nivel-badge" id="nivelBadge"></div>
+      <div class="res-titulo" id="resTitulo"></div>
+      <p class="res-sub" id="resSub"></p>
+    </div>
+    <div class="score-bar-wrap">
+      <div class="score-bar-label"><span>Tu puntuación</span><span id="scoreNum"></span></div>
+      <div class="score-bar-track"><div class="score-bar-fill" id="scoreBarFill"></div></div>
+      <div class="score-marks"><span>0 (Bajo)</span><span>30</span><span>70</span><span>120 (Alto)</span></div>
+    </div>
+    <div class="bloques-titulo">Áreas donde la ansiedad te está afectando:</div>
+    <div class="bloques-grid" id="bloquesGrid"></div>
+    <div class="explicacion" id="explicacionTxt"></div>
+    <div class="stat-ctx" id="statCtx"></div>
+    <div class="crisis-box" id="crisisBox">🆘 Si estás teniendo pensamientos de hacerte daño: <a href="tel:800-290-0024">800-290-0024</a> (México, gratuita 24h).</div>
+    <!-- CAPTURA POST-RESULTADO -->
+    <div class="captura-card" id="capturaCard">
+      <div class="captura-card-title" id="captTitulo"></div>
+      <p class="captura-card-sub" id="captSub"></p>
+      <div class="form-field"><label class="form-label">Tu nombre</label><input type="text" class="form-input" id="inNombre" placeholder="¿Cómo te llamas?"></div>
+      <div class="form-field"><label class="form-label">WhatsApp</label><input type="tel" class="form-input" id="inWa" placeholder="Ej: 5512345678"></div>
+      <div class="form-field"><label class="form-label">Email <span class="form-optional">(opcional)</span></label><input type="email" class="form-input" id="inEmail" placeholder="tu@correo.com"></div>
+      <div class="consent-wrap">
+        <input type="checkbox" id="inConsent">
+        <span class="consent-text">Acepto que MenteCheck guarde mis datos para conectarme con un psicólogo. No serán compartidos sin mi consentimiento.</span>
+      </div>
+      <button class="btn-wa-cta" id="btnEnviar" onclick="enviarYAbrirMenu()">💬 Hablar con un psicólogo →</button>
+      <button class="btn-omitir" onclick="document.getElementById('capturaCard').style.display='none'">Solo ver mi resultado, sin dejar datos →</button>
+    </div>
+    <div class="disclaimer">⚠️ Este test es orientativo y <strong>no constituye un diagnóstico clínico</strong>. Solo un profesional puede hacer un diagnóstico.</div>
+  </div>
+</section>
+
+<!-- BURBUJA MENÚ -->
+<div class="bubble-overlay" id="bubbleOverlay" onclick="cerrarBurbuja(event)">
+  <div class="bubble-menu" id="bubbleMenu">
+    <div class="bubble-handle"></div>
+    <div class="bubble-header">
+      <div class="bubble-brand">
+        <div class="bubble-brand-icon">🧠</div>
+        <div class="bubble-brand-name">Mente<span>Check</span></div>
+      </div>
+      <div class="bubble-subtitle">¿En qué te podemos ayudar hoy?</div>
+    </div>
+    <div class="bubble-items">
+      <a class="bubble-item" id="itemAgendar" href="#" onclick="irAgendar(event)">
+        <div class="bubble-item-icon violet">🗓️</div>
+        <div class="bubble-item-text">
+          <div class="bubble-item-title">Agendar una cita</div>
+          <div class="bubble-item-sub">Elige horario, psicólogo y paga</div>
+        </div>
+        <span class="bubble-item-arr">›</span>
+      </a>
+      <a class="bubble-item" id="itemPrecios" href="#" onclick="irPrecios(event)">
+        <div class="bubble-item-icon cyan">💰</div>
+        <div class="bubble-item-text">
+          <div class="bubble-item-title">Ver precios</div>
+          <div class="bubble-item-sub">Consultas individuales y paquetes</div>
+        </div>
+        <span class="bubble-item-arr">›</span>
+      </a>
+      <a class="bubble-item" id="itemHablar" href="#" onclick="irWhatsApp('hablar', event)">
+        <div class="bubble-item-icon green">💬</div>
+        <div class="bubble-item-text">
+          <div class="bubble-item-title">Hablar con alguien primero</div>
+          <div class="bubble-item-sub">Resuelve tus dudas antes de decidir</div>
+        </div>
+        <span class="bubble-item-arr">›</span>
+      </a>
+      <a class="bubble-item" id="itemPregunta" href="#" onclick="irWhatsApp('pregunta', event)">
+        <div class="bubble-item-icon orange">❓</div>
+        <div class="bubble-item-text">
+          <div class="bubble-item-title">Tengo una pregunta</div>
+          <div class="bubble-item-sub">Te respondemos por WhatsApp</div>
+        </div>
+        <span class="bubble-item-arr">›</span>
+      </a>
+    </div>
   </div>
 </div>
 
-<div class="footer">MenteCheck © 2025 · Tu bienestar importa 💜</div>
+<div class="footer">MenteCheck © 2025 · Hecho con 💜 en México · <span>Tu bienestar importa</span></div>
 
+<!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, addDoc, serverTimestamp, doc, getDoc }
+  import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   const app = initializeApp({
     apiKey:"AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
@@ -216,239 +417,228 @@
   });
   const db = getFirestore(app);
   window._db=db; window._col=collection; window._add=addDoc; window._ts=serverTimestamp;
-
-  const [psicosSnap, configSnap, citasSnap] = await Promise.all([
-    getDocs(collection(db, "psicologos")),
-    getDoc(doc(db, "config", "general")),
-    getDocs(collection(db, "citas"))
-  ]);
-
-  window._psicologos = psicosSnap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.activo!==false && p.dias_disponibles?.length);
-  window._config = configSnap.exists() ? configSnap.data() : {};
-  let wa = (window._config.negocio_whatsapp||"5523202164").replace(/\D/g,"");
-  if(wa.startsWith("52")&&wa.length>10) wa=wa.slice(2);
-  window._WA = wa;
-
-  window._citasOcupadas = {};
-  citasSnap.docs.forEach(d=>{
-    const c=d.data();
-    if(c.estado!=="cancelada"){
-      const key=`${c.fecha_cita}_${c.hora_cita}_${c.psicologo_id}`;
-      window._citasOcupadas[key]=true;
+  // Cargar número WA en background
+  window._WA = "5523202164";
+  getDoc(doc(db,"config","general")).then(snap=>{
+    if(snap.exists()){
+      let n=(snap.data().negocio_whatsapp||"5523202164").replace(/\D/g,"");
+      if(n.startsWith("52")&&n.length>10) n=n.slice(2);
+      window._WA=n;
     }
-  });
-
-  iniciarCalendario();
+  }).catch(()=>{});
 </script>
 
 <script>
-const DIAS_MAP={0:"Domingo",1:"Lunes",2:"Martes",3:"Miércoles",4:"Jueves",5:"Viernes",6:"Sábado"};
-let pasoActual=1, fechaSel=null, horaSel=null, psicoAsignado=null;
-let mesActual=new Date(); mesActual.setDate(1);
+const BLOQUES=[
+  {nombre:"Bloque 1 — Pensamientos ansiosos",desc:"Cómo trabaja tu mente cuando se preocupa",icon:"🧠",preguntas:["Me preocupa constantemente que algo malo pueda suceder.","Me cuesta dejar de pensar en problemas o situaciones negativas.","Siento que mi mente no puede \"apagarse\".","Imagino escenarios negativos con frecuencia.","Me cuesta controlar mis pensamientos cuando estoy preocupado/a."]},
+  {nombre:"Bloque 2 — Síntomas físicos",desc:"Cómo se manifiesta la ansiedad en tu cuerpo",icon:"💓",preguntas:["Siento tensión en el cuerpo o los músculos.","Mi corazón late más rápido cuando estoy preocupado/a.","Siento presión en el pecho o dificultad para respirar.","Tengo molestias estomacales cuando estoy nervioso/a.","Siento cansancio por estar preocupado/a."]},
+  {nombre:"Bloque 3 — Problemas de sueño",desc:"Cómo afecta la ansiedad tu descanso",icon:"😴",preguntas:["Me cuesta dormir porque mi mente sigue pensando.","Me despierto durante la noche con preocupaciones.","Siento que no descanso bien por pensamientos constantes.","Me cuesta relajarme antes de dormir.","Siento ansiedad antes de acostarme."]},
+  {nombre:"Bloque 4 — Comportamientos de ansiedad",desc:"Cómo la ansiedad influye en tus decisiones",icon:"🚧",preguntas:["Evito situaciones que me generan nerviosismo.","Me cuesta enfrentar problemas directamente.","Me siento incómodo/a en situaciones sociales.","Prefiero evitar actividades que me generen estrés.","Busco constantemente seguridad o confirmación de otros."]},
+  {nombre:"Bloque 5 — Impacto emocional",desc:"Cómo te sientes emocionalmente",icon:"🌊",preguntas:["Me siento inquieto/a o nervioso/a sin motivo claro.","Me siento abrumado/a por problemas pequeños.","Siento que pierdo el control de mis emociones.","Me cuesta relajarme incluso cuando todo está bien.","Me siento irritable por preocupaciones constantes."]},
+  {nombre:"Bloque 6 — Impacto en la vida diaria",desc:"Cómo afecta la ansiedad tu día a día",icon:"🗓️",preguntas:["Mi ansiedad afecta mi concentración.","Mi ansiedad afecta mi trabajo o estudios.","Mi ansiedad afecta mis relaciones.","Siento que mi ansiedad limita lo que quiero hacer.","Siento que mis preocupaciones afectan mi calidad de vida."]}
+];
+const ANALISIS_MSGS=[
+  {icon:"🔍",msg:"Analizando tus respuestas...",sub:"Procesando el bloque completado"},
+  {icon:"🧬",msg:"Identificando patrones emocionales...",sub:"Comparando con tu perfil"},
+  {icon:"📊",msg:"Calculando tu perfil psicológico...",sub:"Esto solo toma un momento"},
+  {icon:"🧠",msg:"Evaluando el impacto en tu vida...",sub:"Casi listo"},
+  {icon:"✨",msg:"Preparando tu diagnóstico personalizado...",sub:"Un momento más..."}
+];
+const OPCIONES=["Nunca","Rara vez","A veces","Frecuentemente","Casi siempre"];
+const TOTAL=30,MAX=120;
+let genero="",edad=0,menorAutorizado=false;
+let bloqueIdx=0,pregIdx=0,pregGlobal=0;
+let respuestas=[],seleccion=null,puntuacion=0,nivelFinal="";
+const fuente=new URLSearchParams(window.location.search).get("utm_source")||"directo";
 
-window.irPaso=(paso)=>{
-  if(paso===3){
-    if(!fechaSel||!horaSel)return;
-    renderResumen("resumenCita");
-  }
-  if(paso===4){
-    const nombre=document.getElementById("pNombre").value.trim();
-    const wa=document.getElementById("pWa").value.trim();
-    if(!nombre){alert("Por favor ingresa tu nombre.");return;}
-    if(!wa){alert("Por favor ingresa tu WhatsApp.");return;}
-    renderResumen("resumenPago");
-    cargarDatosPago();
-  }
-  document.querySelectorAll(".sec").forEach(s=>s.classList.remove("active"));
-  document.getElementById(`sec${paso}`).classList.add("active");
-  pasoActual=paso;
-  actualizarPasos();
-  if(paso===2) renderHorarios();
+window.mostrarSeccion=function(id){
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  const s=document.getElementById(id);s.classList.remove("active");void s.offsetWidth;s.classList.add("active");
   window.scrollTo({top:0,behavior:"smooth"});
 };
 
-function actualizarPasos(){
-  for(let i=1;i<=4;i++){
-    const el=document.getElementById(`stp${i}`);
-    const ln=document.getElementById(`ln${i}`);
-    el.className="step"+(i<pasoActual?" done":i===pasoActual?" active":"");
-    if(ln) ln.className="step-line"+(i<pasoActual?" done":"");
-  }
-}
+window.irAPerfil=()=>mostrarSeccion("sec-perfil");
 
-window.iniciarCalendario=()=>renderCalendario();
-
-function renderCalendario(){
-  const hoy=new Date();
-  const anio=mesActual.getFullYear(), mes=mesActual.getMonth();
-  const primerDia=new Date(anio,mes,1).getDay();
-  const diasEnMes=new Date(anio,mes+1,0).getDate();
-  const nombreMes=new Date(anio,mes).toLocaleString("es-MX",{month:"long",year:"numeric"});
-
-  let html=`<div class="cal-nav"><button class="cal-btn" onclick="cambiarMes(-1)">‹</button><div class="cal-mes">${nombreMes.charAt(0).toUpperCase()+nombreMes.slice(1)}</div><button class="cal-btn" onclick="cambiarMes(1)">›</button></div><div class="cal-grid">`;
-  ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"].forEach(d=>html+=`<div class="cal-header">${d}</div>`);
-  for(let i=0;i<primerDia;i++) html+=`<div class="cal-day empty"></div>`;
-
-  for(let dia=1;dia<=diasEnMes;dia++){
-    const fecha=new Date(anio,mes,dia);
-    const fechaStr=`${anio}-${String(mes+1).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
-    const diaNom=DIAS_MAP[fecha.getDay()];
-    const esHoy=fecha.toDateString()===hoy.toDateString();
-    const esPasado=fecha<new Date(hoy.getFullYear(),hoy.getMonth(),hoy.getDate());
-    const hayPsico=(window._psicologos||[]).some(p=>p.dias_disponibles?.includes(diaNom));
-    const esSel=fechaStr===fechaSel;
-    let clase="cal-day";
-    if(esSel) clase+=" seleccionado";
-    else if(esPasado) clase+=" pasado";
-    else if(!hayPsico) clase+=" sin-disp";
-    else clase+=" disponible";
-    if(esHoy&&!esSel) clase+=" hoy";
-    const click=(!esPasado&&hayPsico)?`onclick="selDia('${fechaStr}')"` :"";
-    html+=`<div class="${clase}" ${click}>${dia}</div>`;
-  }
-  html+="</div>";
-  document.getElementById("calWrap").innerHTML=html;
-}
-
-window.cambiarMes=(dir)=>{mesActual.setMonth(mesActual.getMonth()+dir);renderCalendario();};
-window.selDia=(f)=>{fechaSel=f;horaSel=null;psicoAsignado=null;document.getElementById("btnFecha").disabled=false;renderCalendario();};
-
-function renderHorarios(){
-  if(!fechaSel)return;
-  const fecha=new Date(fechaSel+"T12:00:00");
-  const diaNom=DIAS_MAP[fecha.getDay()];
-  document.getElementById("subHora").textContent=`Horarios disponibles — ${fecha.toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long"})}`;
-
-  const psicosDelDia=(window._psicologos||[]).filter(p=>p.dias_disponibles?.includes(diaNom));
-  if(!psicosDelDia.length){
-    document.getElementById("horariosGrid").innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:20px">Sin disponibilidad este día.</div>`;
-    return;
-  }
-
-  // slots por psicólogo para cruzar con citas ocupadas
-  const slotsMap={}; // hora => [psicos disponibles]
-  psicosDelDia.forEach(p=>{
-    const dur=parseInt(p.duracion)||50;
-    const slots=generarSlots(p.hora_inicio||"09:00",p.hora_fin||"18:00",dur);
-    slots.forEach(slot=>{
-      const key=`${fechaSel}_${slot}_${p.id}`;
-      const ocupado=window._citasOcupadas?.[key];
-      if(!ocupado){
-        if(!slotsMap[slot]) slotsMap[slot]=[];
-        slotsMap[slot].push(p);
-      }
-    });
-  });
-
-  const horas=Object.keys(slotsMap).sort();
-  if(!horas.length){
-    document.getElementById("horariosGrid").innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:20px">Sin horarios disponibles para este día.</div>`;
-    return;
-  }
-
-  // Guardar slotsMap globalmente para acceder desde selHora
-  window._slotsMap = slotsMap;
-
-  let html="";
-  horas.forEach(hora=>{
-    const psicos=slotsMap[hora];
-    const esSel=hora===horaSel;
-    let clase="horario-btn"+(esSel?" selected":"");
-    html+=`<button class="${clase}" onclick="selHora('${hora}')">${hora}<br><span style="font-size:10px;color:var(--muted)">${psicos.length} lugar${psicos.length!==1?"es":""}</span></button>`;
-  });
-  document.getElementById("horariosGrid").innerHTML=html;
-}
-
-function generarSlots(inicio,fin,dur){
-  const slots=[];
-  let [h,m]=inicio.split(":").map(Number);
-  const [hF,mF]=fin.split(":").map(Number);
-  const finT=hF*60+mF;
-  while(h*60+m+dur<=finT){
-    slots.push(`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`);
-    m+=dur; if(m>=60){h+=Math.floor(m/60);m=m%60;}
-  }
-  return slots;
-}
-
-window.selHora=(hora)=>{
-  horaSel=hora;
-  // Leer psicólogos disponibles del mapa global
-  const psicos = window._slotsMap?.[hora] || [];
-  // Asignar automáticamente el primero disponible
-  psicoAsignado=psicos[0]||null;
-  document.getElementById("btnHora").disabled=false;
-  renderHorarios();
+window.selGenero=(g,btn)=>{
+  genero=g;
+  document.querySelectorAll(".genero-btn").forEach(b=>b.classList.remove("selected"));
+  btn.classList.add("selected");
 };
 
-function renderResumen(elId){
-  const fecha=new Date(fechaSel+"T12:00:00");
-  const fechaF=fecha.toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-  document.getElementById(elId).innerHTML=`
-    <div class="resumen-row"><span class="resumen-label">📅 Fecha</span><span class="resumen-val">${fechaF}</span></div>
-    <div class="resumen-row"><span class="resumen-label">⏰ Hora</span><span class="resumen-val">${horaSel} hrs</span></div>
-    <div class="resumen-row"><span class="resumen-label">⏱️ Duración</span><span class="resumen-val">${psicoAsignado?.duracion||"50 minutos"}</span></div>
-    <div class="resumen-row"><span class="resumen-label">💰 Total</span><span class="resumen-val" style="color:var(--violet-l);font-size:18px">$${Number(psicoAsignado?.precio||550).toLocaleString("es-MX")} MXN</span></div>`;
-}
-
-function cargarDatosPago(){
-  const cfg=window._config||{};
-  document.getElementById("pagoBanco").textContent=cfg.banco||"BBVA";
-  document.getElementById("pagoClabe").textContent=cfg.clabe||"Configura tu CLABE en el panel → Configuración";
-  document.getElementById("pagoNombre").textContent=cfg.titular||cfg.negocio_nombre||"MenteCheck";
-}
-
-window.copiarClabe=()=>{
-  const clabe=document.getElementById("pagoClabe").textContent;
-  navigator.clipboard.writeText(clabe).then(()=>{
-    const btn=document.querySelector(".btn-copy");
-    btn.textContent="✅ Copiado";
-    setTimeout(()=>btn.textContent="📋 Copiar CLABE",2000);
-  });
+window.checkEdad=()=>{
+  edad=parseInt(document.getElementById("inputEdad").value)||0;
+  if(edad>0&&edad<18) document.getElementById("avisoMenor").classList.add("visible");
+  else{document.getElementById("avisoMenor").classList.remove("visible");menorAutorizado=false;}
 };
 
-window.confirmarCita=async()=>{
-  const nombre=document.getElementById("pNombre").value.trim();
-  const wa=document.getElementById("pWa").value.trim();
-  const email=document.getElementById("pEmail").value.trim();
-  const btn=document.getElementById("btnConfirmar");
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Registrando...';
+window.autorizarMenor=()=>{
+  menorAutorizado=true;
+  document.getElementById("avisoMenor").classList.remove("visible");
+};
 
-  try{
-    await window._add(window._col(window._db,"citas"),{
-      fecha_cita:fechaSel, hora_cita:horaSel,
-      duracion:psicoAsignado?.duracion||"50 minutos",
-      paciente_nombre:nombre, paciente_wa:wa, paciente_email:email||"",
-      psicologo_id:psicoAsignado?.id||"",
-      psicologo_nombre:psicoAsignado?.nombre||"Por asignar",
-      precio:psicoAsignado?.precio||550,
-      estado:"pendiente_pago",
-      fecha_creacion:window._ts(), notas:""
-    });
+window.continuarPerfil=()=>{
+  if(!genero){alert("Por favor selecciona tu género.");return;}
+  if(!edad||edad<10){alert("Por favor ingresa tu edad.");return;}
+  if(edad<18&&!menorAutorizado){document.getElementById("avisoMenor").classList.add("visible");return;}
+  bloqueIdx=0;pregIdx=0;pregGlobal=0;respuestas=[];seleccion=null;puntuacion=0;
+  mostrarSeccion("sec-test");renderPregunta();
+};
 
-    // Bloquear ese slot localmente
-    const key=`${fechaSel}_${horaSel}_${psicoAsignado?.id}`;
-    if(!window._citasOcupadas) window._citasOcupadas={};
-    window._citasOcupadas[key]=true;
+function renderPregunta(){
+  const b=BLOQUES[bloqueIdx];
+  const wrap=document.getElementById("questionWrap");
+  wrap.style.animation="none";void wrap.offsetWidth;wrap.style.animation="slideIn .4s cubic-bezier(.22,1,.36,1) both";
+  document.getElementById("bloqueIcon").textContent=b.icon;
+  document.getElementById("bloqueName").textContent=b.nombre;
+  document.getElementById("bloqueDesc").textContent=b.desc;
+  document.getElementById("bloqueProg").textContent=`${pregIdx+1}/${b.preguntas.length}`;
+  document.getElementById("questionNum").textContent=`Pregunta ${pregGlobal+1}`;
+  document.getElementById("questionText").textContent=b.preguntas[pregIdx];
+  document.getElementById("progCount").textContent=`${pregGlobal+1} / ${TOTAL}`;
+  document.getElementById("progBar").style.width=`${((pregGlobal+1)/TOTAL)*100}%`;
+  const c=document.getElementById("optionsWrap");c.innerHTML="";
+  OPCIONES.forEach((txt,i)=>{
+    const btn=document.createElement("button");btn.className="option";
+    btn.innerHTML=`<span class="opt-dot"></span><span class="opt-text">${txt}</span>`;
+    btn.onclick=()=>{document.querySelectorAll(".option").forEach(o=>o.classList.remove("selected"));btn.classList.add("selected");seleccion=i;document.getElementById("btnNext").classList.add("visible");};
+    c.appendChild(btn);
+  });
+  seleccion=null;document.getElementById("btnNext").classList.remove("visible");
+}
 
-    const fecha=new Date(fechaSel+"T12:00:00");
-    const fechaF=fecha.toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long"});
-    document.getElementById("resumenExito").innerHTML=`
-      <div class="resumen-row"><span class="resumen-label">👤 Paciente</span><span class="resumen-val">${nombre}</span></div>
-      <div class="resumen-row"><span class="resumen-label">📅 Fecha</span><span class="resumen-val">${fechaF}</span></div>
-      <div class="resumen-row"><span class="resumen-label">⏰ Hora</span><span class="resumen-val">${horaSel} hrs</span></div>
-      <div class="resumen-row"><span class="resumen-label">💰 Total</span><span class="resumen-val">$${Number(psicoAsignado?.precio||550).toLocaleString("es-MX")} MXN</span></div>
-      <div class="resumen-row"><span class="resumen-label">📋 Estado</span><span class="resumen-val" style="color:var(--warning)">⏳ Pendiente de pago</span></div>`;
+window.siguientePregunta=()=>{
+  if(seleccion===null)return;
+  const b=BLOQUES[bloqueIdx];
+  respuestas.push({bloque:b.nombre,pregunta:b.preguntas[pregIdx],respuesta:OPCIONES[seleccion],valor:seleccion});
+  puntuacion+=seleccion;pregGlobal++;pregIdx++;
+  if(pregIdx>=b.preguntas.length){
+    const esUltimo=bloqueIdx>=BLOQUES.length-1;
+    bloqueIdx++;pregIdx=0;
+    mostrarAnalisis(esUltimo);
+  } else renderPregunta();
+};
 
-    const waNum=window._WA||"5523202164";
-    const msg=encodeURIComponent(`Hola MenteCheck 👋 Soy ${nombre}.\n\nRegistré mi cita para el *${fechaF}* a las *${horaSel} hrs*.\n\nTe envío mi comprobante de transferencia ✅`);
-    document.getElementById("btnWaExito").href=`https://wa.me/52${waNum}?text=${msg}`;
+function mostrarAnalisis(esUltimo){
+  const idx=esUltimo?4:Math.min(bloqueIdx-1,3);
+  const m=ANALISIS_MSGS[idx];
+  document.getElementById("analisisIcon").textContent=m.icon;
+  document.getElementById("analisisMsg").textContent=m.msg;
+  document.getElementById("analisisSub").textContent=m.sub;
+  mostrarSeccion("sec-analisis");
+  setTimeout(()=>{
+    if(esUltimo){nivelFinal=puntuacion<=30?"bajo":puntuacion<=70?"moderado":"alto";renderResultado();mostrarSeccion("sec-resultado");}
+    else{mostrarSeccion("sec-test");renderPregunta();}
+  },esUltimo?3000:2000);
+}
 
-    irPaso(5);
-  }catch(e){
-    alert("Error al registrar: "+e.message);
-    btn.disabled=false; btn.textContent="✅ Ya realicé mi pago — Confirmar";
+function renderResultado(){
+  const nivel=nivelFinal,pts=puntuacion,pct=Math.round((pts/MAX)*100);
+  document.getElementById("nivelBadge").className=`nivel-badge nivel-${nivel}`;
+  document.getElementById("nivelBadge").textContent=nivel==="bajo"?"Ansiedad Baja":nivel==="moderado"?"Ansiedad Moderada":"Ansiedad Alta";
+  document.getElementById("scoreNum").textContent=`${pts} / ${MAX} puntos`;
+  setTimeout(()=>{const f=document.getElementById("scoreBarFill");f.className=`score-bar-fill fill-${nivel}`;f.style.width=pct+"%";},400);
+  const C={
+    bajo:{titulo:"Tu ansiedad está en un nivel manejable",sub:"Tus respuestas indican niveles bajos de ansiedad. Eso es positivo — pero no significa que no valga la pena seguir prestándole atención a tu bienestar emocional.",
+      bloques:[{icon:"😌",name:"Pensamientos",desc:"Tu mente logra calmarse con relativa facilidad"},{icon:"💪",name:"Cuerpo",desc:"Pocos síntomas físicos de ansiedad"},{icon:"😴",name:"Sueño",desc:"Tu descanso no parece muy comprometido"},{icon:"🌱",name:"Vida diaria",desc:"La ansiedad no limita significativamente tus actividades"}],
+      exp:"La ansiedad en niveles bajos es como una alarma que suena de vez en cuando — está ahí, pero no domina tu vida. Sin embargo, el estrés sostenido, los cambios importantes o las épocas difíciles pueden elevar ese nivel sin que te des cuenta. Conocer tus patrones emocionales hoy es la mejor forma de proteger tu bienestar mañana. Muchas personas en esta etapa descubren, al hablar con un psicólogo, que había cosas que cargaban sin saberlo.",
+      stat:{num:"1 de 3",txt:"personas experimenta ansiedad en algún momento de su vida. Conocerte a tiempo es la ventaja más grande que puedes tener."},
+      captTitulo:"¿Quieres seguir conociéndote?",captSub:"Hablar con un psicólogo no es solo para crisis — es para quienes quieren vivir mejor. Un psicólogo puede darte herramientas concretas para mantener este equilibrio y prepararte para los momentos difíciles."},
+    moderado:{titulo:"La ansiedad sí está afectando tu vida",sub:"Tus respuestas indican niveles moderados de ansiedad. No estás exagerando — lo que sientes es real, tiene nombre, y tiene solución.",
+      bloques:[{icon:"🧠",name:"Pensamientos",desc:"Tendencia a anticipar lo peor con frecuencia"},{icon:"💓",name:"Síntomas físicos",desc:"Señales corporales de tensión con regularidad"},{icon:"😴",name:"Sueño",desc:"Dificultad para desconectar la mente al descansar"},{icon:"🔄",name:"Vida diaria",desc:"Algunas actividades y relaciones se ven limitadas"}],
+      exp:"La ansiedad moderada sostenida en el tiempo no solo se siente mal — también tiene consecuencias físicas reales: afecta la calidad del sueño, debilita el sistema inmune, reduce la concentración y puede deteriorar tus relaciones. No porque seas débil, sino porque tu sistema nervioso está trabajando en modo de alerta constantemente, y eso agota. La buena noticia: la ansiedad moderada es una de las condiciones más tratables en psicología. Con el acompañamiento adecuado, la mayoría de las personas notan cambios significativos en pocas semanas.",
+      stat:{num:"78%",txt:"de las personas con ansiedad moderada mejoran significativamente con acompañamiento psicológico en menos de 3 meses."},
+      captTitulo:"Habla con un psicólogo esta semana",captSub:"No tienes que seguir cargando esto solo/a. Un especialista puede ayudarte a entender qué está detrás de tu ansiedad y darte herramientas reales para manejarla."},
+    alto:{titulo:"Tu ansiedad necesita atención pronto",sub:"Tus respuestas indican niveles elevados de ansiedad. Lo que sientes tiene solución — y merece atención ahora, no después.",
+      bloques:[{icon:"🚨",name:"Pensamientos",desc:"Estado de alerta mental casi constante"},{icon:"😰",name:"Síntomas físicos",desc:"Señales corporales intensas y frecuentes"},{icon:"🚧",name:"Comportamiento",desc:"La ansiedad bloquea actividades importantes"},{icon:"🌀",name:"Vida diaria",desc:"Impacto significativo en trabajo, relaciones y bienestar"}],
+      exp:"Un nivel alto de ansiedad sostenido no es solo agotador emocionalmente — tiene consecuencias físicas documentadas: aumenta el riesgo de hipertensión, debilita el sistema inmune, genera problemas digestivos y altera profundamente el sueño. Tu cerebro lleva tiempo en modo de supervivencia, procesando el mundo como si hubiera una amenaza constante. Eso no es un defecto tuyo — es lo que le pasa al sistema nervioso cuando ha sido muy exigido. La terapia especializada en ansiedad es altamente efectiva: la mayoría de las personas con niveles altos reportan mejoras notables en las primeras semanas de tratamiento.",
+      stat:{num:"94%",txt:"de las personas con ansiedad alta que inician terapia reportan mejoras importantes en su calidad de vida."},
+      captTitulo:"Atención prioritaria — Te ayudamos hoy",captSub:"No dejes pasar más tiempo. Cada semana sin atención es una semana más de desgaste innecesario. Déjanos tu WhatsApp y te contactamos hoy mismo."}
+  };
+  const c=C[nivel];
+  document.getElementById("resTitulo").textContent=c.titulo;
+  document.getElementById("resSub").textContent=c.sub;
+  document.getElementById("explicacionTxt").textContent=c.exp;
+  document.getElementById("bloquesGrid").innerHTML=c.bloques.map(b=>`<div class="bloque-card"><span class="bloque-card-icon">${b.icon}</span><div><div class="bloque-card-name">${b.name}</div><div class="bloque-card-desc">${b.desc}</div></div></div>`).join("");
+  document.getElementById("statCtx").innerHTML=`<div class="stat-ctx-num">${c.stat.num}</div><div class="stat-ctx-txt">${c.stat.txt}</div>`;
+  document.getElementById("captTitulo").textContent=c.captTitulo;
+  document.getElementById("captSub").textContent=c.captSub;
+  if(nivel==="alto")document.getElementById("crisisBox").classList.add("visible");
+}
+
+// Datos del lead capturados al abrir el menú
+let _leadGuardado = false;
+let _nombreLead   = "";
+let _nivelLead    = "";
+let _waLead       = "";
+
+window.enviarYAbrirMenu = async () => {
+  const nombre  = document.getElementById("inNombre").value.trim();
+  const wa      = document.getElementById("inWa").value.trim();
+  const email   = document.getElementById("inEmail").value.trim();
+  const consent = document.getElementById("inConsent").checked;
+
+  if(!nombre)  { alert("Por favor ingresa tu nombre."); return; }
+  if(!wa)      { alert("Por favor ingresa tu WhatsApp."); return; }
+  if(!consent) { alert("Necesitamos tu consentimiento para continuar."); return; }
+
+  const btn = document.getElementById("btnEnviar");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Guardando...';
+
+  // Guardar lead en Firebase
+  if (!_leadGuardado) {
+    try {
+      await window._add(window._col(window._db, "leads"), {
+        nombre, email: email||"", whatsapp: wa,
+        genero, edad,
+        menor_autorizado: edad < 18 ? menorAutorizado : false,
+        test: "ansiedad", nivel: nivelFinal,
+        puntuacion, puntuacion_max: MAX,
+        respuestas, fuente,
+        estado: "nuevo", consentimiento: true,
+        fecha: window._ts(), notas: ""
+      });
+      _leadGuardado = true;
+    } catch(e) { console.warn("Firebase:", e.message); }
   }
+
+  _nombreLead = nombre;
+  _nivelLead  = nivelFinal;
+  _waLead     = wa;
+
+  btn.disabled = false;
+  btn.innerHTML = "💬 Hablar con un psicólogo →";
+
+  // Abrir burbuja
+  document.getElementById("bubbleOverlay").classList.add("open");
+};
+
+window.cerrarBurbuja = (e) => {
+  if (e.target === document.getElementById("bubbleOverlay")) {
+    document.getElementById("bubbleOverlay").classList.remove("open");
+  }
+};
+
+window.irAgendar = (e) => {
+  e.preventDefault();
+  // Lleva a la página de agenda con los datos del paciente
+  window.location.href = '../../agendar/';
+};
+
+window.irPrecios = (e) => {
+  e.preventDefault();
+  window.location.href = '../../precios/';
+};
+
+window.irWhatsApp = (tipo, e) => {
+  e.preventDefault();
+  const wa   = window._WA || "5523202164";
+  const msgs = {
+    hablar:   `Hola, soy ${_nombreLead} 👋\n\nAcabé de hacer el Test de Ansiedad en MenteCheck (nivel: *${_nivelLead}*).\n\nMe gustaría hablar con alguien antes de tomar una decisión. ¿Podemos platicar? 💙`,
+    pregunta: `Hola 👋 Hice el Test de Ansiedad en MenteCheck y tengo una pregunta. ¿Me pueden ayudar?`
+  };
+  const msg = encodeURIComponent(msgs[tipo] || msgs.pregunta);
+  window.open(`https://wa.me/525523202164?text=${msg}`, "_blank");
 };
 </script>
 </body>
