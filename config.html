@@ -90,6 +90,7 @@
       <a href="psicologos.html" class="nav-item"><span class="nav-icon">🧑‍⚕️</span> Psicólogos</a>
       <a href="tests.html" class="nav-item"><span class="nav-icon">🧪</span> Tests</a>
       <a href="precios.html" class="nav-item"><span class="nav-icon">💰</span> Precios</a>
+      <a href="citas.html" class="nav-item"><span class="nav-icon">📅</span> Citas</a>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-section-label">Sistema</div>
@@ -192,6 +193,29 @@ Si en algún momento decides retomar tu proceso, aquí estaremos para ayudarte.
         </div>
       </div>
 
+      <div class="config-section">
+        <div class="config-section-title">💳 Datos de pago</div>
+        <div class="config-section-desc">Información bancaria que se muestra al paciente en la página de agenda para realizar la transferencia.</div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">Banco</label>
+            <input type="text" class="form-input" id="pagoBanco" placeholder="Ej: BBVA, Banamex, HSBC...">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Titular de la cuenta</label>
+            <input type="text" class="form-input" id="pagoTitular" placeholder="Nombre completo del titular">
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">CLABE interbancaria (18 dígitos)</label>
+          <input type="text" class="form-input" id="pagoClabe" placeholder="000000000000000000" maxlength="18">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Número de tarjeta (opcional)</label>
+          <input type="text" class="form-input" id="pagoTarjeta" placeholder="**** **** **** 0000" maxlength="19">
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -254,7 +278,11 @@ Si en algún momento decides retomar tu proceso, aquí estaremos para ayudarte.
         negocioNombre:  c.negocio_nombre,
         negocioWa:      c.negocio_whatsapp,
         negocioEmail:   c.negocio_email,
-        negocioWeb:     c.negocio_web
+        negocioWeb:     c.negocio_web,
+        pagoBanco:      c.banco,
+        pagoTitular:    c.titular,
+        pagoClabe:      c.clabe,
+        pagoTarjeta:    c.tarjeta,
       };
       Object.entries(map).forEach(([id, val]) => {
         const el = document.getElementById(id);
@@ -276,6 +304,10 @@ Si en algún momento decides retomar tu proceso, aquí estaremos para ayudarte.
           negocio_whatsapp:      document.getElementById("negocioWa").value,
           negocio_email:         document.getElementById("negocioEmail").value,
           negocio_web:           document.getElementById("negocioWeb").value,
+          banco:                 document.getElementById("pagoBanco").value,
+          titular:               document.getElementById("pagoTitular").value,
+          clabe:                 document.getElementById("pagoClabe").value,
+          tarjeta:               document.getElementById("pagoTarjeta").value,
         }, { merge: true });
 
         const banner = document.getElementById("saveBanner");
