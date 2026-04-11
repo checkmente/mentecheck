@@ -12,6 +12,7 @@
     :root{--bg:#070711;--surface:#0e0e1f;--card:#13132a;--border:#1f1f40;--violet:#7c3aed;--violet-l:#9d62f5;--cyan:#06b6d4;--cyan-l:#38d4e8;--text:#f0eeff;--text-2:#a89fcc;--muted:#5a5280;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;}
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     html{font-size:16px;scroll-behavior:smooth;}
+    @media(max-width:768px){html{scroll-behavior:auto;}}
     body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
     .bg-scene{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
     .orb{position:absolute;border-radius:50%;filter:blur(90px);animation:breathe 9s ease-in-out infinite;}
@@ -29,7 +30,8 @@
     .nav-logo{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-weight:700;font-size:18px;}
     .nav-logo .dot{color:var(--cyan);}
     .nav-badge{font-size:11px;color:var(--text-2);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:4px 12px;}
-    section{display:none;min-height:100vh;padding-top:70px;}
+    section{display:none;min-height:100vh;padding-top:70px;will-change:opacity;}
+    @media(max-width:768px){section{will-change:auto;}}
     section.active{display:flex;align-items:center;}
     .container{position:relative;z-index:10;width:100%;max-width:580px;margin:0 auto;padding:0 20px;}
     @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
@@ -487,8 +489,9 @@ const fuente=new URLSearchParams(window.location.search).get("utm_source")||"dir
 
 window.mostrarSeccion=function(id){
   document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
-  const s=document.getElementById(id);s.classList.remove("active");void s.offsetWidth;s.classList.add("active");
-  window.scrollTo({top:0,behavior:"smooth"});
+  const s=document.getElementById(id);
+  s.classList.add("active");
+  window.scrollTo({top:0,behavior:"auto"});
 };
 
 window.irAPerfil=()=>mostrarSeccion("sec-perfil");
