@@ -9,7 +9,8 @@
     .psico-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; transition:border-color .2s; position:relative; }
     .psico-card:hover { border-color:rgba(124,58,237,.3); }
     .psico-header { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
-    .psico-avatar { width:46px; height:46px; background:linear-gradient(135deg,var(--violet),var(--cyan)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; color:#fff; flex-shrink:0; }
+    .psico-avatar { width:46px; height:46px; background:linear-gradient(135deg,var(--violet),var(--cyan)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; color:#fff; flex-shrink:0; overflow:hidden; }
+    .psico-avatar img { width:100%; height:100%; object-fit:cover; }
     .psico-name { font-family:'Syne',sans-serif; font-weight:700; font-size:15px; }
     .psico-especialidad { font-size:12px; color:var(--muted); margin-top:2px; }
     .psico-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
@@ -22,12 +23,65 @@
     .psico-actions { display:flex; gap:8px; margin-top:14px; }
     .badge-activo   { background:rgba(16,185,129,.12); color:#34d399; border:1px solid rgba(16,185,129,.2); font-size:10px; padding:2px 8px; border-radius:20px; }
     .badge-inactivo { background:rgba(100,116,139,.12); color:#94a3b8; border:1px solid rgba(100,116,139,.2); font-size:10px; padding:2px 8px; border-radius:20px; }
-    .form-field { margin-bottom:16px; }
-    .form-label { display:block; font-size:12px; color:var(--muted); font-weight:600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; }
-    .form-input, .form-select { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:11px 14px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px; outline:none; }
-    .form-input:focus, .form-select:focus { border-color:var(--violet); }
+
+    /* Form */
+    .form-field { margin-bottom:14px; }
+    .form-label { display:block; font-size:11px; color:var(--muted); font-weight:600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; }
+    .form-input, .form-select, .form-textarea {
+      width:100%; background:var(--surface); border:1px solid var(--border);
+      border-radius:8px; padding:10px 14px; color:var(--text);
+      font-family:'DM Sans',sans-serif; font-size:13px; outline:none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--violet); }
+    .form-textarea { resize:vertical; min-height:70px; }
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
     .modelo-desc { font-size:11px; color:var(--muted); margin-top:6px; }
+
+    /* Secciones del modal */
+    .modal-section {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:10px; padding:16px; margin-bottom:16px;
+    }
+    .modal-section-title {
+      font-size:11px; font-weight:700; letter-spacing:1px;
+      text-transform:uppercase; color:var(--muted); margin-bottom:14px;
+      display:flex; align-items:center; gap:8px;
+    }
+
+    /* Días con horario individual */
+    .dias-grid { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .dia-btn {
+      padding:7px 14px; background:var(--surface); border:1.5px solid var(--border);
+      border-radius:8px; font-size:13px; cursor:pointer; color:var(--muted);
+      transition:all .15s; user-select:none;
+    }
+    .dia-btn.activo {
+      border-color:var(--violet); background:rgba(124,58,237,.1);
+      color:var(--text); font-weight:600;
+    }
+    .horarios-por-dia { display:flex; flex-direction:column; gap:8px; }
+    .horario-dia-row {
+      display:grid; grid-template-columns:80px 1fr 1fr;
+      gap:10px; align-items:center;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:8px; padding:10px 14px;
+    }
+    .horario-dia-nombre { font-size:13px; font-weight:600; color:var(--text-2); }
+
+    /* Tags de especialidad */
+    .tags-wrap { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .tag {
+      display:flex; align-items:center; gap:4px;
+      background:rgba(124,58,237,.1); border:1px solid rgba(124,58,237,.2);
+      border-radius:20px; padding:3px 10px; font-size:12px; color:var(--violet-l);
+    }
+    .tag-remove { cursor:pointer; font-size:14px; line-height:1; color:var(--muted); }
+    .tag-remove:hover { color:var(--danger); }
+    .tag-input-wrap { display:flex; gap:8px; margin-top:8px; }
+    .tag-input { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:13px; outline:none; }
+    .tag-input:focus { border-color:var(--violet); }
+
     .loading-overlay { position:fixed; inset:0; background:var(--bg); z-index:999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; transition:opacity .3s; }
     .loading-overlay.hidden { opacity:0; pointer-events:none; }
     .loading-spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--violet); border-radius:50%; animation:spin .7s linear infinite; }
@@ -80,55 +134,109 @@
     </div>
   </main>
 
+  <!-- MODAL EDITOR -->
   <div class="modal-overlay" id="modalPsico">
-    <div class="modal">
+    <div class="modal" style="max-width:620px">
       <div class="modal-header">
         <span class="modal-title" id="modalPsicoTitle">Nuevo psicólogo</span>
         <button class="btn-close-modal" onclick="cerrarModalPsico()">✕</button>
       </div>
-      <div class="form-grid">
-        <div class="form-field"><label class="form-label">Nombre completo</label><input type="text" class="form-input" id="pNombre" placeholder="Dr. Juan Pérez"></div>
-        <div class="form-field"><label class="form-label">Especialidad</label><input type="text" class="form-input" id="pEspecialidad" placeholder="Ansiedad y depresión"></div>
-        <div class="form-field"><label class="form-label">WhatsApp</label><input type="tel" class="form-input" id="pWhatsapp" placeholder="5512345678"></div>
-        <div class="form-field"><label class="form-label">Email</label><input type="email" class="form-input" id="pEmail" placeholder="doctor@email.com"></div>
-        <div class="form-field"><label class="form-label">Precio por sesión (MXN)</label><input type="number" class="form-input" id="pPrecio" placeholder="550"></div>
-        <div class="form-field"><label class="form-label">Duración de sesión</label>
-          <select class="form-select" id="pDuracion">
-            <option value="50 minutos">50 minutos</option>
-            <option value="60 minutos">60 minutos</option>
-            <option value="80 minutos">80 minutos</option>
+
+      <!-- SECCIÓN 1: Datos básicos -->
+      <div class="modal-section">
+        <div class="modal-section-title">👤 Datos básicos</div>
+        <div class="form-grid">
+          <div class="form-field"><label class="form-label">Nombre completo</label><input type="text" class="form-input" id="pNombre" placeholder="Dr. Juan Pérez"></div>
+          <div class="form-field"><label class="form-label">Cédula profesional</label><input type="text" class="form-input" id="pCedula" placeholder="12345678"></div>
+          <div class="form-field"><label class="form-label">WhatsApp</label><input type="tel" class="form-input" id="pWhatsapp" placeholder="5512345678"></div>
+          <div class="form-field"><label class="form-label">Email</label><input type="email" class="form-input" id="pEmail" placeholder="doctor@email.com"></div>
+          <div class="form-field"><label class="form-label">Años de experiencia</label><input type="number" class="form-input" id="pExperiencia" placeholder="5" min="0"></div>
+          <div class="form-field"><label class="form-label">Foto (URL de imagen)</label><input type="url" class="form-input" id="pFoto" placeholder="https://..."></div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Bio corta (visible para pacientes)</label>
+          <textarea class="form-textarea" id="pBio" placeholder="Psicóloga especializada en ansiedad y manejo del estrés. Más de 5 años acompañando a personas a recuperar su bienestar..."></textarea>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Áreas de especialidad</label>
+          <div class="tags-wrap" id="tagsWrap"></div>
+          <div class="tag-input-wrap">
+            <input type="text" class="tag-input" id="tagInput" placeholder="Ej: Ansiedad, Depresión, Parejas..." onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();agregarTag();}">
+            <button class="btn btn-ghost btn-sm" onclick="agregarTag()">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2: Sesiones -->
+      <div class="modal-section">
+        <div class="modal-section-title">💰 Sesiones y tarifas</div>
+        <div class="form-grid">
+          <div class="form-field"><label class="form-label">Precio por sesión (MXN)</label><input type="number" class="form-input" id="pPrecio" placeholder="550"></div>
+          <div class="form-field"><label class="form-label">Duración de sesión</label>
+            <select class="form-select" id="pDuracion">
+              <option value="50">50 minutos</option>
+              <option value="60">60 minutos</option>
+              <option value="80">80 minutos</option>
+            </select>
+          </div>
+          <div class="form-field"><label class="form-label">Buffer entre citas (min)</label>
+            <select class="form-select" id="pBuffer">
+              <option value="0">Sin buffer</option>
+              <option value="10">10 minutos</option>
+              <option value="15">15 minutos</option>
+              <option value="20">20 minutos</option>
+              <option value="30">30 minutos</option>
+            </select>
+          </div>
+          <div class="form-field"><label class="form-label">Tipo de citas</label>
+            <select class="form-select" id="pTipoCitas">
+              <option value="ambas">Primeras citas y seguimientos</option>
+              <option value="primera">Solo primeras citas</option>
+              <option value="seguimiento">Solo seguimientos</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Liga de Meet permanente</label>
+          <input type="url" class="form-input" id="pMeet" placeholder="https://meet.google.com/xxx-xxxx-xxx">
+        </div>
+      </div>
+
+      <!-- SECCIÓN 3: Modelo de trabajo -->
+      <div class="modal-section">
+        <div class="modal-section-title">🤝 Modelo de trabajo</div>
+        <div class="form-field">
+          <select class="form-select" id="pModelo" onchange="updateModeloDesc()">
+            <option value="A">A — Lead frío ($150–300 MXN por lead)</option>
+            <option value="B">B — Lead + cita agendada ($500–800 MXN)</option>
+            <option value="C">C — Comisión por sesión atendida (30–40%)</option>
           </select>
+          <div class="modelo-desc" id="modeloDesc">El psicólogo recibe los datos y hace su propio seguimiento.</div>
         </div>
       </div>
-      <div class="form-field">
-        <label class="form-label">Modelo de trabajo</label>
-        <select class="form-select" id="pModelo" onchange="updateModeloDesc()">
-          <option value="A">A — Lead frío ($150–300 MXN por lead)</option>
-          <option value="B">B — Lead + cita agendada ($500–800 MXN)</option>
-          <option value="C">C — Comisión por sesión atendida (30–40%)</option>
-        </select>
-        <div class="modelo-desc" id="modeloDesc">El psicólogo recibe los datos y hace su propio seguimiento.</div>
-      </div>
-      <div class="form-field">
-        <label class="form-label">Días disponibles</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-          <label id="cb-lun" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Lunes" onchange="toggleDia(this)"> Lun</label>
-          <label id="cb-mar" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Martes" onchange="toggleDia(this)"> Mar</label>
-          <label id="cb-mie" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Miércoles" onchange="toggleDia(this)"> Mié</label>
-          <label id="cb-jue" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Jueves" onchange="toggleDia(this)"> Jue</label>
-          <label id="cb-vie" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Viernes" onchange="toggleDia(this)"> Vie</label>
-          <label id="cb-sab" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Sábado" onchange="toggleDia(this)"> Sáb</label>
-          <label id="cb-dom" style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;"><input type="checkbox" value="Domingo" onchange="toggleDia(this)"> Dom</label>
+
+      <!-- SECCIÓN 4: Disponibilidad -->
+      <div class="modal-section">
+        <div class="modal-section-title">📅 Disponibilidad por día</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Selecciona los días y configura el horario de cada uno individualmente.</p>
+        <div class="dias-grid" id="diasGrid">
+          <div class="dia-btn" data-dia="Lunes" onclick="toggleDiaNuevo(this)">Lun</div>
+          <div class="dia-btn" data-dia="Martes" onclick="toggleDiaNuevo(this)">Mar</div>
+          <div class="dia-btn" data-dia="Miércoles" onclick="toggleDiaNuevo(this)">Mié</div>
+          <div class="dia-btn" data-dia="Jueves" onclick="toggleDiaNuevo(this)">Jue</div>
+          <div class="dia-btn" data-dia="Viernes" onclick="toggleDiaNuevo(this)">Vie</div>
+          <div class="dia-btn" data-dia="Sábado" onclick="toggleDiaNuevo(this)">Sáb</div>
+          <div class="dia-btn" data-dia="Domingo" onclick="toggleDiaNuevo(this)">Dom</div>
         </div>
+        <div class="horarios-por-dia" id="horariosPorDia"></div>
       </div>
-      <div class="form-grid">
-        <div class="form-field"><label class="form-label">Horario inicio</label><input type="time" class="form-input" id="pHoraInicio" value="09:00"></div>
-        <div class="form-field"><label class="form-label">Horario fin</label><input type="time" class="form-input" id="pHoraFin" value="18:00"></div>
+
+      <!-- SECCIÓN 5: Notas -->
+      <div class="modal-section">
+        <div class="modal-section-title">📝 Notas internas</div>
+        <textarea class="form-textarea" id="pNotas" placeholder="Acuerdos especiales, observaciones, comisiones pactadas..."></textarea>
       </div>
-      <div class="form-field">
-        <label class="form-label">Notas internas</label>
-        <textarea class="form-input" id="pNotas" style="resize:vertical;min-height:70px" placeholder="Acuerdos especiales, observaciones..."></textarea>
-      </div>
+
       <button class="btn btn-primary" style="width:100%" onclick="guardarPsico()">Guardar psicólogo</button>
     </div>
   </div>
@@ -139,7 +247,6 @@
     import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, serverTimestamp }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // ✅ Credenciales correctas
     const firebaseConfig = {
       apiKey:            "AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
       authDomain:        "mentecheck-6f19f.firebaseapp.com",
@@ -154,7 +261,7 @@
     const db   = getFirestore(app);
     let psicos     = [];
     let editandoId = null;
-    let diasSel    = [];
+    let tags       = [];
 
     onAuthStateChanged(auth, async user => {
       if (!user) { window.location.href = "index.html"; return; }
@@ -170,9 +277,7 @@
         const snap = await getDocs(collection(db, "psicologos"));
         psicos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderPsicos();
-      } catch(e) {
-        console.error("Error cargando psicólogos:", e);
-      }
+      } catch(e) { console.error("Error:", e); }
     }
 
     function renderPsicos() {
@@ -182,21 +287,38 @@
         grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🧑‍⚕️</div><p>Aún no hay psicólogos registrados.</p></div>`;
         return;
       }
-      grid.innerHTML = psicos.map(p => `
+      grid.innerHTML = psicos.map(p => {
+        const inicial = (p.nombre||"?")[0].toUpperCase();
+        const avatarHTML = p.foto
+          ? `<div class="psico-avatar"><img src="${p.foto}" alt="${p.nombre}" onerror="this.parentElement.textContent='${inicial}'"></div>`
+          : `<div class="psico-avatar">${inicial}</div>`;
+
+        const diasHTML = p.horarios_por_dia
+          ? Object.entries(p.horarios_por_dia).map(([d,h])=>`<span style="font-size:10px;color:var(--muted)">${d.slice(0,3)} ${h.inicio}–${h.fin}</span>`).join(" · ")
+          : p.dias_disponibles?.length ? p.dias_disponibles.join(", ") : "—";
+
+        const areasHTML = p.areas?.length
+          ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${p.areas.map(a=>`<span style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:2px 8px;font-size:10px;color:var(--violet-l)">${a}</span>`).join("")}</div>`
+          : "";
+
+        return `
         <div class="psico-card">
           <span class="badge-modelo modelo-${(p.modelo||'A').toLowerCase()}">Modelo ${p.modelo||"A"}</span>
           <div class="psico-header">
-            <div class="psico-avatar">${(p.nombre||"?")[0].toUpperCase()}</div>
+            ${avatarHTML}
             <div>
               <div class="psico-name">${p.nombre||"—"}</div>
-              <div class="psico-especialidad">${p.especialidad||"—"}</div>
+              <div class="psico-especialidad">${p.especialidad||p.areas?.join(", ")||"—"}</div>
               <span class="${p.activo!==false?"badge-activo":"badge-inactivo"}">${p.activo!==false?"Activo":"Inactivo"}</span>
             </div>
           </div>
-          <div style="font-size:12px;color:var(--muted)">📱 ${p.whatsapp||"—"}</div>
+          ${p.bio ? `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5">${p.bio.slice(0,80)}${p.bio.length>80?"...":""}</div>` : ""}
+          ${areasHTML}
+          <div style="font-size:12px;color:var(--muted);margin-top:8px">📱 ${p.whatsapp||"—"}</div>
           <div style="font-size:12px;color:var(--muted);margin-top:3px">✉️ ${p.email||"—"}</div>
-          ${p.precio ? `<div style="font-size:12px;color:var(--muted);margin-top:3px">💰 $${p.precio} MXN · ${p.duracion||"50 min"}</div>` : ""}
-          ${p.dias_disponibles?.length ? `<div style="font-size:11px;color:var(--muted);margin-top:3px">📅 ${p.dias_disponibles.join(", ")} · ${p.hora_inicio||""}–${p.hora_fin||""}</div>` : ""}
+          ${p.precio ? `<div style="font-size:12px;color:var(--muted);margin-top:3px">💰 $${p.precio} MXN · ${p.duracion||"50"} min</div>` : ""}
+          ${p.meet ? `<div style="font-size:11px;color:var(--cyan);margin-top:3px">🎥 Meet configurado</div>` : ""}
+          <div style="font-size:11px;color:var(--muted);margin-top:6px">📅 ${diasHTML}</div>
           <div class="psico-stats">
             <div class="psico-stat-item"><div class="psico-stat-val">${p.leads_asignados||0}</div>Leads asignados</div>
             <div class="psico-stat-item"><div class="psico-stat-val">${p.leads_atendidos||0}</div>Atendidos</div>
@@ -205,47 +327,128 @@
             <button class="btn btn-ghost btn-sm" style="flex:1" onclick="editarPsico('${p.id}')">✏️ Editar</button>
             <button class="btn btn-ghost btn-sm" onclick="toggleActivo('${p.id}',${p.activo!==false})">${p.activo!==false?"⏸️":"▶️"}</button>
           </div>
-        </div>`).join("");
+        </div>`;
+      }).join("");
     }
 
-    window.toggleDia = (cb) => {
-      if (cb.checked) { if (!diasSel.includes(cb.value)) diasSel.push(cb.value); }
-      else { diasSel = diasSel.filter(d => d !== cb.value); }
-      cb.closest("label").style.borderColor = cb.checked ? "var(--violet)" : "var(--border)";
-      cb.closest("label").style.background  = cb.checked ? "rgba(124,58,237,.1)" : "var(--surface)";
+    // ── Tags de especialidad ──
+    window.agregarTag = () => {
+      const input = document.getElementById("tagInput");
+      const val = input.value.trim().replace(/,$/, "");
+      if (!val || tags.includes(val)) { input.value = ""; return; }
+      tags.push(val);
+      input.value = "";
+      renderTags();
     };
 
-    function resetDias() {
-      diasSel = [];
-      document.querySelectorAll("#modalPsico input[type=checkbox]").forEach(cb => {
-        cb.checked = false;
-        cb.closest("label").style.borderColor = "var(--border)";
-        cb.closest("label").style.background  = "var(--surface)";
-      });
+    window.quitarTag = (tag) => {
+      tags = tags.filter(t => t !== tag);
+      renderTags();
+    };
+
+    function renderTags() {
+      document.getElementById("tagsWrap").innerHTML = tags.map(t =>
+        `<span class="tag">${t}<span class="tag-remove" onclick="quitarTag('${t}')">×</span></span>`
+      ).join("");
     }
 
-    function setDias(dias) {
-      resetDias();
-      if (!dias?.length) return;
-      document.querySelectorAll("#modalPsico input[type=checkbox]").forEach(cb => {
-        if (dias.includes(cb.value)) {
-          cb.checked = true;
-          diasSel.push(cb.value);
-          cb.closest("label").style.borderColor = "var(--violet)";
-          cb.closest("label").style.background  = "rgba(124,58,237,.1)";
-        }
+    // ── Días con horario individual ──
+    window.toggleDiaNuevo = (btn) => {
+      btn.classList.toggle("activo");
+      renderHorariosPorDia();
+    };
+
+    function getDiasActivos() {
+      return [...document.querySelectorAll(".dia-btn.activo")].map(b => b.dataset.dia);
+    }
+
+    function renderHorariosPorDia() {
+      const dias = getDiasActivos();
+      const container = document.getElementById("horariosPorDia");
+      // Leer valores existentes antes de re-renderizar
+      const existentes = {};
+      container.querySelectorAll(".horario-dia-row").forEach(row => {
+        const dia = row.dataset.dia;
+        existentes[dia] = {
+          inicio: row.querySelector(".hi")?.value || "09:00",
+          fin: row.querySelector(".hf")?.value || "18:00"
+        };
       });
+      if (!dias.length) { container.innerHTML = ""; return; }
+      container.innerHTML = dias.map(dia => {
+        const vals = existentes[dia] || { inicio:"09:00", fin:"18:00" };
+        return `
+          <div class="horario-dia-row" data-dia="${dia}">
+            <span class="horario-dia-nombre">${dia}</span>
+            <div>
+              <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:3px">Inicio</label>
+              <input type="time" class="form-input hi" value="${vals.inicio}" style="padding:6px 10px;font-size:12px">
+            </div>
+            <div>
+              <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:3px">Fin</label>
+              <input type="time" class="form-input hf" value="${vals.fin}" style="padding:6px 10px;font-size:12px">
+            </div>
+          </div>`;
+      }).join("");
+    }
+
+    function getHorariosPorDia() {
+      const result = {};
+      document.querySelectorAll(".horario-dia-row").forEach(row => {
+        const dia = row.dataset.dia;
+        result[dia] = {
+          inicio: row.querySelector(".hi")?.value || "09:00",
+          fin:    row.querySelector(".hf")?.value || "18:00"
+        };
+      });
+      return result;
+    }
+
+    function resetDias() {
+      document.querySelectorAll(".dia-btn").forEach(b => b.classList.remove("activo"));
+      document.getElementById("horariosPorDia").innerHTML = "";
+    }
+
+    function setDias(horariosPorDia, diasLegacy) {
+      resetDias();
+      let dias = [];
+      if (horariosPorDia && Object.keys(horariosPorDia).length) {
+        dias = Object.keys(horariosPorDia);
+      } else if (diasLegacy?.length) {
+        dias = diasLegacy;
+      }
+      document.querySelectorAll(".dia-btn").forEach(b => {
+        if (dias.includes(b.dataset.dia)) b.classList.add("activo");
+      });
+      renderHorariosPorDia();
+      // Restaurar horarios guardados
+      if (horariosPorDia) {
+        setTimeout(() => {
+          document.querySelectorAll(".horario-dia-row").forEach(row => {
+            const dia = row.dataset.dia;
+            if (horariosPorDia[dia]) {
+              row.querySelector(".hi").value = horariosPorDia[dia].inicio || "09:00";
+              row.querySelector(".hf").value = horariosPorDia[dia].fin || "18:00";
+            }
+          });
+        }, 50);
+      }
     }
 
     window.abrirFormNuevo = () => {
       editandoId = null;
+      tags = [];
       document.getElementById("modalPsicoTitle").textContent = "Nuevo psicólogo";
-      ["pNombre","pEspecialidad","pWhatsapp","pEmail","pNotas","pPrecio"].forEach(id => document.getElementById(id).value = "");
+      ["pNombre","pCedula","pWhatsapp","pEmail","pBio","pNotas","pPrecio","pFoto","pMeet","pExperiencia"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
       document.getElementById("pModelo").value    = "A";
-      document.getElementById("pDuracion").value  = "50 minutos";
-      document.getElementById("pHoraInicio").value = "09:00";
-      document.getElementById("pHoraFin").value    = "18:00";
+      document.getElementById("pDuracion").value  = "50";
+      document.getElementById("pBuffer").value    = "10";
+      document.getElementById("pTipoCitas").value = "ambas";
       resetDias();
+      renderTags();
       window.updateModeloDesc();
       document.getElementById("modalPsico").classList.add("show");
     };
@@ -254,18 +457,24 @@
       const p = psicos.find(x => x.id === id);
       if (!p) return;
       editandoId = id;
+      tags = [...(p.areas || [])];
       document.getElementById("modalPsicoTitle").textContent = "Editar psicólogo";
       document.getElementById("pNombre").value       = p.nombre||"";
-      document.getElementById("pEspecialidad").value = p.especialidad||"";
+      document.getElementById("pCedula").value       = p.cedula||"";
       document.getElementById("pWhatsapp").value     = p.whatsapp||"";
       document.getElementById("pEmail").value        = p.email||"";
-      document.getElementById("pModelo").value       = p.modelo||"A";
+      document.getElementById("pBio").value          = p.bio||"";
       document.getElementById("pNotas").value        = p.notas||"";
       document.getElementById("pPrecio").value       = p.precio||"";
-      document.getElementById("pDuracion").value     = p.duracion||"50 minutos";
-      document.getElementById("pHoraInicio").value   = p.hora_inicio||"09:00";
-      document.getElementById("pHoraFin").value      = p.hora_fin||"18:00";
-      setDias(p.dias_disponibles||[]);
+      document.getElementById("pFoto").value         = p.foto||"";
+      document.getElementById("pMeet").value         = p.meet||"";
+      document.getElementById("pExperiencia").value  = p.experiencia||"";
+      document.getElementById("pModelo").value       = p.modelo||"A";
+      document.getElementById("pDuracion").value     = p.duracion||"50";
+      document.getElementById("pBuffer").value       = p.buffer||"10";
+      document.getElementById("pTipoCitas").value    = p.tipo_citas||"ambas";
+      setDias(p.horarios_por_dia, p.dias_disponibles);
+      renderTags();
       window.updateModeloDesc();
       document.getElementById("modalPsico").classList.add("show");
     };
@@ -274,18 +483,36 @@
       const nombre = document.getElementById("pNombre").value.trim();
       if (!nombre) { alert("El nombre es obligatorio."); return; }
 
+      const horariosPorDia = getHorariosPorDia();
+      const diasDisponibles = Object.keys(horariosPorDia);
+
+      // Compatibilidad con el sistema de agenda existente
+      // Tomar primer día para hora_inicio/hora_fin global
+      const primerDia = diasDisponibles[0];
+      const horaInicio = primerDia ? horariosPorDia[primerDia].inicio : "09:00";
+      const horaFin    = primerDia ? horariosPorDia[primerDia].fin   : "18:00";
+
       const data = {
         nombre,
-        especialidad:     document.getElementById("pEspecialidad").value.trim(),
+        cedula:           document.getElementById("pCedula").value.trim(),
+        especialidad:     tags.join(", "),
+        areas:            tags,
+        bio:              document.getElementById("pBio").value.trim(),
         whatsapp:         document.getElementById("pWhatsapp").value.trim(),
         email:            document.getElementById("pEmail").value.trim(),
+        foto:             document.getElementById("pFoto").value.trim(),
+        meet:             document.getElementById("pMeet").value.trim(),
+        experiencia:      parseInt(document.getElementById("pExperiencia").value)||0,
         modelo:           document.getElementById("pModelo").value,
         notas:            document.getElementById("pNotas").value.trim(),
         precio:           parseInt(document.getElementById("pPrecio").value)||0,
         duracion:         document.getElementById("pDuracion").value,
-        dias_disponibles: diasSel,
-        hora_inicio:      document.getElementById("pHoraInicio").value,
-        hora_fin:         document.getElementById("pHoraFin").value,
+        buffer:           parseInt(document.getElementById("pBuffer").value)||0,
+        tipo_citas:       document.getElementById("pTipoCitas").value,
+        horarios_por_dia: horariosPorDia,
+        dias_disponibles: diasDisponibles,
+        hora_inicio:      horaInicio,
+        hora_fin:         horaFin,
         activo:           true,
       };
 
