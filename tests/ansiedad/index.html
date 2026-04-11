@@ -407,30 +407,59 @@
 
 <div class="footer">MenteCheck © 2025 · Hecho con 💜 en México · <span>Tu bienestar importa</span></div>
 
-<!-- FIREBASE -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  const app = initializeApp({
-    apiKey:"AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
-    authDomain:"mentecheck-6f19f.firebaseapp.com",
-    projectId:"mentecheck-6f19f",
-    storageBucket:"mentecheck-6f19f.firebasestorage.app",
-    messagingSenderId:"954208277838",
-    appId:"1:954208277838:web:80a5093ff550676671ba1f"
-  });
-  const db = getFirestore(app);
-  window._db=db; window._col=collection; window._add=addDoc; window._ts=serverTimestamp;
-  // Cargar número WA en background
-  window._WA = "5523202164";
-  getDoc(doc(db,"config","general")).then(snap=>{
-    if(snap.exists()){
-      let n=(snap.data().negocio_whatsapp||"5523202164").replace(/\D/g,"");
-      if(n.startsWith("52")&&n.length>10) n=n.slice(2);
-      window._WA=n;
+<!-- FIREBASE — carga diferida: solo cuando el usuario termina el test -->
+<script>
+  // Firebase NO carga al inicio — se carga dinámicamente al enviar datos
+  window._WA = "5523202164"; // fallback número WA
+  window._firebaseReady = false;
+  window._firebaseLoading = false;
+
+  async function cargarFirebase() {
+    if (window._firebaseReady) return true;
+    if (window._firebaseLoading) {
+      // Esperar a que termine de cargar
+      await new Promise(r => { const t = setInterval(()=>{ if(window._firebaseReady){clearInterval(t);r();} },100); });
+      return true;
     }
-  }).catch(()=>{});
+    window._firebaseLoading = true;
+    try {
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+      const { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc } =
+        await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      const app = initializeApp({
+        apiKey:"AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
+        authDomain:"mentecheck-6f19f.firebaseapp.com",
+        projectId:"mentecheck-6f19f",
+        storageBucket:"mentecheck-6f19f.firebasestorage.app",
+        messagingSenderId:"954208277838",
+        appId:"1:954208277838:web:80a5093ff550676671ba1f"
+      });
+      const db = getFirestore(app);
+      window._db  = db;
+      window._col = collection;
+      window._add = addDoc;
+      window._ts  = serverTimestamp;
+      // Cargar número WA desde config
+      try {
+        const snap = await getDoc(doc(db,"config","general"));
+        if(snap.exists()){
+          let n=(snap.data().negocio_whatsapp||"5523202164").replace(/\D/g,"");
+          if(n.startsWith("52")&&n.length>10) n=n.slice(2);
+          window._WA=n;
+        }
+      } catch(e){}
+      window._firebaseReady = true;
+      window._firebaseLoading = false;
+      return true;
+    } catch(e) {
+      window._firebaseLoading = false;
+      console.warn("Firebase no disponible:", e.message);
+      return false;
+    }
+  }
+  // Precargar Firebase cuando el usuario termina el test (pantalla de análisis)
+  // para que esté listo cuando llegue al formulario
+  window._precargarFirebase = () => { if(!window._firebaseReady) cargarFirebase(); };
 </script>
 
 <script>
@@ -530,6 +559,7 @@ function mostrarAnalisis(esUltimo){
   document.getElementById("analisisMsg").textContent=m.msg;
   document.getElementById("analisisSub").textContent=m.sub;
   mostrarSeccion("sec-analisis");
+  window._precargarFirebase(); // precarga Firebase mientras el usuario ve la animación
   setTimeout(()=>{
     if(esUltimo){nivelFinal=puntuacion<=30?"bajo":puntuacion<=70?"moderado":"alto";renderResultado();mostrarSeccion("sec-resultado");}
     else{mostrarSeccion("sec-test");renderPregunta();}
@@ -590,9 +620,10 @@ window.enviarYAbrirMenu = async () => {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Guardando...';
 
-  // Guardar lead en Firebase
+  // Guardar lead en Firebase (carga diferida)
   if (!_leadGuardado) {
     try {
+      await cargarFirebase();
       await window._add(window._col(window._db, "leads"), {
         nombre, email: email||"", whatsapp: wa,
         genero, edad,
