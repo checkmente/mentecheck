@@ -16,6 +16,7 @@
     .orb-1{width:600px;height:600px;background:var(--violet);top:-200px;left:-200px;opacity:.1;}
     .orb-2{width:400px;height:400px;background:var(--cyan);bottom:-100px;right:-100px;opacity:.08;animation-delay:-5s;}
     @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.08) translate(10px,-10px)}}
+    @media(max-width:768px){.orb{display:none !important;}.grain{display:none !important;}}
     nav{position:sticky;top:0;z-index:100;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(7,7,17,.9);backdrop-filter:blur(20px);border-bottom:1px solid rgba(124,58,237,.1);}
     .nav-logo{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-weight:700;font-size:18px;text-decoration:none;color:var(--text);}
     .nav-logo .dot{color:var(--cyan);}
