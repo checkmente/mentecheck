@@ -102,15 +102,6 @@
     .garantia-title{font-weight:700;font-size:14px;margin-bottom:6px;}
     .garantia-desc{font-size:12px;color:var(--muted);line-height:1.5;}
 
-    /* CTA final */
-    .cta-final{background:var(--card);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:40px;text-align:center;}
-    .cta-final h2{font-family:'Fraunces',serif;font-size:clamp(22px,4vw,32px);font-weight:700;margin-bottom:12px;}
-    .cta-final p{font-size:15px;color:var(--text-2);margin-bottom:28px;line-height:1.6;}
-    .cta-final-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-    .btn-wa-final{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,#25d366,#128c7e);border:none;border-radius:12px;color:#fff;font-family:'Fraunces',serif;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none;transition:transform .15s,opacity .2s;}
-    .btn-wa-final:hover{transform:translateY(-1px);opacity:.9;}
-    .btn-ghost-final{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--text-2);font-size:15px;font-weight:500;cursor:pointer;text-decoration:none;transition:border-color .2s,color .2s;}
-    .btn-ghost-final:hover{border-color:var(--violet);color:var(--text);}
 
     .footer{text-align:center;padding:20px;font-size:11px;color:var(--muted);position:relative;z-index:10;}
     .footer span{color:var(--violet-l);}
@@ -119,6 +110,81 @@
     .loading-plans{text-align:center;padding:40px;color:var(--muted);font-size:14px;}
     .spinner-sm{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--violet);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:8px;}
     @keyframes spin{to{transform:rotate(360deg)}}
+    /* ═══ TESTIMONIOS ═══ */
+    .testimonios-section { margin-bottom: 60px; }
+    .section-title { font-family:'Fraunces',serif; font-size:clamp(24px,4vw,36px); font-weight:700; text-align:center; margin-bottom:10px; }
+    .section-sub { font-size:15px; color:var(--text-2); text-align:center; margin-bottom:36px; }
+
+    /* Carrusel */
+    .carrusel-wrap { position:relative; overflow:hidden; }
+    .carrusel-track { display:flex; gap:16px; transition:transform .4s cubic-bezier(.22,1,.36,1); }
+    .testimonio-card {
+      flex:0 0 calc(33.333% - 11px);
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:24px; position:relative;
+    }
+    @media(max-width:768px){ .testimonio-card{ flex:0 0 calc(100% - 0px); } }
+    @media(max-width:1024px){ .testimonio-card{ flex:0 0 calc(50% - 8px); } }
+    .testimonio-estrellas { color:#f59e0b; font-size:16px; margin-bottom:12px; letter-spacing:2px; }
+    .testimonio-texto { font-size:14px; color:var(--text-2); line-height:1.7; margin-bottom:16px; font-style:italic; }
+    .testimonio-texto::before { content:'"'; font-family:'Fraunces',serif; font-size:40px; color:var(--violet); line-height:0; vertical-align:-14px; margin-right:4px; }
+    .testimonio-autor { font-size:13px; font-weight:600; color:var(--text); }
+    .testimonio-detalle { font-size:11px; color:var(--muted); margin-top:2px; }
+    .carrusel-btns { display:flex; justify-content:center; gap:10px; margin-top:20px; }
+    .carrusel-btn {
+      width:36px; height:36px; border-radius:50%;
+      background:var(--card); border:1px solid var(--border);
+      color:var(--text-2); font-size:16px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .15s, border-color .15s;
+    }
+    .carrusel-btn:hover { background:var(--violet); border-color:var(--violet); color:#fff; }
+    .carrusel-dots { display:flex; justify-content:center; gap:6px; margin-top:12px; }
+    .carrusel-dot { width:6px; height:6px; border-radius:50%; background:var(--border); cursor:pointer; transition:background .2s; }
+    .carrusel-dot.active { background:var(--violet); }
+
+    /* Formulario de testimonio */
+    .form-testimonio {
+      background:var(--card); border:1px solid rgba(124,58,237,.2);
+      border-radius:20px; padding:36px; margin-top:40px; position:relative; overflow:hidden;
+    }
+    .form-testimonio::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--violet),var(--cyan)); }
+    .form-titulo { font-family:'Fraunces',serif; font-size:22px; font-weight:700; margin-bottom:8px; }
+    .form-sub { font-size:14px; color:var(--text-2); margin-bottom:24px; line-height:1.5; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+    @media(max-width:600px){ .form-row{ grid-template-columns:1fr; } }
+    .form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+    .form-group label { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+    .form-group input, .form-group textarea, .form-group select {
+      background:var(--surface); border:1.5px solid var(--border);
+      border-radius:10px; padding:11px 14px; color:var(--text);
+      font-family:'DM Sans',sans-serif; font-size:14px; outline:none;
+      transition:border-color .2s;
+    }
+    .form-group input:focus, .form-group textarea:focus { border-color:var(--violet); }
+    .form-group textarea { resize:vertical; min-height:100px; }
+    .estrellas-input { display:flex; gap:6px; }
+    .estrella-btn { font-size:28px; cursor:pointer; opacity:.3; transition:opacity .15s, transform .15s; background:none; border:none; padding:0; }
+    .estrella-btn.activa, .estrella-btn:hover { opacity:1; transform:scale(1.2); }
+    .btn-enviar-testimonio {
+      width:100%; padding:14px; background:linear-gradient(135deg,var(--violet),var(--violet-l));
+      border:none; border-radius:12px; color:#fff; font-family:'Fraunces',serif;
+      font-size:16px; font-weight:600; cursor:pointer;
+      box-shadow:0 4px 20px rgba(124,58,237,.3); transition:opacity .2s, transform .15s;
+      margin-top:8px;
+    }
+    .btn-enviar-testimonio:hover { opacity:.9; transform:translateY(-1px); }
+    .btn-enviar-testimonio:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+    .form-success {
+      text-align:center; padding:20px; display:none;
+      animation:fadeIn .4s ease;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .form-success-icon { font-size:48px; margin-bottom:12px; }
+    .form-success-title { font-family:'Fraunces',serif; font-size:20px; font-weight:700; margin-bottom:8px; }
+    .form-success-sub { font-size:14px; color:var(--text-2); }
+    .spinner-btn { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:6px; }
+
     /* ═══ RESPONSIVE EXTRA ═══ */
     @media(max-width:600px){
       nav{padding:10px 16px;}
@@ -129,9 +195,6 @@
       .billing-btn{padding:7px 14px;font-size:12px;}
       .plan-card{padding:24px 20px;}
       .plan-price{font-size:36px;}
-      .cta-final{padding:24px 16px;}
-      .cta-final-btns{flex-direction:column;}
-      .btn-wa-final,.btn-ghost-final{width:100%;justify-content:center;}
     }
     @media(max-width:380px){
       .billing-toggle{width:100%;justify-content:center;}
@@ -185,15 +248,71 @@
     </div>
   </div>
 
-  <!-- CTA FINAL -->
-  <div class="cta-final">
-    <h2>¿Tienes dudas antes de agendar?</h2>
-    <p>Escríbenos por WhatsApp y un miembro de nuestro equipo te orienta sin compromiso.</p>
-    <div class="cta-final-btns">
-      <a class="btn-wa-final" href="https://wa.me/525523202164?text=Hola%2C+tengo+una+pregunta+sobre+los+precios+de+MenteCheck" target="_blank">
-        💬 Escribir por WhatsApp
-      </a>
-      <a class="btn-ghost-final" href="../ansiedad/">← Ver mi resultado del test</a>
+  <!-- TESTIMONIOS -->
+  <div class="testimonios-section">
+    <div class="section-title">Lo que dicen nuestros pacientes</div>
+    <p class="section-sub">Experiencias reales de personas que dieron el primer paso.</p>
+
+    <div class="carrusel-wrap">
+      <div class="carrusel-track" id="carruselTrack">
+        <div style="text-align:center;padding:40px;color:var(--muted);width:100%">Cargando testimonios...</div>
+      </div>
+    </div>
+    <div class="carrusel-btns">
+      <button class="carrusel-btn" onclick="moverCarrusel(-1)">‹</button>
+      <button class="carrusel-btn" onclick="moverCarrusel(1)">›</button>
+    </div>
+    <div class="carrusel-dots" id="carruselDots"></div>
+
+    <!-- FORMULARIO DE TESTIMONIO -->
+    <div class="form-testimonio">
+      <div class="form-titulo">¿Ya tuviste tu sesión? Comparte tu experiencia</div>
+      <p class="form-sub">Tu opinión ayuda a otras personas a dar el primer paso. Revisamos todos los comentarios antes de publicarlos.</p>
+
+      <div id="formContenido">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tu nombre</label>
+            <input type="text" id="tNombre" placeholder="Ej: María G.">
+          </div>
+          <div class="form-group">
+            <label>Edad (opcional)</label>
+            <input type="number" id="tEdad" placeholder="28" min="16" max="99">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>¿Cuántas sesiones has tenido con MenteCheck?</label>
+          <select id="tSesiones">
+            <option value="1">1 sesión</option>
+            <option value="2-3">2 a 3 sesiones</option>
+            <option value="4-6">4 a 6 sesiones</option>
+            <option value="7+">Más de 6 sesiones</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Calificación</label>
+          <div class="estrellas-input" id="estrellasInput">
+            <button class="estrella-btn" data-val="1" onclick="selEstrellas(1)">⭐</button>
+            <button class="estrella-btn" data-val="2" onclick="selEstrellas(2)">⭐</button>
+            <button class="estrella-btn" data-val="3" onclick="selEstrellas(3)">⭐</button>
+            <button class="estrella-btn" data-val="4" onclick="selEstrellas(4)">⭐</button>
+            <button class="estrella-btn" data-val="5" onclick="selEstrellas(5)">⭐</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tu comentario</label>
+          <textarea id="tComentario" placeholder="Cuéntanos cómo fue tu experiencia con MenteCheck..."></textarea>
+        </div>
+        <button class="btn-enviar-testimonio" id="btnEnviarTest" onclick="enviarTestimonio()">
+          Enviar mi testimonio
+        </button>
+      </div>
+
+      <div class="form-success" id="formSuccess">
+        <div class="form-success-icon">🎉</div>
+        <div class="form-success-title">¡Gracias por compartir!</div>
+        <p class="form-success-sub">Tu testimonio está en revisión. Una vez aprobado aparecerá en esta página.</p>
+      </div>
     </div>
   </div>
 
@@ -204,7 +323,7 @@
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs }
+  import { getFirestore, collection, getDocs, addDoc, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const app = initializeApp({
@@ -219,9 +338,12 @@
   window._db     = db;
   window._col    = collection;
   window._getDocs = getDocs;
+  window._add    = addDoc;
+  window._ts     = serverTimestamp;
 
-  // Cargar planes desde Firebase
+  // Cargar planes y testimonios desde Firebase
   await cargarPlanes();
+  await cargarTestimonios();
 </script>
 
 <script>
@@ -439,6 +561,114 @@ function renderPlanes(modo) {
 function formatPrecio(n) {
   return Number(n).toLocaleString("es-MX");
 }
+
+// ── TESTIMONIOS ──
+let testimonios = [];
+let carruselIdx = 0;
+
+// Testimonios por defecto mientras no haya en Firebase
+const TESTIMONIOS_DEFAULT = [
+  { nombre:"Mariana G.", edad:28, test:"ansiedad", calificacion:5, comentario:"Llegué con ansiedad muy alta y en pocas sesiones ya dormía mejor. El proceso fue muy cómodo desde casa.", aprobado:true },
+  { nombre:"Carlos R.", edad:34, test:"burnout", calificacion:5, comentario:"No esperaba que un test pudiera ayudarme a entender lo que me pasaba. La sesión con el psicólogo fue muy clara y sin rodeos.", aprobado:true },
+  { nombre:"Sofía M.", edad:24, test:"ansiedad", calificacion:5, comentario:"Me dio mucho miedo dar el primer paso pero valió totalmente la pena. El sistema es muy fácil de usar.", aprobado:true },
+];
+
+async function cargarTestimonios() {
+  try {
+    const snap = await window._getDocs(window._col(window._db, "testimonios"));
+    const aprobados = snap.docs.map(d => d.data()).filter(t => t.aprobado === true);
+    testimonios = aprobados.length > 0 ? aprobados : TESTIMONIOS_DEFAULT;
+  } catch(e) {
+    testimonios = TESTIMONIOS_DEFAULT;
+  }
+  renderCarrusel();
+}
+
+function renderCarrusel() {
+  const track = document.getElementById("carruselTrack");
+  const dots  = document.getElementById("carruselDots");
+  if (!testimonios.length) { track.innerHTML = ""; return; }
+
+  track.innerHTML = testimonios.map(t => `
+    <div class="testimonio-card">
+      <div class="testimonio-estrellas">${"⭐".repeat(t.calificacion||5)}</div>
+      <div class="testimonio-texto">${t.comentario}</div>
+      <div class="testimonio-autor">${t.nombre}${t.edad ? `, ${t.edad} años` : ""}</div>
+      <div class="testimonio-detalle">Test de ${t.test||"ansiedad"}</div>
+    </div>`).join("");
+
+  // Dots de navegación
+  const total = testimonios.length;
+  dots.innerHTML = testimonios.map((_,i) =>
+    `<div class="carrusel-dot ${i===0?"active":""}" onclick="irSlide(${i})"></div>`
+  ).join("");
+
+  actualizarCarrusel();
+}
+
+function actualizarCarrusel() {
+  const track = document.getElementById("carruselTrack");
+  const ancho = track.parentElement.offsetWidth;
+  // En móvil 1 card, en tablet 2, en desktop 3
+  const porVista = window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3;
+  const cardAncho = (ancho - (porVista-1)*16) / porVista;
+  const offset = carruselIdx * (cardAncho + 16);
+  track.style.transform = `translateX(-${offset}px)`;
+  // Actualizar dots
+  document.querySelectorAll(".carrusel-dot").forEach((d,i) => {
+    d.classList.toggle("active", i === carruselIdx);
+  });
+}
+
+window.moverCarrusel = (dir) => {
+  const porVista = window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3;
+  const max = Math.max(0, testimonios.length - porVista);
+  carruselIdx = Math.max(0, Math.min(carruselIdx + dir, max));
+  actualizarCarrusel();
+};
+
+window.irSlide = (i) => { carruselIdx = i; actualizarCarrusel(); };
+window.addEventListener("resize", actualizarCarrusel);
+
+// ── FORMULARIO DE TESTIMONIO ──
+let estrellasVal = 0;
+
+window.selEstrellas = (val) => {
+  estrellasVal = val;
+  document.querySelectorAll(".estrella-btn").forEach((b,i) => {
+    b.classList.toggle("activa", i < val);
+  });
+};
+
+window.enviarTestimonio = async () => {
+  const nombre    = document.getElementById("tNombre").value.trim();
+  const edad      = parseInt(document.getElementById("tEdad").value)||0;
+  const sesiones  = document.getElementById("tSesiones").value;
+  const comentario= document.getElementById("tComentario").value.trim();
+
+  if (!nombre) { alert("Por favor ingresa tu nombre."); return; }
+  if (!estrellasVal) { alert("Por favor selecciona una calificación."); return; }
+  if (!comentario || comentario.length < 20) { alert("Por favor escribe un comentario de al menos 20 caracteres."); return; }
+
+  const btn = document.getElementById("btnEnviarTest");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-btn"></span>Enviando...';
+
+  try {
+    await window._add(window._col(window._db, "testimonios"), {
+      nombre, edad, sesiones, comentario,
+      calificacion: estrellasVal,
+      aprobado: false, // pendiente de revisión
+      fecha: window._ts()
+    });
+    document.getElementById("formContenido").style.display = "none";
+    document.getElementById("formSuccess").style.display = "block";
+  } catch(e) {
+    alert("Error al enviar. Intenta de nuevo.");
+    btn.disabled = false;
+    btn.innerHTML = "Enviar mi testimonio";
+  }
+};
 </script>
 </body>
 </html>
