@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MenteCheck — Testimonios</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .test-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:var(--radius); padding:20px;
+      transition:border-color .2s; position:relative;
+    }
+    .test-card:hover { border-color:rgba(124,58,237,.25); }
+    .test-card.pendiente { border-left:3px solid var(--warning); }
+    .test-card.aprobado  { border-left:3px solid var(--success); }
+    .test-card.rechazado { border-left:3px solid var(--danger); opacity:.6; }
+
+    .test-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    .test-autor { font-weight:700; font-size:14px; }
+    .test-detalle { font-size:12px; color:var(--muted); margin-top:2px; }
+    .test-estrellas { color:#f59e0b; font-size:14px; letter-spacing:1px; margin-top:4px; }
+    .test-comentario {
+      font-size:13px; color:var(--text-2); line-height:1.7;
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:8px; padding:12px 14px; margin-bottom:14px;
+      font-style:italic;
+    }
+    .test-fecha { font-size:11px; color:var(--muted); margin-bottom:14px; }
+    .test-actions { display:flex; gap:8px; }
+
+    .badge-pendiente { background:rgba(245,158,11,.12); color:#fbbf24; border:1px solid rgba(245,158,11,.2); font-size:10px; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+    .badge-aprobado  { background:rgba(16,185,129,.12); color:#34d399; border:1px solid rgba(16,185,129,.2); font-size:10px; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+    .badge-rechazado { background:rgba(239,68,68,.12); color:#f87171; border:1px solid rgba(239,68,68,.2); font-size:10px; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+
+    .tabs { display:flex; gap:4px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:4px; margin-bottom:24px; width:fit-content; flex-wrap:wrap; }
+    .tab { padding:8px 20px; border:none; border-radius:6px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; background:transparent; color:var(--muted); transition:background .15s,color .15s; }
+    .tab.active { background:var(--violet); color:#fff; }
+
+    .loading-overlay { position:fixed; inset:0; background:var(--bg); z-index:999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; transition:opacity .3s; }
+    .loading-overlay.hidden { opacity:0; pointer-events:none; }
+    .loading-spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--violet); border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loading-text { font-size:13px; color:var(--muted); }
+  </style>
+</head>
+<body>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <span class="loading-text">Verificando sesión...</span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">🧠</div><div class="logo-name">Mente<span>Check</span></div></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Principal</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="leads.html" class="nav-item"><span class="nav-icon">👥</span> Leads</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Gestión</div>
+      <a href="psicologos.html" class="nav-item"><span class="nav-icon">🧑‍⚕️</span> Psicólogos</a>
+      <a href="tests.html" class="nav-item"><span class="nav-icon">🧪</span> Tests</a>
+      <a href="precios.html" class="nav-item"><span class="nav-icon">💰</span> Precios</a>
+      <a href="citas.html" class="nav-item"><span class="nav-icon">📅</span> Citas</a>
+      <a href="testimonios.html" class="nav-item active"><span class="nav-icon">⭐</span> Testimonios</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Sistema</div>
+      <a href="config.html" class="nav-item"><span class="nav-icon">⚙️</span> Configuración</a>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Testimonios
+        <span class="page-sub" id="totalLabel">Cargando...</span>
+      </div>
+      <div class="topbar-right">
+        <div class="admin-pill"><div class="admin-avatar">A</div><span id="adminName">admin</span></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="tabs">
+        <button class="tab active" id="tabPendiente" onclick="setTab('pendiente')">⏳ Pendientes</button>
+        <button class="tab" id="tabAprobado"  onclick="setTab('aprobado')">✅ Aprobados</button>
+        <button class="tab" id="tabRechazado" onclick="setTab('rechazado')">❌ Rechazados</button>
+        <button class="tab" id="tabTodos"     onclick="setTab('todos')">📋 Todos</button>
+      </div>
+
+      <div id="listaTestimonios" class="grid-3">
+        <div style="text-align:center;padding:60px;color:var(--muted);grid-column:1/-1">Cargando...</div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, orderBy, query }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey:            "AIzaSyCkMpLl3CgxLfrU9YRFN9ON0UkCN1fqwSo",
+      authDomain:        "mentecheck-6f19f.firebaseapp.com",
+      projectId:         "mentecheck-6f19f",
+      storageBucket:     "mentecheck-6f19f.firebasestorage.app",
+      messagingSenderId: "954208277838",
+      appId:             "1:954208277838:web:80a5093ff550676671ba1f"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    let todos = [];
+    let tabActual = "pendiente";
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = "index.html"; return; }
+      document.getElementById("loadingOverlay").classList.add("hidden");
+      document.getElementById("adminName").textContent = user.email.split("@")[0];
+      await cargarTestimonios();
+    });
+
+    window.logout = async () => { await signOut(auth); window.location.href = "index.html"; };
+
+    async function cargarTestimonios() {
+      try {
+        const snap = await getDocs(query(collection(db, "testimonios"), orderBy("fecha", "desc")));
+        todos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      } catch(e) {
+        todos = [];
+      }
+      renderTestimonios();
+    }
+
+    window.setTab = (tab) => {
+      tabActual = tab;
+      ["pendiente","aprobado","rechazado","todos"].forEach(t => {
+        const el = document.getElementById(`tab${t.charAt(0).toUpperCase()+t.slice(1)}`);
+        if (el) el.classList.toggle("active", t === tab);
+      });
+      renderTestimonios();
+    };
+
+    function renderTestimonios() {
+      const filtrados = tabActual === "todos"
+        ? todos
+        : todos.filter(t => {
+            if (tabActual === "pendiente") return t.aprobado === false && t.rechazado !== true;
+            if (tabActual === "aprobado")  return t.aprobado === true;
+            if (tabActual === "rechazado") return t.rechazado === true;
+            return true;
+          });
+
+      const pendientes = todos.filter(t => t.aprobado === false && t.rechazado !== true).length;
+      document.getElementById("totalLabel").textContent =
+        `${filtrados.length} testimonio${filtrados.length!==1?"s":""} · ${pendientes} pendiente${pendientes!==1?"s":""}`;
+
+      const lista = document.getElementById("listaTestimonios");
+
+      if (!filtrados.length) {
+        lista.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-icon">⭐</div>
+          <p>${tabActual === "pendiente" ? "No hay testimonios pendientes de revisión." : "No hay testimonios en esta categoría."}</p>
+        </div>`;
+        return;
+      }
+
+      lista.innerHTML = filtrados.map(t => {
+        const fecha = t.fecha?.toDate ? t.fecha.toDate() : new Date(t.fecha||0);
+        const estrellas = "⭐".repeat(Math.min(t.calificacion||5, 5));
+        const estado = t.rechazado ? "rechazado" : t.aprobado ? "aprobado" : "pendiente";
+        const badges = {
+          pendiente: '<span class="badge-pendiente">⏳ Pendiente</span>',
+          aprobado:  '<span class="badge-aprobado">✅ Aprobado</span>',
+          rechazado: '<span class="badge-rechazado">❌ Rechazado</span>',
+        };
+
+        return `
+          <div class="test-card ${estado}">
+            <div class="test-header">
+              <div>
+                <div class="test-autor">${t.nombre||"Anónimo"}${t.edad ? ` · ${t.edad} años` : ""}</div>
+                <div class="test-detalle">${t.sesiones ? `${t.sesiones} sesiones con MenteCheck` : "—"}</div>
+                <div class="test-estrellas">${estrellas}</div>
+              </div>
+              ${badges[estado]}
+            </div>
+            <div class="test-comentario">"${t.comentario||""}"</div>
+            <div class="test-fecha">📅 ${fecha.toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"})}</div>
+            <div class="test-actions">
+              ${estado !== "aprobado"  ? `<button class="btn btn-primary btn-sm" style="flex:1" onclick="aprobar('${t.id}')">✅ Aprobar</button>` : ""}
+              ${estado !== "rechazado" ? `<button class="btn btn-ghost btn-sm" style="flex:1" onclick="rechazar('${t.id}')">❌ Rechazar</button>` : ""}
+              ${estado === "rechazado" ? `<button class="btn btn-primary btn-sm" style="flex:1" onclick="aprobar('${t.id}')">✅ Aprobar</button>` : ""}
+              <button class="btn btn-ghost btn-sm btn-icon" onclick="eliminar('${t.id}','${(t.nombre||"").replace(/'/g,"")}')" title="Eliminar" style="color:var(--muted)" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--muted)'">🗑️</button>
+            </div>
+          </div>`;
+      }).join("");
+    }
+
+    window.aprobar = async (id) => {
+      await updateDoc(doc(db, "testimonios", id), { aprobado: true, rechazado: false });
+      const t = todos.find(x => x.id === id);
+      if (t) { t.aprobado = true; t.rechazado = false; }
+      renderTestimonios();
+    };
+
+    window.rechazar = async (id) => {
+      await updateDoc(doc(db, "testimonios", id), { aprobado: false, rechazado: true });
+      const t = todos.find(x => x.id === id);
+      if (t) { t.aprobado = false; t.rechazado = true; }
+      renderTestimonios();
+    };
+
+    window.eliminar = async (id, nombre) => {
+      if (!confirm(`¿Eliminar el testimonio de "${nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
+      await deleteDoc(doc(db, "testimonios", id));
+      todos = todos.filter(t => t.id !== id);
+      renderTestimonios();
+    };
+  </script>
+</body>
+</html>
